@@ -3,8 +3,7 @@
   "manifestVersion": 2,
   "id": "pitwall",
   "name": "Pitwall",
-  "publisher": "sonthh",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A live pit wall for your coding agents: context, cost, subagents and every tool call, in Orca's right sidebar. Read-only, local, no network.",
   "author": {
     "name": "sonthh",
@@ -13,9 +12,10 @@
   "repository": "https://github.com/sonthh/orca-pitwall",
   "homepage": "https://github.com/sonthh/orca-pitwall",
   "license": "MIT",
+  "icon": "docs/icon.png",
   "cover": {
     "path": "docs/cover.png",
-    "alt": "Pitwall: a live pit wall for your coding agents in Orca's right sidebar"
+    "alt": "Pitwall: watch every coding agent from Orca's sidebar, with who is waiting on you, context and cost"
   },
   "screenshots": [
     {
