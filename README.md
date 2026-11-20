@@ -116,6 +116,10 @@ src/
 test/          builders for synthetic transcript rows
 ```
 
+## Contributing
+
+Bug reports, ideas and pull requests are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 MIT
