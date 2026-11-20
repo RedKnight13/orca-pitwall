@@ -1,0 +1,15 @@
+{
+  "name": "orca-pitwall",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pitwall: a live sidebar dashboard for coding agents in Orca.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "devDependencies": {
+    "@types/node": "22.15.3",
+    "typescript": "5.9.3"
+  }
+}

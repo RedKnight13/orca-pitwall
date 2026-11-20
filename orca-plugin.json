@@ -1,0 +1,166 @@
+{
+  "$schema": "https://onorca.dev/schemas/orca-plugin.v2.json",
+  "manifestVersion": 2,
+  "id": "pitwall",
+  "name": "Pitwall",
+  "publisher": "sonthh",
+  "version": "0.1.0",
+  "description": "A live pit wall for your coding agents: context, cost, subagents and every tool call, in Orca's right sidebar. Read-only, local, no network.",
+  "author": {
+    "name": "sonthh",
+    "url": "https://github.com/sonthh"
+  },
+  "repository": "https://github.com/sonthh/orca-pitwall",
+  "homepage": "https://github.com/sonthh/orca-pitwall",
+  "license": "MIT",
+  "cover": {
+    "path": "docs/cover.png",
+    "alt": "Pitwall: a live pit wall for your coding agents in Orca's right sidebar"
+  },
+  "screenshots": [
+    {
+      "path": "docs/screenshot-1.png",
+      "alt": "Pitwall in dark and light: an agent asking for permission, a working agent with subagents, context and tool calls"
+    }
+  ],
+  "engines": {
+    "orca": ">=1.4.259"
+  },
+  "execution": "trusted-worker",
+  "pluginApi": 1,
+  "main": "src/worker/index.ts",
+  "capabilities": [
+    {
+      "kind": "agent:read"
+    },
+    {
+      "kind": "workspace:read"
+    },
+    {
+      "kind": "storage:own"
+    },
+    {
+      "kind": "settings:own"
+    },
+    {
+      "kind": "workspace:write"
+    }
+  ],
+  "contributes": {
+    "panels": [
+      {
+        "id": "pitwall",
+        "title": "Pitwall",
+        "icon": "gauge",
+        "entry": "src/panel/main.ts",
+        "ui": "html"
+      }
+    ],
+    "events": [
+      {
+        "on": "agent.status.changed"
+      },
+      {
+        "on": "workspace.changed"
+      }
+    ],
+    "hooks": [
+      {
+        "event": "agent.tool.before"
+      },
+      {
+        "event": "agent.tool.after"
+      }
+    ],
+    "commands": [
+      {
+        "id": "pitwall.toggleSidebar",
+        "title": "Pitwall: Toggle the right sidebar",
+        "action": "sidebar.right.toggle"
+      },
+      {
+        "id": "pitwall.scope",
+        "title": "Pitwall: Switch between focused workspace and all workspaces"
+      },
+      {
+        "id": "pitwall.demo",
+        "title": "Pitwall: Toggle demo mode (synthetic session)"
+      },
+      {
+        "id": "pitwall.reset",
+        "title": "Pitwall: Clear tool calls and log"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "pitwall.toggleSidebar",
+        "key": "Mod+Alt+P"
+      }
+    ],
+    "statusBarItems": [
+      {
+        "id": "pitwall",
+        "text": "Pitwall",
+        "icon": "gauge",
+        "tooltip": "Pitwall: toggle the sidebar",
+        "command": "pitwall.toggleSidebar"
+      }
+    ],
+    "settings": [
+      {
+        "key": "scope",
+        "title": "Show agents from",
+        "type": "string",
+        "default": "focused",
+        "enum": [
+          "focused",
+          "all"
+        ],
+        "enumLabels": [
+          "The focused workspace",
+          "Every workspace"
+        ]
+      },
+      {
+        "key": "showCost",
+        "title": "Show estimated cost",
+        "description": "API list price of the tokens in the transcript. On a Claude subscription this is what the same work would cost on the API, not what you pay.",
+        "type": "boolean",
+        "default": true
+      },
+      {
+        "key": "contextWindow",
+        "title": "Context gauge measures against",
+        "description": "auto: Claude Code's auto-compact window when you set one (modelSettings.<model>.autoCompactWindow), else the model's window.",
+        "type": "string",
+        "default": "auto",
+        "enum": [
+          "auto",
+          "200000",
+          "400000",
+          "1000000"
+        ],
+        "enumLabels": [
+          "Auto",
+          "200k",
+          "400k",
+          "1M"
+        ]
+      },
+      {
+        "key": "statusBar",
+        "title": "Status bar item",
+        "type": "boolean",
+        "default": true
+      },
+      {
+        "key": "claudeConfigDir",
+        "title": "Claude Code config folder",
+        "description": "Where Claude Code keeps projects/ and settings.json. Empty: $CLAUDE_CONFIG_DIR, else ~/.claude.",
+        "type": "string",
+        "default": "",
+        "placeholder": "~/.claude"
+      }
+    ]
+  }
+}
