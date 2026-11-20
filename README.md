@@ -8,7 +8,7 @@ Every agent you run in an Orca terminal gets a card: what it is doing, how full 
 costs, which subagents it spawned, and every tool call it makes, as it happens. When an agent stops to ask
 you for permission, Pitwall puts it at the top so it never sits waiting unseen.
 
-<p align="center"><img src="docs/screenshot-1.png" alt="Pitwall in dark and light: an agent asking for permission, a working agent with three subagents, context, the latest tool calls"></p>
+<p align="center"><img src="docs/pitwall-demo.gif" width="360" alt="Pitwall in demo mode: an agent asks for permission, a working agent spawns subagents, its context fills and auto-compacts"></p>
 
 Pitwall stays out of your terminal. It lives in the right sidebar, which you toggle with **⌘⌥P**
 (Ctrl+Alt+P on Windows and Linux) or by clicking its status bar item.
