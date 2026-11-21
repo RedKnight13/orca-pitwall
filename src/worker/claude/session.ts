@@ -41,9 +41,13 @@ export class ClaudeSession {
   }
 
   private makeParser(sub: boolean): TranscriptParser {
-    const p = new TranscriptParser((e) => {
-      if (Date.now() - e.at < LOG_HORIZON_MS && (!sub || e.kind === 'error' || e.kind === 'denied')) this.log({ ...e, agentKey: this.agentKey })
-    })
+    // A subagent's own background work is not tracked: it is the main session's that the person waits on.
+    const p = new TranscriptParser(
+      (e) => {
+        if (Date.now() - e.at < LOG_HORIZON_MS && (!sub || e.kind === 'error' || e.kind === 'denied')) this.log({ ...e, agentKey: this.agentKey })
+      },
+      { background: !sub }
+    )
     // History older than the log horizon stays out of the gate: it would only push out live calls.
     p.onTool = (use) => {
       if (Date.now() - use.at < LOG_HORIZON_MS || this.gate.get(use.id)) this.gate.transcriptUse(this.agentKey, use, sub)

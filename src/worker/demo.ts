@@ -113,6 +113,11 @@ export function demoSnapshot(now: number, startedAt: number, showCost: boolean):
     subagentTotal: subs.length,
     canFocus: false,
     unseen: false,
+    background: [
+      { id: 'demo-shell', kind: 'shell', label: 'Start the API dev server', startedAt: at(-310), dueAt: null, schedule: null, recurring: false, endsAt: null, detail: null, overdue: false },
+      { id: 'demo-cron', kind: 'cron', label: 'Check the canary error rate and post it in the PR', startedAt: at(-1500), dueAt: at(240), schedule: 'Every 10 minutes', recurring: true, endsAt: at(-1500) + 30 * 86_400_000, detail: null, overdue: false }
+    ],
+    backgroundCount: { running: 1, scheduled: 1 }
   }
   const a2: AgentView = {
     key: 'demo-2',
@@ -142,6 +147,8 @@ export function demoSnapshot(now: number, startedAt: number, showCost: boolean):
     subagentTotal: 0,
     canFocus: false,
     unseen: false,
+    background: [],
+    backgroundCount: { running: 0, scheduled: 0 }
   }
   const a3: AgentView = {
     key: 'demo-3',
@@ -171,6 +178,8 @@ export function demoSnapshot(now: number, startedAt: number, showCost: boolean):
     subagentTotal: 0,
     canFocus: false,
     unseen: true,
+    background: [],
+    backgroundCount: { running: 0, scheduled: 0 }
   }
   log.sort((a, b) => a.at - b.at)
   return { v: 1, at: now, scope: 'all', demo: true, showCost, agents: [a1, a2, a3], gate, log: log.slice(-60), note: null }

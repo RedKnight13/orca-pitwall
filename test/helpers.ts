@@ -42,3 +42,29 @@ export function blob(role: 'assistant' | 'user', content: unknown[]) {
 export function apiRequest(s: number) {
   return JSON.stringify({ type: 'api-request', timestamp: at(s), id: `q${++n}`, sessionId: 'sess' })
 }
+
+/** A task notification as Claude Code injects it when background work ends. */
+export function notification(taskId: string, status: string, summary = 'done') {
+  return `<task-notification>\n<task-id>${taskId}</task-id>\n<tool-use-id>toolu_x</tool-use-id>\n<output-file>/tmp/tasks/${taskId}.output</output-file>\n<status>${status}</status>\n<summary>${summary}</summary>\n</task-notification>`
+}
+
+/** The user row that delivers a notification to the model. */
+export function notified(s: number, text: string) {
+  return JSON.stringify({ type: 'user', timestamp: at(s), uuid: `n${++n}`, origin: { kind: 'task-notification' }, message: { role: 'user', content: text } })
+}
+
+export function queued(s: number, content: string) {
+  return JSON.stringify({ type: 'queue-operation', operation: 'enqueue', timestamp: at(s), sessionId: 'sess', content })
+}
+
+export function attachment(s: number, attachment: Record<string, unknown>) {
+  return JSON.stringify({ type: 'attachment', timestamp: at(s), uuid: `t${++n}`, attachment })
+}
+
+/** A cron job or the /loop wakeup firing, followed by its hidden prompt row. */
+export function fired(s: number, fields: Record<string, unknown>) {
+  return [
+    system(s, 'scheduled_task_fire', { content: fields.taskKind === 'loop' ? 'Claude resuming /loop wakeup (Jan 1 10:00am)' : 'Running scheduled task (Jan 1 10:00am)', ...fields }),
+    JSON.stringify({ type: 'user', timestamp: at(s), uuid: `f${++n}`, isMeta: true, message: { role: 'user', content: String(fields.prompt ?? '') } })
+  ]
+}

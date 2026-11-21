@@ -1,8 +1,9 @@
 import { assert, test } from 'orca/testing'
-import { EMPTY_SNAPSHOT, type Snapshot } from '../shared/types'
+import { EMPTY_SNAPSHOT, type AgentView, type BackgroundView, type Snapshot } from '../shared/types'
 import { demoSnapshot } from '../worker/demo'
 import { esc, INITIAL_UI, render } from './render'
 import { CSS } from './styles'
+import { VERSION } from '../shared/version'
 
 const now = Date.parse('2026-01-01T10:00:00Z')
 
@@ -173,4 +174,105 @@ test('the context tooltip names the window it counts against', () => {
   assert.ok(html.includes('auto-compact window (model window 1M'))
   s.agents[1] = { ...s.agents[1], ctxWindow: 1_000_000, ctxModelWindow: 1_000_000, ctxBasis: 'model' }
   assert.ok(render(s, INITIAL_UI, now).agents.includes('of the 1M model window'))
+})
+
+function setBg(a: AgentView, list: BackgroundView[]): void {
+  a.background = list
+  const running = list.filter((x) => x.kind === 'shell' || x.kind === 'monitor').length
+  a.backgroundCount = { running, scheduled: list.length - running }
+}
+
+test('background work: running first with how long, schedules with when, details in the tooltip', () => {
+  const s = demoSnapshot(now, now - 40_000, true)
+  const w = s.agents.find((a) => a.state === 'working')!
+  const r = render(s, INITIAL_UI, now)
+  assert.ok(r.agents.includes('Background <span class="muted">1 running · 1 scheduled</span>'))
+  assert.ok(r.agents.indexOf('Start the API dev server') < r.agents.indexOf('Check the canary error rate'))
+  // The demo job runs within minutes: its clock time, and how long until then.
+  assert.ok(/\d\d:\d\d · in <span data-until="\d+">\dm<\/span>/.test(r.agents))
+  assert.ok(r.agents.includes('Every 10 minutes · next '))
+  // Nothing pending: no block.
+  setBg(w, [])
+  assert.ok(!render(s, INITIAL_UI, now).agents.includes('Background'))
+})
+
+test('a schedule shows now at its time, due when late, nothing when its time is unknown', () => {
+  const s = demoSnapshot(now, now - 40_000, true)
+  const w = s.agents.find((a) => a.state === 'working')!
+  const cron = w.background.find((x) => x.kind === 'cron')!
+  setBg(w, [{ ...cron, dueAt: now - 1000 }])
+  assert.ok(render(s, INITIAL_UI, now).agents.includes('<span class="muted">now</span>'))
+  setBg(w, [{ ...cron, dueAt: now - 600_000, overdue: true }])
+  const r = render(s, INITIAL_UI, now)
+  assert.ok(r.agents.includes('<span class="warn-t">due</span>'))
+  assert.ok(r.agents.includes('due now, runs once the agent is idle'))
+  setBg(w, [{ ...cron, dueAt: null }])
+  assert.ok(render(s, INITIAL_UI, now).agents.includes('<span class="muted"></span>'))
+})
+
+test('a long background list folds to four rows', () => {
+  const s = demoSnapshot(now, now - 40_000, true)
+  const w = s.agents.find((a) => a.state === 'working')!
+  const shell = w.background[0]
+  setBg(w, Array.from({ length: 6 }, (_, i) => ({ ...shell, id: 'b' + i, label: 'server ' + i })))
+  const r = render(s, INITIAL_UI, now)
+  assert.equal((r.agents.match(/class="item bg-row"/g) ?? []).length, 4)
+  assert.ok(r.agents.includes('Show all 6'))
+  const all = render(s, { ...INITIAL_UI, expanded: { ['bg:' + w.key]: true } }, now)
+  assert.equal((all.agents.match(/class="item bg-row"/g) ?? []).length, 6)
+  assert.ok(all.agents.includes('Show fewer'))
+})
+
+test('an idle row shows the next schedule, else how many run in the background', () => {
+  const s = demoSnapshot(now, now - 40_000, true)
+  const idle = s.agents.find((a) => a.state === 'done')!
+  const [shell, cron] = s.agents.find((a) => a.state === 'working')!.background
+  assert.ok(!render(s, INITIAL_UI, now).agents.includes('◷'))
+  setBg(idle, [shell, cron])
+  let r = render(s, INITIAL_UI, now)
+  assert.ok(/<span class="pill" title="[^"]*">◷ <span data-until=/.test(r.agents))
+  setBg(idle, [shell, { ...shell, id: 'b2' }])
+  r = render(s, INITIAL_UI, now)
+  assert.ok(r.agents.includes('▶ 2</span>'))
+  setBg(idle, [{ ...cron, overdue: true }])
+  assert.ok(render(s, INITIAL_UI, now).agents.includes('<span class="pill warn"'))
+})
+
+test('background labels are escaped', () => {
+  const s = demoSnapshot(now, now - 40_000, true)
+  const w = s.agents.find((a) => a.state === 'working')!
+  w.background[0].label = '<img src=x onerror=alert(1)>'
+  w.background[0].detail = '"><script>x</script>'
+  const r = render(s, INITIAL_UI, now)
+  assert.ok(!r.agents.includes('<img src=x'))
+  assert.ok(!r.agents.includes('<script>'))
+})
+
+test('counts include background work not sent, and say so', () => {
+  const s = demoSnapshot(now, now - 40_000, true)
+  const w = s.agents.find((a) => a.state === 'working')!
+  w.backgroundCount = { running: 9, scheduled: 7 }
+  const r = render(s, { ...INITIAL_UI, expanded: { ['bg:' + w.key]: true } }, now)
+  assert.ok(r.agents.includes('9 running · 7 scheduled'))
+  assert.ok(r.agents.includes('14 more not listed'))
+})
+
+test('a quiet GitHub link: in the footer once agents show, in the menu, and on the empty page', () => {
+  const s = demoSnapshot(now, now - 40_000, true)
+  assert.ok(render(s, INITIAL_UI, now).footer.includes('data-action="github"'))
+  assert.ok(render(s, INITIAL_UI, now).footer.includes(`Pitwall ${VERSION}`))
+  assert.ok(!render(s, INITIAL_UI, now).header.includes('Star Pitwall'), 'the menu stays closed')
+  assert.ok(render(s, { ...INITIAL_UI, menu: true }, now).header.includes('★ Star Pitwall on GitHub'))
+  const empty = render({ ...EMPTY_SNAPSHOT }, INITIAL_UI, now)
+  assert.equal(empty.footer, '')
+  assert.ok(empty.agents.includes('Pitwall on GitHub ↗'))
+})
+
+test('a schedule on another day shows its date and time', () => {
+  const s = demoSnapshot(now, now - 40_000, true)
+  const w = s.agents.find((a) => a.state === 'working')!
+  const cron = w.background.find((x) => x.kind === 'cron')!
+  const at = new Date(2026, 11, 31, 23, 57).getTime()
+  setBg(w, [{ ...cron, dueAt: at }])
+  assert.ok(render(s, INITIAL_UI, new Date(2026, 10, 21, 18, 0).getTime()).agents.includes('>Dec 31 23:57</span>'))
 })

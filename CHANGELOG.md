@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0
+
+- **Background** on each agent: background shells and Monitor watches still running, cron jobs and the `/loop` wakeup with their next run. An idle agent's row shows the next run or how many run; the status bar counts them (`2 bg`).
+- A cron job or wakeup that runs starts a turn, so its tool calls count in it (`scheduled: …` / `loop: …`).
+- Activity lists background shells and monitors as they finish, fail or are stopped.
+- A quiet footer with the version and a **Star on GitHub** link (also in the ⋯ menu); it opens your browser only when clicked.
+- Cron jobs show the time they run (`23:41 · in 4h27m`, or `Dec 31 23:57` on another day).
+
 ## 0.1.0
 
 First release.

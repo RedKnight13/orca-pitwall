@@ -1,16 +1,20 @@
 // Pure rendering: snapshot + UI state + clock -> HTML strings, one per section. No DOM access,
 // so it runs in Node tests. Every value from the snapshot goes through esc().
-import { fmtDuration, fmtTokens, fmtUsd, modelLabel, pct } from '../shared/format'
-import type { AgentView, GateEntry, LogEntry, Snapshot, SubagentView, ToolFamily, TurnView } from '../shared/types'
+import { fmtClock, fmtDuration, fmtTokens, fmtUntil, fmtUsd, modelLabel, pct } from '../shared/format'
+import { VERSION } from '../shared/version'
+import type { AgentView, BackgroundView, GateEntry, LogEntry, Snapshot, SubagentView, ToolFamily, TurnView } from '../shared/types'
 
 export interface UiState {
   family: ToolFamily | null
-  /** Open/closed overrides: `car:<key>` for idle agents, `sub:<key>` for all subagents, `sec:<name>` for sections. */
+  /** Open/closed overrides: `car:<key>` for idle agents, `sub:<key>` for all subagents, `bg:<key>` for all background work, `sec:<name>` for sections. */
   expanded: Record<string, boolean>
   menu: boolean
   /** Show only this agent (its card, tool calls and activity). Asks from other agents still show. */
   only: string | null
 }
+
+/** Where Pitwall lives; opened in the browser only on a click. */
+export const REPO_URL = 'https://github.com/sonthh/orca-pitwall'
 
 export const INITIAL_UI: UiState = { family: null, expanded: {}, menu: false, only: null }
 
@@ -27,6 +31,10 @@ function since(at: number, now: number): string {
 
 function ago(at: number, now: number): string {
   return `<span data-ago="${at}">${esc(fmtDuration(now - at))}</span>`
+}
+
+function until(at: number, now: number): string {
+  return `<span data-until="${at}">${esc(fmtUntil(at - now))}</span>`
 }
 
 function plural(n: number, word: string): string {
@@ -89,6 +97,8 @@ export function renderHeader(s: Snapshot, ui: UiState): string {
       ? `<div class="menu" role="menu">
     <button role="menuitem" data-action="demo">${s.demo ? 'Leave demo mode' : 'Demo mode'}</button>
     <button role="menuitem" data-action="reset">Clear tool calls and activity</button>
+    <div class="menu-sep" role="separator"></div>
+    <button role="menuitem" data-action="github" title="${REPO_URL}">★ Star Pitwall on GitHub</button>
   </div>`
       : ''
   }
@@ -193,6 +203,81 @@ function subagentBlock(a: AgentView, ui: UiState, now: number): string {
   return `<div class="block"><div class="block-title">Subagents <span class="muted">${running.length ? `${running.length} running · ` : ''}${total} this session</span></div>${rows}${less || more}</div>`
 }
 
+const BG_MARK: Record<BackgroundView['kind'], string> = {
+  shell: '<span class="dot run"></span>',
+  monitor: '<span class="mark">◉</span>',
+  cron: '<span class="mark">↻</span>',
+  wakeup: '<span class="mark">◷</span>'
+}
+const BG_WORD: Record<BackgroundView['kind'], string> = { shell: 'shell', monitor: 'monitor', cron: 'cron', wakeup: 'wakeup' }
+
+function isRunning(x: BackgroundView): boolean {
+  return x.kind === 'shell' || x.kind === 'monitor'
+}
+
+/** Right-hand side of a background row: how long it has run, or when it runs next. */
+function bgWhen(x: BackgroundView, now: number): string {
+  if (isRunning(x)) return x.startedAt !== null ? since(x.startedAt, now) : ''
+  if (x.overdue) return '<span class="warn-t">due</span>'
+  if (x.dueAt === null) return ''
+  if (x.dueAt <= now) return 'now'
+  // The clock time it runs at; today's also say how long until then.
+  const clock = esc(fmtClock(x.dueAt, now))
+  return isToday(x.dueAt, now) ? `${clock} · in ${until(x.dueAt, now)}` : clock
+  return ''
+}
+
+function isToday(at: number, now: number): boolean {
+  return new Date(at).toDateString() === new Date(now).toDateString()
+}
+
+/** Plain-text detail for a background row's tooltip. */
+export function bgTip(x: BackgroundView, now: number): string {
+  const lines = [`${BG_WORD[x.kind]}: ${x.label}`]
+  if (x.kind === 'shell') lines.push(x.startedAt !== null ? `Running since ${fmtClock(x.startedAt, now)}` : 'Running')
+  if (x.kind === 'monitor') lines.push(`Watching${x.startedAt !== null ? ' since ' + fmtClock(x.startedAt, now) : ''}${x.endsAt !== null ? ', stops by ' + fmtClock(x.endsAt, now) : ''}`)
+  if (x.kind === 'cron' || x.kind === 'wakeup') {
+    const sched = x.kind === 'wakeup' ? '/loop wakeup' : x.recurring ? x.schedule ?? 'Recurring' : `Once${x.schedule ? ' (' + x.schedule + ')' : ''}`
+    const next = x.overdue ? 'due now, runs once the agent is idle' : x.dueAt !== null ? `${x.recurring ? 'next' : 'at'} ${fmtClock(x.dueAt, now)}` : ''
+    lines.push([sched, next].filter(Boolean).join(' · '))
+    if (x.kind === 'cron' && x.recurring && x.endsAt !== null) lines.push(`Expires ${fmtClock(x.endsAt, now)}`)
+  }
+  if (x.detail) lines.push(x.detail)
+  return lines.join('\n')
+}
+
+const BG_SHOWN = 4
+
+function backgroundBlock(a: AgentView, ui: UiState, now: number): string {
+  const list = a.background
+  if (!list.length) return ''
+  const all = !!ui.expanded['bg:' + a.key]
+  const { running, scheduled } = a.backgroundCount
+  const unsent = running + scheduled - list.length
+  const head = [running ? `${running} running` : '', scheduled ? `${scheduled} scheduled` : ''].filter(Boolean).join(' · ')
+  const shown = all ? list : list.slice(0, BG_SHOWN)
+  const more =
+    list.length > BG_SHOWN
+      ? `<button class="link" data-action="expand" data-key-x="bg:${esc(a.key)}">${all ? 'Show fewer' : `Show all ${a.backgroundCount.running + a.backgroundCount.scheduled}`}</button>`
+      : ''
+  const rows = shown
+    .map((x) => `<div class="item bg-row" title="${esc(bgTip(x, now))}">${BG_MARK[x.kind]}<span class="ell"><b class="w5">${BG_WORD[x.kind]}</b> <span class="sub-t">${esc(x.label)}</span></span><span class="muted">${bgWhen(x, now)}</span></div>`)
+    .join('')
+  const rest = all && unsent > 0 ? `<div class="muted small">${unsent} more not listed</div>` : ''
+  return `<div class="block"><div class="block-title">Background <span class="muted">${head}</span></div>${rows}${rest}${more}</div>`
+}
+
+/** One pill on an idle row: when the next schedule runs, else how many run in the background. */
+function bgPill(a: AgentView, now: number): string {
+  const list = a.background
+  if (!list.length) return ''
+  const tip = list.map((x) => bgTip(x, now).split('\n').slice(0, 2).join(' · ')).join('\n')
+  const next = list.find((x) => !isRunning(x) && (x.overdue || x.dueAt !== null))
+  const running = a.backgroundCount.running
+  const text = next ? `◷ ${next.overdue ? 'due' : next.dueAt! <= now ? 'now' : until(next.dueAt!, now)}` : running ? `▶ ${running}` : `◷ ${list.length}`
+  return `<span class="pill${next?.overdue ? ' warn' : ''}" title="${esc(tip)}">${text}</span>`
+}
+
 const STATE_WORD: Record<GateEntry['state'], string> = { running: 'running', asking: 'asking you', ok: 'done', error: 'failed', denied: 'denied' }
 const STATE_ICON: Record<GateEntry['state'], string> = { running: '•', asking: '?', ok: '✓', error: '✗', denied: '⊘' }
 
@@ -236,7 +321,7 @@ function agentCard(a: AgentView, s: Snapshot, ui: UiState, now: number, collapsi
   const body =
     unknown +
     (a.source === 'transcript'
-      ? [ctxBlock(a), turnBlock(a.turn, false, s.showCost, now, a, ui) || turnBlock(a.lastTurn, true, s.showCost, now, a, ui), subagentBlock(a, ui, now), recentCalls(a, s, now)].join('')
+      ? [ctxBlock(a), turnBlock(a.turn, false, s.showCost, now, a, ui) || turnBlock(a.lastTurn, true, s.showCost, now, a, ui), subagentBlock(a, ui, now), backgroundBlock(a, ui, now), recentCalls(a, s, now)].join('')
       : `<div class="block sub-t small">${a.loading ? 'Reading its transcript…' : a.agentKind === 'claude' ? 'Waiting for its transcript…' : 'State and tool calls only: Pitwall reads Claude Code transcripts today.'}</div>${recentCalls(a, s, now)}`)
   return `<article class="agent card ${esc(a.state)}"><div class="card-tools">${a.canFocus ? `<button class="icon small-icon" data-action="focus" data-key="${esc(a.key)}" title="Go to its terminal" aria-label="Go to its terminal">↗</button>` : ''}${onlyButton(a, ui)}${collapsible ? `<button class="icon small-icon" data-action="expand" data-key-x="car:${esc(a.key)}" title="Close details" aria-label="Close details">×</button>` : ''}</div>${head}${body}</article>`
 }
@@ -252,6 +337,7 @@ function idleRow(a: AgentView, s: Snapshot, ui: UiState, now: number): string {
   <span class="chev">▸</span>${a.unseen ? '<span class="new-dot" title="Finished while you were elsewhere" aria-label="new"></span>' : ''}
   <span class="ell"><span class="name">${esc(name)}</span>${second && second !== name ? ` <span class="muted">${esc(second)}</span>` : ''}</span>
   <span class="hover-tools">${onlyButton(a, ui)}</span>
+  ${bgPill(a, now)}
   ${p !== null ? `<span class="pill ${tone}" title="Context ${esc(fmtTokens(a.ctxTokens))} / ${esc(fmtTokens(a.ctxWindow!))}">${Math.round(p)}%</span>` : ''}
   <span class="muted time">${since(a.stateSince, now)}</span>
   ${a.canFocus ? `<button class="icon go-icon" data-action="focus" data-key="${esc(a.key)}" title="Go to its terminal" aria-label="Go to its terminal">↗</button>` : ''}
@@ -345,7 +431,7 @@ export function renderEmpty(s: Snapshot): string {
   return `<section class="empty">
   <div class="empty-title">${esc(s.note ?? 'No agents yet')}</div>
   <p class="sub-t">Start Claude Code in an Orca terminal and it shows up here: context, cost, subagents, tool calls, and a heads-up when it needs you.</p>
-  <p class="muted small">Read-only. Nothing leaves your machine.</p>
+  <p class="muted small">Read-only. Nothing leaves your machine. <button class="quiet-link" data-action="github" title="${REPO_URL}">Pitwall on GitHub ↗</button></p>
   <button class="primary" data-action="demo">Try the demo</button>
 </section>`
 }
@@ -356,6 +442,13 @@ export interface Rendered {
   agents: string
   gate: string
   log: string
+  footer: string
+}
+
+/** A quiet line at the end of the panel, once there is something above it. */
+export function renderFooter(s: Snapshot): string {
+  if (!s.agents.length) return ''
+  return `<footer class="foot"><span class="ver">Pitwall ${esc(VERSION)}</span><span class="dot-sep">·</span><button class="quiet-link" data-action="github" title="Pitwall is free and open source: a star helps others find it">★ Star on GitHub</button></footer>`
 }
 
 export function render(s: Snapshot, ui: UiState, now: number): Rendered {
@@ -364,6 +457,7 @@ export function render(s: Snapshot, ui: UiState, now: number): Rendered {
     alerts: renderAlerts(s, now),
     agents: renderAgents(s, ui, now),
     gate: renderGate(s, ui, now),
-    log: renderLog(s, ui, now)
+    log: renderLog(s, ui, now),
+    footer: renderFooter(s)
   }
 }

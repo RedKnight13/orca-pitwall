@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { appendFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { assert, hostError, mockHost, mountWorker, test } from 'orca/testing'
@@ -155,7 +155,9 @@ test('status bar text: asking first, context and cost', () => {
     formatUnknown: false,
     loading: false,
     ctxModelWindow: 1_000_000,
-    ctxBasis: 'compact' as const
+    ctxBasis: 'compact' as const,
+    background: [],
+    backgroundCount: { running: 0, scheduled: 0 }
   }
   const s = { ...base, agents: [agent], gate: [{ id: 'g', at: 0, endedAt: null, agentKey: 'k', sub: false, tool: 'Bash', family: 'shell' as const, summary: '', state: 'asking' as const }] }
   const out = statusBarOf(s, true)
@@ -165,6 +167,51 @@ test('status bar text: asking first, context and cost', () => {
   assert.equal(statusBarOf({ ...s, gate: [] }, true).tone, 'warning')
   // A transcript still being read gives a partial sum: no total until every one is read.
   assert.equal(statusBarOf({ ...s, gate: [], agents: [{ ...agent, loading: true }] }, true).text, '1 working · ctx 85%')
+})
+
+test('the status bar counts background work', () => {
+  const s = demoSnapshot(Date.now(), Date.now() - 40_000, true)
+  const out = statusBarOf(s, true)
+  assert.ok(out.text.includes('2 bg'), out.text)
+  assert.ok(out.tooltip.includes('· 2 bg'))
+  for (const a of s.agents) a.backgroundCount = { running: 0, scheduled: 0 }
+  assert.ok(!statusBarOf(s, true).text.includes('bg'))
+})
+
+test('background work from the transcript: shown once read, dropped when its schedule is long past', async () => {
+  const root = fakeClaudeDir()
+  const file = join(root, 'projects', '-work-app', SID + '.jsonl')
+  const t = Date.now()
+  const iso = (ms: number) => new Date(ms).toISOString()
+  const row = (o: Record<string, unknown>) => JSON.stringify(o) + '\n'
+  appendFileSync(
+    file,
+    row({ type: 'assistant', timestamp: iso(t - 60_000), message: { id: 'm9', role: 'assistant', model: 'claude-opus-5-5', content: [{ type: 'tool_use', id: 'toolu_bg', name: 'Bash', input: { command: 'npm run dev', description: 'Start the dev server', run_in_background: true } }] } }) +
+      row({ type: 'user', timestamp: iso(t - 59_000), message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'toolu_bg', content: 'Command running in background with ID: bdev12345.' }] }, toolUseResult: { backgroundTaskId: 'bdev12345' } }) +
+      row({ type: 'assistant', timestamp: iso(t - 58_000), message: { id: 'm10', role: 'assistant', model: 'claude-opus-5-5', content: [{ type: 'tool_use', id: 'toolu_cron', name: 'CronCreate', input: { cron: '0 0 1 1 *', prompt: 'long ago', recurring: false } }] } }) +
+      row({ type: 'user', timestamp: iso(t - 57_000), message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'toolu_cron', content: 'Scheduled one-shot task jold1234 (0 0 1 1 *).' }] }, toolUseResult: { id: 'jold1234', recurring: false, nextFireAt: t - 3_600_000 } })
+  )
+  // Idle for an hour: the one-shot job an hour overdue will not run, the shell still does.
+  const host = mockHost({
+    capabilities: caps,
+    settings: { claudeConfigDir: root },
+    results: {
+      'workspace.readContext': { workspaceId: 'w1', branch: 'main', displayName: 'app', terminals: [{ id: 't1' }] },
+      'agents.list': { agents: [{ terminalId: 't1', title: 'Claude', agent: 'claude', state: 'done', stateStartedAt: t - 3_600_000, sessionId: SID }] },
+      'statusBar.update': {}
+    }
+  })
+  const worker = await mountWorker(main, { host, hooks, events })
+  let s = (await worker.request('pitwall.snapshot')) as Snapshot
+  assert.deepEqual(s.agents[0].background.map((x) => x.id), ['bdev12345'])
+  assert.equal(s.agents[0].background[0].label, 'Start the dev server')
+  // While it works, the late job waits instead.
+  await worker.emit('agent.status.changed', { workspaceId: 'w1', paneKey: 'p', terminalId: 't1', state: 'working', receivedAt: Date.now(), sessionId: SID })
+  s = (await worker.request('pitwall.snapshot')) as Snapshot
+  const late = s.agents[0].background.find((x) => x.id === 'jold1234')!
+  assert.equal(late.overdue, true)
+  await worker.deactivate()
+  rmSync(root, { recursive: true })
 })
 
 test('a failed agents.list keeps the agents; hooks from other workspaces are ignored', async () => {

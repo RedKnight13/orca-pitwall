@@ -39,3 +39,26 @@ export function modelLabel(model: string | null | undefined): string {
   const name = m[1].charAt(0).toUpperCase() + m[1].slice(1)
   return `${name} ${m[2]}${m[3] ? '.' + m[3] : ''}${m[4] ? ' 1M' : ''}`
 }
+
+/** Time left until something, coarse: 45s, 14m, 2h05m, 3d4h. Past is 0s. */
+export function fmtUntil(ms: number): string {
+  if (!Number.isFinite(ms) || ms < 0) ms = 0
+  const s = Math.ceil(ms / 1000)
+  if (s < 60) return s + 's'
+  const m = Math.floor(s / 60)
+  if (m < 60) return m + 'm'
+  const h = Math.floor(m / 60)
+  if (h < 24) return h + 'h' + String(m % 60).padStart(2, '0') + 'm'
+  return Math.floor(h / 24) + 'd' + (h % 24) + 'h'
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+/** A local clock time, 24-hour: 14:05 today, else Nov 16 09:39. */
+export function fmtClock(at: number, now: number): string {
+  const d = new Date(at)
+  const n = new Date(now)
+  const hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0')
+  const sameDay = d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate()
+  return sameDay ? hm : `${MONTHS[d.getMonth()]} ${d.getDate()} ${hm}`
+}

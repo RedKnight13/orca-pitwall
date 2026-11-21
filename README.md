@@ -23,10 +23,11 @@ Pitwall stays out of your terminal. It lives in the right sidebar, which you tog
 - **Context bar.** Tokens in context against the window that matters: your auto-compact window when you set one, else the model's. It turns amber at 75% and red at 90%, and counts compactions.
 - **Cost and cache.** The API list price of the session's tokens and how much of each prompt came from cache.
 - **Subagents.** The running ones and the latest finished, with type, task and time; hover for steps, context and last tools.
+- **Background.** What an agent left running or scheduled: background shells and Monitor watches with how long they have run, cron jobs (`CronCreate`) and the `/loop` wakeup with when they run next. An idle agent's row shows the next one (`◷ 14m`) or how many run (`▶ 2`). It lists what is still pending, not a history: a finished shell, a deleted job or a wakeup that ran leaves the list.
 - **Tool calls.** The latest calls with their outcome (done, running, asking you, failed, denied) and a count of each. Filter by family: file, shell, web, MCP, agent.
 - **Turn receipt.** What the current turn has done so far, and what the last one did: tools, edits, agents, errors, cost, duration.
 - **Activity.** Prompts, subagents starting and finishing, edits, failures, denials and compactions.
-- **Status bar.** `1 asking · 2 working · ctx 64% · $3.18` at a glance, amber when an agent needs you.
+- **Status bar.** `1 asking · 2 working · 1 bg · ctx 64% · $3.18` at a glance, amber when an agent needs you.
 - **This workspace or all.** Follow the workspace you are in, or every agent in every workspace.
 - **One agent only.** Click ◎ on an agent to see just its card, tool calls and activity; asks from other agents still show. Show all brings the rest back.
 - **Demo mode.** A synthetic session that loops, for trying Pitwall before your agents run (menu ⋯ → Demo mode).
@@ -56,10 +57,11 @@ Pitwall reads; the one thing it changes is which terminal is in front, and only 
 | `storage:own` | Remembers whether demo mode is on. |
 | `settings:own` | Its own settings below. |
 | Tool hooks (`agent.tool.before` / `after`) | Sees each tool call as it starts and ends. It always lets the call through unchanged and never makes it wait. |
-| Files under `~/.claude` | Claude Code's session transcripts and `settings.json`, for model, tokens, cost, subagents and the auto-compact window. |
+| Files under `~/.claude` | Claude Code's session transcripts and `settings.json`, for model, tokens, cost, subagents, background work and the auto-compact window. |
 
 It never sends anything over the network, never starts a process, never types into a terminal and never
-writes outside its own storage. Tokens, keys, passwords and connection strings in tool summaries are masked
+writes outside its own storage. The one link out, **★ Star on GitHub**, opens this repository in your browser
+only when you click it, after Orca asks. Tokens, keys, passwords and connection strings in tool summaries are masked
 before they reach the screen, so a screenshot of Pitwall does not leak them.
 
 ## Settings
@@ -90,6 +92,7 @@ agent is a sibling folder.
   as 53% in Pitwall and 21% there. The tooltip names the window used.
 - **No partial numbers.** A long transcript takes a few seconds to read after Orca or Pitwall starts. Until it is read to the end, its card says so and shows no context, cost or turn, and the totals wait too.
 - **Turns** start at a prompt, or at a slash command the model answers. Commands that run locally (`/model`, `/reload-plugins`) leave the last turn as it was.
+- **Background** comes from the transcript too: a shell or monitor is pending from the result that started it until Claude Code reports it finished, failed or stopped (or `TaskStop` ends it); a cron job until `CronDelete`, its one run, or its expiry; the wakeup until it runs, is replaced or is stopped. After a compaction, Claude Code lists the tasks still running and Pitwall drops any shell missing from that list. The next run is the time Claude Code reported, which includes the few minutes it shifts each job by; later runs keep that shift. Claude Code runs schedules only while the agent is idle: past its time while the agent works, a job shows **due**; past its time while the agent has sat idle for 20 minutes, the session is not running it any more and it leaves the list. Shells, the wakeup and cron jobs (unless durable) live in the Claude Code process, so they end when it exits: when the session is resumed, Claude Code reports its shells stopped, and a SessionStart hook, if you have one, tells Pitwall the rest are gone; without one, a schedule leaves the list once the idle rule above applies. Background agents show under Subagents; a subagent's own background shells are not tracked.
 - **Format changes.** Claude Code's transcript format is not documented. When a transcript has many rows and none Pitwall understands, its card says so instead of showing zeros.
 - **Needs you** comes from Orca: the agent waits on you (Orca reports a permission prompt as waiting) while a tool call is still open; that call is the one it asks about. Once you answer, the transcript tells Pitwall whether you allowed or denied it.
 

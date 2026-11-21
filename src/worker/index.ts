@@ -4,7 +4,7 @@
 import type { OrcaWorkerApi } from 'orca/worker'
 import '../shared/protocol'
 import { fmtUsd, pct } from '../shared/format'
-import type { AgentState, AgentView, LogEntry, Scope, Snapshot, SubagentView, TurnView } from '../shared/types'
+import type { AgentState, AgentView, BackgroundView, LogEntry, Scope, Snapshot, SubagentView, TurnView } from '../shared/types'
 import { claudeDir, compactSettings, TranscriptLocator, type CompactSettings } from './claude/files'
 import { ClaudeSession, turnView } from './claude/session'
 import { demoSnapshot } from './demo'
@@ -379,7 +379,9 @@ export class Pitwall {
       // An agent that is no longer working has no open turn, even when its transcript never closed one.
       turn: p && live ? withSubCost(turnView(p.turnView()), c?.turnSubCost() ?? 0) : null,
       lastTurn: p ? turnView(live ? p.lastTurn : closedTurn(p.turnView(), p.lastAt ?? t.stateSince) ?? p.lastTurn) : null,
-      ...capSubagents(has && c ? c.subagents(now) : [])
+      ...capSubagents(has && c ? c.subagents(now) : []),
+      // Claude Code runs schedules only while the agent is idle; `done` is idle at the prompt.
+      ...capBackground(has && p?.bg ? p.bg.pending(now, t.state === 'done' ? t.stateSince : null) : [])
     }
   }
 
@@ -495,19 +497,22 @@ export function statusBarOf(snap: Snapshot, enabled: boolean): { text: string; t
   else if (idle > 0) parts.push(`${idle} idle`)
   else if (!agents.length) parts.push('no agents')
   if (subs) parts.push(`${subs} sub`)
+  const bg = agents.reduce((n, a) => n + a.backgroundCount.running + a.backgroundCount.scheduled, 0)
+  if (bg) parts.push(`${bg} bg`)
   if (ctx !== null) parts.push(`ctx ${ctx}%`)
   if (cost !== null) parts.push(fmtUsd(cost))
   const tone = asking ? 'warning' : ctx !== null && ctx >= 90 ? 'danger' : ctx !== null && ctx >= 75 ? 'warning' : working ? 'accent' : 'neutral'
   const tooltip = agents.length
     ? agents
         .slice(0, 8)
-        .map((a) => `${a.state === 'blocked' ? '⏸' : a.state === 'working' ? '▶' : '·'} ${a.workspaceName || a.title}${a.ctxWindow ? ` · ctx ${Math.round(pct(a.ctxTokens, a.ctxWindow))}%` : ''}`)
+        .map((a) => `${a.state === 'blocked' ? '⏸' : a.state === 'working' ? '▶' : '·'} ${a.workspaceName || a.title}${a.ctxWindow ? ` · ctx ${Math.round(pct(a.ctxTokens, a.ctxWindow))}%` : ''}${a.backgroundCount.running + a.backgroundCount.scheduled ? ` · ${a.backgroundCount.running + a.backgroundCount.scheduled} bg` : ''}`)
         .join('\n') + '\n\nClick to toggle the Pitwall sidebar'
     : 'Pitwall: click to toggle the sidebar'
   return { text: parts.join(' · '), tone, tooltip, visible: enabled }
 }
 
 const SUBAGENTS_SENT = 12
+const BACKGROUND_SENT = 12
 const POST_LIMIT = 240 * 1024
 
 /** Running subagents plus the latest finished ones: a session with a hundred subagents stays small. */
@@ -516,6 +521,15 @@ function capSubagents(all: SubagentView[]): { subagents: SubagentView[]; subagen
   const running = all.filter((x) => x.status === 'running')
   const rest = all.filter((x) => x.status !== 'running').slice(-Math.max(0, SUBAGENTS_SENT - running.length))
   return { subagents: [...rest, ...running].sort((a, b) => a.startedAt - b.startedAt), subagentTotal: all.length }
+}
+
+/** At most BACKGROUND_SENT, half of them for schedules when both kinds overflow, with the full counts. */
+function capBackground(all: BackgroundView[]): Pick<AgentView, 'background' | 'backgroundCount'> {
+  const running = all.filter((x) => x.kind === 'shell' || x.kind === 'monitor')
+  const scheduled = all.filter((x) => x.kind === 'cron' || x.kind === 'wakeup')
+  const forScheduled = Math.max(BACKGROUND_SENT / 2, BACKGROUND_SENT - running.length)
+  const s = scheduled.slice(0, forScheduled)
+  return { background: [...running.slice(0, BACKGROUND_SENT - s.length), ...s], backgroundCount: { running: running.length, scheduled: scheduled.length } }
 }
 
 function withSubCost(t: TurnView | null, sub: number): TurnView | null {

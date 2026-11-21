@@ -1,9 +1,9 @@
 // The Pitwall panel (HTML frame). Asks the worker for a snapshot, then redraws each section only
 // when its markup changes; clocks tick once a second without a redraw.
 import '../shared/protocol'
-import { fmtDuration } from '../shared/format'
+import { fmtDuration, fmtUntil } from '../shared/format'
 import { EMPTY_SNAPSHOT, type Scope, type Snapshot, type ToolFamily } from '../shared/types'
-import { INITIAL_UI, render, sectionOpen, type Rendered, type UiState } from './render'
+import { INITIAL_UI, REPO_URL, render, sectionOpen, type Rendered, type UiState } from './render'
 import { CSS } from './styles'
 
 let snap: Snapshot = EMPTY_SNAPSHOT
@@ -35,7 +35,7 @@ function mountShell(): void {
   const style = document.createElement('style')
   style.textContent = CSS
   document.head.appendChild(style)
-  for (const k of ['header', 'alerts', 'agents', 'gate', 'log'] as (keyof Rendered)[]) {
+  for (const k of ['header', 'alerts', 'agents', 'gate', 'log', 'footer'] as (keyof Rendered)[]) {
     const el = document.createElement('div')
     el.dataset.part = k
     document.body.appendChild(el)
@@ -95,6 +95,9 @@ function tickClocks(): void {
   document.querySelectorAll<HTMLElement>('[data-ago]').forEach((el) => {
     el.textContent = fmtDuration(now - Number(el.dataset.ago))
   })
+  document.querySelectorAll<HTMLElement>('[data-until]').forEach((el) => {
+    el.textContent = fmtUntil(Number(el.dataset.until) - now)
+  })
 }
 
 function setUi(patch: Partial<UiState>): void {
@@ -143,6 +146,12 @@ function onClick(e: MouseEvent): void {
     void request(() => orca.plugin.request('pitwall.focus', { key })).then((r) => {
       if (r && !r.focused) console.warn('pitwall: could not focus the terminal:', r.reason ?? 'unknown')
     })
+    return
+  }
+  if (action === 'github') {
+    setUi({ menu: false })
+    // Only on this click, in the person's browser; Orca asks once before opening github.com.
+    void request(async () => (orca.shell ? orca.shell.openExternal(REPO_URL) : null))
     return
   }
   if (action === 'reset') {

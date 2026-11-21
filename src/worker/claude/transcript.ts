@@ -4,6 +4,7 @@
 // The format is undocumented: unknown rows are skipped, missing fields are tolerated.
 import { costOf, promptTokens, type Usage } from '../pricing'
 import { EDIT_TOOLS, mask, oneLine, summarizeTool, toolLabel } from '../summarize'
+import { BackgroundTracker, fireLabel, isInjected } from './background'
 
 export interface Turn {
   startedAt: number
@@ -110,9 +111,12 @@ export class TranscriptParser {
   private readonly seenResults = new Set<string>()
   private readonly perMessage = new Map<string, { cost: number; out: number; prompt: number; cacheRead: number }>()
   private readonly onEvent: (e: ParserEvent) => void
+  /** Background shells, monitors, cron jobs and the /loop wakeup still pending (null for a subagent's transcript). */
+  readonly bg: BackgroundTracker | null
 
-  constructor(onEvent: (e: ParserEvent) => void = () => {}) {
+  constructor(onEvent: (e: ParserEvent) => void = () => {}, opts: { background?: boolean } = {}) {
     this.onEvent = onEvent
+    this.bg = opts.background === false ? null : new BackgroundTracker((e) => this.onEvent(e))
   }
 
   /** Parses one JSONL line; a malformed line is ignored. */
@@ -148,6 +152,7 @@ export class TranscriptParser {
       if (at > this.lastAt) this.lastAt = at
     }
     if (typeof row.cwd === 'string') this.cwd = row.cwd
+    if (at) this.bg?.tick(at)
     switch (row.type) {
       case 'assistant':
         this.commitCommand()
@@ -159,6 +164,13 @@ export class TranscriptParser {
       case 'api-request-blob':
         this.commitCommand()
         return this.blob(row)
+      // Neither kind counts toward knownRows: only background work is read from them.
+      case 'queue-operation':
+        // A task notification is queued the moment the task ends, before the model reads it.
+        if (this.bg && row.operation === 'enqueue' && typeof row.content === 'string' && isInjected(row.content)) this.bg.text(row.content, at)
+        return
+      case 'attachment':
+        return this.attachment(row, at)
     }
   }
 
@@ -172,7 +184,37 @@ export class TranscriptParser {
     if (!Array.isArray(msg.content)) return
     const at = this.lastAt
     if (msg.role === 'assistant') this.toolUses(msg.content as Record<string, unknown>[], at)
-    else if (msg.role === 'user') this.toolResults(msg.content as Record<string, unknown>[], at, row)
+    else if (msg.role === 'user') {
+      this.toolResults(msg.content as Record<string, unknown>[], at, row)
+      this.notifications(msg.content, at, false)
+    }
+  }
+
+  private attachment(row: Record<string, unknown>, at: number): void {
+    const att = row.attachment
+    if (!this.bg || !att || typeof att !== 'object') return
+    const a = att as Record<string, unknown>
+    if (a.type === 'queued_command' && typeof a.prompt === 'string' && isInjected(a.prompt)) this.bg.text(a.prompt, at)
+    else if (a.type === 'session_cron_carry' || a.type === 'task_status') this.bg.attachment(a, at)
+    // A new Claude Code process for this session: what ran in the background of the old one is gone.
+    else if (a.type === 'hook_success' && (a.hookName === 'SessionStart:startup' || a.hookName === 'SessionStart:resume')) this.bg.started()
+  }
+
+  /**
+   * Task notifications arrive as injected text blocks. Tool results are never read here: a file or
+   * grep output that quotes a notification is not one.
+   */
+  private notifications(content: unknown, at: number, fromNotification: boolean): void {
+    if (!this.bg) return
+    if (typeof content === 'string') {
+      if ((fromNotification || isInjected(content)) && content.includes('<task-notification>')) this.bg.text(content, at)
+      return
+    }
+    if (!Array.isArray(content)) return
+    for (const b of content as Record<string, unknown>[]) {
+      if (!b || b.type !== 'text' || typeof b.text !== 'string') continue
+      if ((fromNotification || isInjected(b.text)) && b.text.includes('<task-notification>')) this.bg.text(b.text, at)
+    }
   }
 
   private static mark(set: Set<string>, id: string): boolean {
@@ -223,6 +265,7 @@ export class TranscriptParser {
       const name = String(b.name ?? 'tool')
       const use: ToolUse = { id: b.id, name, summary: summarizeTool(name, b.input, this.cwd), at }
       this.tools.set(b.id, use)
+      this.bg?.use(b.id, name, b.input)
       this.onTool(use)
       this.steps++
       this.recentTools.push(toolLabel(name))
@@ -255,6 +298,8 @@ export class TranscriptParser {
     const msg = (row.message ?? {}) as { content?: unknown }
     const content = msg.content
     if (Array.isArray(content)) this.toolResults(content as Record<string, unknown>[], at, row)
+    const origin = (row.origin ?? {}) as { kind?: unknown }
+    this.notifications(content, at, origin.kind === 'task-notification')
     if (row.isMeta === true || row.isSidechain === true || row.isCompactSummary === true) return
     const prompt = promptOf(content)
     if (prompt === null) return
@@ -289,6 +334,7 @@ export class TranscriptParser {
         this.onResult(b.tool_use_id, result)
         const use = this.tools.get(b.tool_use_id)
         this.tools.delete(b.tool_use_id)
+        this.bg?.result(b.tool_use_id, isError, () => textOf(b.content), row.toolUseResult, at, use?.summary ?? null)
         if (isError && this.turn) this.turn.errors++
         if (denied) this.onEvent({ at, kind: 'denied', text: `${use ? use.name : 'tool'} denied` })
         else if (isError) this.onEvent({ at, kind: 'error', text: `${use ? use.name + ' ' + use.summary : 'tool'} failed` })
@@ -311,11 +357,17 @@ export class TranscriptParser {
   private system(row: Record<string, unknown>, at: number): void {
     if (row.subtype === 'compact_boundary') {
       this.compactions++
+      this.bg?.compacted(at)
       const meta = (row.compactMetadata ?? {}) as { preTokens?: number; postTokens?: number; trigger?: string }
       if (typeof meta.postTokens === 'number') this.ctxTokens = meta.postTokens
       const pre = typeof meta.preTokens === 'number' ? Math.round(meta.preTokens / 1000) + 'k' : '?'
       const post = typeof meta.postTokens === 'number' ? Math.round(meta.postTokens / 1000) + 'k' : '?'
       this.onEvent({ at, kind: 'compact', text: `context compacted ${pre} → ${post}${meta.trigger ? ' (' + meta.trigger + ')' : ''}` })
+    } else if (row.subtype === 'scheduled_task_fire') {
+      // A cron job or the /loop wakeup ran: its prompt reaches the model as a hidden row, so the turn starts here.
+      this.bg?.fire(row, at)
+      this.pendingCommand = null
+      this.startTurn(at, fireLabel(row))
     } else if (row.subtype === 'local_command') {
       this.pendingCommand = null
     } else if (row.subtype === 'turn_duration') {

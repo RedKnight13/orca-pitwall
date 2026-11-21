@@ -32,6 +32,25 @@ export interface SubagentView {
   lastTools: string[]
 }
 
+/** Work an agent left running or scheduled: a background shell, a monitor, a cron job, the /loop wakeup. */
+export interface BackgroundView {
+  id: string
+  kind: 'shell' | 'monitor' | 'cron' | 'wakeup'
+  label: string
+  /** When it started; null when Pitwall learned of it later and cannot say. */
+  startedAt: number | null
+  /** Next run of a cron job or the wakeup; null when there is none or the schedule is one Pitwall cannot read. */
+  dueAt: number | null
+  /** The schedule as Claude Code describes it. */
+  schedule: string | null
+  recurring: boolean
+  /** When it stops on its own (a monitor's timeout, a recurring cron's expiry). */
+  endsAt: number | null
+  detail: string | null
+  /** Past its time and waiting: Claude Code runs schedules only once the agent is idle. */
+  overdue: boolean
+}
+
 export interface AgentView {
   key: string
   agentKind: string
@@ -66,6 +85,10 @@ export interface AgentView {
   canFocus: boolean
   /** Finished a turn the person has not looked at yet (opened or jumped to it in Pitwall). */
   unseen: boolean
+  /** Background shells, monitors, cron jobs and the wakeup still pending; running ones first, then by next run. */
+  background: BackgroundView[]
+  /** All of it, including any not sent: running (shells, monitors) and scheduled (cron jobs, wakeup). */
+  backgroundCount: { running: number; scheduled: number }
 }
 
 export interface GateEntry {
