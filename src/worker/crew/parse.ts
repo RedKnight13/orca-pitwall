@@ -1,6 +1,6 @@
 // Pure parsers for what the Crew scripts print (see scripts.ts). No I/O, so the tests feed them
 // recorded output. Anything malformed is dropped rather than guessed at.
-import type { CrewKeyView, CrewSeatView, CrewStageView, CrewTaskView, CrewTone } from '../../shared/types'
+import type { CrewKeyView, CrewOrphanLease, CrewSeatView, CrewSourceView, CrewStageView, CrewTaskView, CrewTone } from '../../shared/types'
 import { parseLiveLine, type LiveLine } from './live'
 
 /** One row of `crew status` (the list form): the crew's own view of a task's status. */
@@ -10,6 +10,8 @@ export interface StatusRow {
   stage: string | null
   attempts: number
   wait: { seat: string; holder: string } | null
+  /** The list says `(the cavalry could help: crew cavalry <id>)`. */
+  cavalry: boolean
 }
 
 export interface StatusList {
@@ -31,7 +33,7 @@ export function parseStatusList(text: string): StatusList {
     }
     const m = TASK_LINE.exec(line)
     if (!m) continue
-    tasks.set(m[1], { id: m[1], status: m[2], stage: m[3] === '-' ? null : m[3], attempts: Number(m[4]), wait: m[5] ? { seat: m[5], holder: m[6] } : null })
+    tasks.set(m[1], { id: m[1], status: m[2], stage: m[3] === '-' ? null : m[3], attempts: Number(m[4]), wait: m[5] ? { seat: m[5], holder: m[6] } : null, cavalry: line.includes(`crew cavalry ${m[1]}`) })
   }
   return { tasks, leases }
 }
@@ -45,6 +47,7 @@ export function outcomeTone(outcome: string): CrewTone {
 }
 
 interface RawTask {
+  root?: unknown
   assignments?: Record<string, unknown>
   id?: unknown
   status?: unknown
@@ -60,6 +63,8 @@ interface RawTask {
 }
 
 interface RawEvent {
+  reason?: unknown
+  root?: unknown
   ts?: unknown
   task?: unknown
   stage?: unknown
@@ -69,6 +74,8 @@ interface RawEvent {
 }
 
 interface RawReport {
+  default_root?: unknown
+  sources?: unknown
   reserve_roles?: unknown
   schema?: unknown
   status?: { exit?: unknown; text?: unknown } | null
@@ -91,6 +98,13 @@ const SEAT_INFO: Record<string, { role: string; model: string; where: string }> 
   leader: { role: 'Leader', model: 'Qwen', where: 'agnx :28084' },
   helper: { role: 'Helper', model: 'Gemma', where: 'agnx :28085' },
   reviewer: { role: 'Reviewer', model: 'Inkling', where: 'agni2 :8093' }
+}
+
+/** What the runner's ownership gate found, in its own words. Codes only arrive from the agnx script. */
+export const REASON_TEXT: Record<string, string> = {
+  helper_outside_assignment: 'The ownership check stopped the build: the second author edited files outside its assignment.',
+  leader_edited_helper_file: "The ownership check stopped the build: the leader edited a file assigned to the second author.",
+  other: 'The build stopped for a reason Pitwall does not relay.'
 }
 
 /** Statuses that wait on the owner. needs_owner is the crew's own ask for a test command. */
@@ -119,14 +133,22 @@ function detailOf(status: string, t: RawTask, attempts: number): string {
 /** Task order: waiting on the owner first, then running, then merge-ready, then the rest; newest first within each. */
 const RANK: Record<string, number> = { running: 1, merge_ready: 2 }
 
+/** The default profile's root, for reports from a crew host that predates multi-root reads. */
+export const DEFAULT_ROOT = 'agni-crew-three-seat'
+
+/** A task's source identity: state root and id. */
+export const taskKey = (root: string, id: string) => `${root}/${id}`
+
 export interface CrewReport {
   reserveRoles: string[]
+  sources: CrewSourceView[]
+  orphanLeases: CrewOrphanLease[]
   tasks: CrewTaskView[]
   more: number
   seats: CrewSeatView[]
   agni1Only: boolean
   lockDeployed: boolean
-  /** Per task, the lines the mascots are drawn from (stage lines, and #42 seat lines when present). */
+  /** Per task key (root/id), the lines the mascots are drawn from (stage lines, and #42 seat lines when present). */
   lines: Map<string, LiveLine[]>
 }
 
@@ -135,12 +157,14 @@ export function parseCrewReport(raw: string): CrewReport {
   const d = JSON.parse(raw) as RawReport
   if (!d || d.schema !== 'pitwall.crew/1') throw new Error('bad output')
   const list = parseStatusList(str(d.status?.text) ?? '')
+  const primaryRoot = str(d.default_root) ?? DEFAULT_ROOT
   const events = (Array.isArray(d.events) ? (d.events as RawEvent[]) : []).filter((e) => e && typeof e === 'object')
   const byTask = new Map<string, CrewStageView[]>()
   const lines = new Map<string, LiveLine[]>()
   for (const e of events) {
+    const root = str(e.root) ?? primaryRoot
     const live = parseLiveLine(e)
-    if (live) lines.set(live.task, [...(lines.get(live.task) ?? []), live])
+    if (live) lines.set(taskKey(root, live.task), [...(lines.get(taskKey(root, live.task)) ?? []), live])
     // Seat lines are not stages: they stay out of the run sheet.
     if ('seat_event' in e) continue
     const task = str(e.task)
@@ -149,23 +173,42 @@ export function parseCrewReport(raw: string): CrewReport {
     if (!task || !stage || at === null) continue
     const outcome = e.outcome === null || e.outcome === undefined ? '' : String(e.outcome)
     const row: CrewStageView = { stage, attempt: num(e.attempt) ?? 0, outcome, seconds: Math.max(0, num(e.seconds) ?? 0), tone: outcomeTone(outcome), at }
-    if (live?.kind === 'stage' && live.evidence.length) row.evidence = live.evidence
-    const rows = byTask.get(task) ?? []
+    if (typeof e.reason === 'string' && REASON_TEXT[e.reason]) row.reason = e.reason
+    if (live?.kind === 'stage') {
+      if (live.evidence.length) row.evidence = live.evidence
+      if (live.mode) row.mode = live.mode
+      if (live.gate) row.gate = live.gate
+      if (live.decision) row.decision = live.decision
+      if (live.refereeCalls) row.refereeCalls = live.refereeCalls
+    }
+    const rows = byTask.get(taskKey(root, task)) ?? []
     rows.push(row)
-    byTask.set(task, rows)
+    byTask.set(taskKey(root, task), rows)
   }
   const tasks: CrewTaskView[] = []
+  const seen = new Set<string>()
   for (const t of Array.isArray(d.tasks) ? (d.tasks as RawTask[]) : []) {
     const id = str(t?.id)
     if (!id) continue
-    const row = list.tasks.get(id)
+    const root = str(t.root) ?? primaryRoot
+    const key = taskKey(root, id)
+    if (seen.has(key)) continue
+    seen.add(key)
+    const primary = root === primaryRoot
+    // `crew status` reads the default profile's root only: its rows say nothing about another root's task.
+    const row = primary ? list.tasks.get(id) : undefined
     // The list is the crew's own reading (a dead runner shows as interrupted); the record is the fallback.
     const status = row?.status ?? str(t.status) ?? 'unknown'
     const attempts = row?.attempts ?? num(t.attempts) ?? 0
-    const stages = (byTask.get(id) ?? []).sort((a, b) => a.at - b.at)
+    const stages = (byTask.get(key) ?? []).sort((a, b) => a.at - b.at)
     const wait = row?.wait ?? (t.waiting_on_seat && str(t.waiting_on_seat.seat) ? { seat: String(t.waiting_on_seat.seat), holder: str(t.waiting_on_seat.holder) ?? '?' } : null)
     tasks.push({
       id,
+      key,
+      root,
+      primary,
+      decision: str(t.result?.decision),
+      cavalryEligible: !!row?.cavalry,
       status,
       stage: row?.stage ?? str(t.stage),
       attempts,
@@ -176,7 +219,10 @@ export function parseCrewReport(raw: string): CrewReport {
       createdAt: time(t.created),
       updatedAt: time(t.updated),
       owner: ownerOf(status),
-      detail: detailOf(status, t, attempts),
+      detail: (() => {
+        const why = [...stages].reverse().find((x) => x.stage === 'build' && x.reason)?.reason
+        return status === 'waiting' && why && why !== 'other' ? REASON_TEXT[why] : detailOf(status, t, attempts)
+      })(),
       waitingOn: status === 'running' ? wait : null,
       stages,
       totalSeconds: stages.reduce((n, s) => n + s.seconds, 0)
@@ -201,8 +247,24 @@ export function parseCrewReport(raw: string): CrewReport {
   }
   const reviewer = seats.find((s) => s.id === 'reviewer')
   const total = num(d.total) ?? tasks.length
+  // A lease whose holder (`crew/<id>` for a crew task) matches no listed task: someone holds the seat.
+  const ids = new Set(tasks.map((t) => t.id))
+  const orphanLeases: CrewOrphanLease[] = []
+  for (const [seat, holder] of holders) {
+    const m = /^crew\/(.+)$/.exec(holder)
+    if (m && ids.has(m[1])) continue
+    const prio = lockSeats.find((l) => l?.seat === seat) as { priority?: unknown } | undefined
+    orphanLeases.push({ seat, holder, priority: str(prio?.priority) ?? list.leases.find((l) => l.seat === seat)?.priority ?? null })
+  }
+  const sources: CrewSourceView[] = []
+  for (const x of Array.isArray(d.sources) ? (d.sources as Record<string, unknown>[]) : []) {
+    const root = str(x?.root)
+    if (!root) continue
+    const w = Math.max(num(x.events_mtime) ?? 0, num(x.tasks_mtime) ?? 0)
+    sources.push({ root, primary: root === primaryRoot, tasks: num(x.tasks) ?? 0, unreadable: num(x.unreadable) ?? 0, lastWriteAt: w ? w * 1000 : null })
+  }
   const reserveRoles = Array.isArray(d.reserve_roles) ? d.reserve_roles.filter((role): role is string => ['cavalry', 'referee', 'escalation'].includes(role)) : []
-  return { reserveRoles, tasks, more: Math.max(0, total - tasks.length), seats, agni1Only: !!reviewer && reviewer.state === 'down', lockDeployed: d.lock?.deployed === true, lines }
+  return { reserveRoles, sources, orphanLeases, tasks, more: Math.max(0, total - tasks.length), seats, agni1Only: !!reviewer && reviewer.state === 'down', lockDeployed: d.lock?.deployed === true, lines }
 }
 
 /** Amber at 80% of budget or 7 days to expiry, red at 100% or 1 day. */

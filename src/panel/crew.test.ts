@@ -83,7 +83,9 @@ test('running: the Now panel leads with task, stage, elapsed, latest progress an
   const r = render(snap(crewView({}, liveLine(), LIVE_AT), LIVE_AT), INITIAL_UI, LIVE_AT)
   const nowPanel = /<section class="cm-now run"[\s\S]*?<\/section>/.exec(r.crew)![0]
   assert.ok(r.crew.indexOf('cm-now run') < r.crew.indexOf('crew-deck'), 'live state comes first')
-  assert.ok(nowPanel.includes('<code>1125-1012-ab12</code>'))
+  // The task in words; its id is detail (a tooltip), not the headline.
+  assert.ok(nowPanel.includes('class="cm-prompt"') && nowPanel.includes('>Finish the textkit package.</p>'))
+  assert.ok(nowPanel.includes('title="Task 1125-1012-ab12 in agni-crew-three-seat"'))
   assert.ok(nowPanel.includes('<h1>build</h1>'))
   assert.ok(/class="cm-elapsed"[^>]*><span data-since="\d+">/.test(nowPanel), 'a ticking elapsed clock')
   assert.ok(nowPanel.includes('<b>plan</b> ok in 1m20s'), 'the last stage that actually finished')
@@ -105,14 +107,16 @@ test('idle: no task running, and the last run is labelled recorded, not a curren
   const c = idleView()
   const at = Date.parse('2026-11-25T12:00:00Z')
   const html = renderCrew(snap(c, at), INITIAL_UI, at)
-  assert.ok(html.includes('<section class="cm-now idle"') && html.includes('<h1>No task running</h1>'))
-  assert.ok(html.includes('Last run <code>1124-2056-0510</code>'))
+  assert.ok(html.includes('<section class="cm-now idle"') && html.includes('<h1>No crew run in progress</h1>'))
+  assert.ok(html.includes('Last run: Make the durations package correct.'))
   assert.ok(!html.includes('cm-now run'))
   // The map still shows where that run stopped (the blocked hand-off), but still and labelled as the past.
   assert.ok(html.includes('class="crew-deck d-last held"'))
   assert.ok(html.includes('Last run · recorded'))
   assert.ok(!html.includes('moving') && !html.includes('class="signal"'))
-  assert.ok(html.includes('handoff blocked'))
+  // The map says what happened in words, never a clipped file name.
+  assert.ok(html.includes('class="role-detail">rejected</text>') && !html.includes('handoff blocked'))
+  assert.ok(!/class="role-detail">[^<]*\.py</.test(html))
 })
 
 test('needs you: cause, how far it got and the next step, two at a time', () => {
@@ -172,7 +176,7 @@ test('replay is explicit and separate: the Now panel stays live', () => {
   assert.ok(html.includes('class="crew-deck d-replay moving"'))
   assert.ok(html.includes('Replay · 2/'))
   assert.ok(html.includes('data-action="deck-live">Exit replay') && html.includes('>Pause<'))
-  assert.ok(html.includes('<section class="cm-now run"') && html.includes('<code>1125-1012-ab12</code>'), 'live state unchanged')
+  assert.ok(html.includes('<section class="cm-now run"') && html.includes('Task 1125-1012-ab12'), 'live state unchanged')
   // Each run-sheet row is a labelled control to jump the replay there.
   assert.ok(/<button data-action="deck-step" data-key="1124-2056-0510" data-key-x="0" class="deck-event[^"]*" aria-label="Replay from admit/.test(html))
 })

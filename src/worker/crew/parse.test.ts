@@ -1,5 +1,5 @@
 import { assert, test } from 'orca/testing'
-import { agnxLine, agnxReport, gatewayLine, RECORDED_AT } from '../../../test/crew'
+import { agnxLine, agnxReport, gatewayLine, RECORDED_AT, rootsLine, rootsReport } from '../../../test/crew'
 import { keyTone, outcomeTone, parseCrewReport, parseGatewayReport, parseStatusList } from './parse'
 
 const DAY = 86_400_000
@@ -16,7 +16,7 @@ test('crew status list: rows, a seat wait and the seat lock lines', () => {
     ].join('\n')
   )
   assert.equal(l.tasks.size, 3)
-  assert.deepEqual(l.tasks.get('1124-1020-3645'), { id: '1124-1020-3645', status: 'waiting', stage: 'finish', attempts: 2, wait: null })
+  assert.deepEqual(l.tasks.get('1124-1020-3645'), { id: '1124-1020-3645', status: 'waiting', stage: 'finish', attempts: 2, wait: null, cavalry: false })
   assert.deepEqual(l.tasks.get('1124-1120-46a7')!.wait, { seat: 'reviewer', holder: 'bench/7' })
   assert.equal(l.tasks.get('1124-1200-0000')!.stage, null)
   assert.deepEqual(l.leases, [{ seat: 'leader', holder: 'crew/1124-1120-46a7', priority: 'crew' }])
@@ -162,4 +162,67 @@ test('key tones: amber at 80% or 7 days, red at 100% or 1 day', () => {
   assert.equal(g.keys[0].pct, null)
   assert.equal(g.keys[0].tone, '')
   assert.deepEqual(g.missing, ['agni-crew-claude'])
+})
+
+// ---- Several state roots -------------------------------------------------------------------
+
+test('every state root: tasks keep their root, and only the default root is read against crew status', () => {
+  const r = parseCrewReport(rootsLine())
+  assert.deepEqual(r.sources.map((s) => [s.root, s.primary]), [
+    ['agni-crew-79-qual', false],
+    ['agni-crew-fallback-qual', false],
+    ['agni-crew-graph', false],
+    ['agni-crew-three-seat', true]
+  ])
+  const qual = r.tasks.find((t) => t.id === '1124-2200-c1ac')!
+  assert.equal(qual.root, 'agni-crew-79-qual')
+  assert.equal(qual.primary, false)
+  assert.equal(qual.key, 'agni-crew-79-qual/1124-2200-c1ac')
+  assert.equal(qual.status, 'merge_ready', 'as recorded: crew status has no row for this root')
+  assert.ok(qual.stages.length > 0 && qual.stages.every((s) => s.at > 0))
+  // A default-root task the list calls legacy keeps the list's word.
+  assert.equal(r.tasks.find((t) => t.id === '1124-0856-a58b')!.status, 'legacy')
+})
+
+test('the same id in two roots stays two tasks; a repeated root/id is dropped', () => {
+  const d = rootsReport()
+  const t = d.tasks.find((x: any) => x.id === '1124-2056-0510')
+  d.tasks.push({ ...t, root: 'agni-crew-graph' }, { ...t })
+  const r = parseCrewReport(JSON.stringify(d))
+  assert.deepEqual(r.tasks.filter((x) => x.id === '1124-2056-0510').map((x) => x.root).sort(), ['agni-crew-graph', 'agni-crew-three-seat'])
+  // The graph copy has no events of its own: stages never cross roots.
+  assert.equal(r.tasks.find((x) => x.key === 'agni-crew-graph/1124-2056-0510')!.stages.length, 0)
+})
+
+test('durations: receipts for the plan, the ownership stop and cavalry eligibility', () => {
+  const t = parseCrewReport(rootsLine()).tasks.find((x) => x.id === '1124-2056-0510')!
+  assert.deepEqual(t.assignments, { leader: ['parse.py'], helper: ['fmt.py'], reviewer: [] })
+  assert.equal(t.decision, 'helper_assignment_rejected')
+  assert.equal(t.cavalryEligible, true, 'crew status names crew cavalry for it')
+  const plan = t.stages.find((s) => s.stage === 'plan')!
+  assert.deepEqual([plan.mode, plan.gate, plan.decision, plan.refereeCalls], ['helper', 'jev', 'safe_helper', 2])
+  assert.equal(t.stages.find((s) => s.stage === 'build')!.reason, 'helper_outside_assignment')
+  assert.equal(t.detail, 'The ownership check stopped the build: the second author edited files outside its assignment.')
+  assert.ok(!t.stages.some((s) => s.stage === 'grade' || s.stage === 'review'))
+})
+
+test('the three ownership-gate stops, and who crossed which assignment', () => {
+  const r = parseCrewReport(rootsLine())
+  const why = (id: string) => r.tasks.find((t) => t.id === id)!.stages.find((s) => s.stage === 'build' && s.reason)!.reason
+  assert.equal(why('1124-1141-97aa'), 'helper_outside_assignment')
+  assert.equal(why('1124-1153-5cb2'), 'leader_edited_helper_file')
+  assert.equal(why('1124-2056-0510'), 'helper_outside_assignment')
+})
+
+test('a seat lease with no matching task is reported, never read as no activity', () => {
+  const d = rootsReport()
+  d.lock = { deployed: true, seats: [{ seat: 'helper', holder: 'issue42/ux-eval', priority: 'benchmark' }, { seat: 'leader', holder: 'crew/1124-2200-c1ac', priority: 'crew' }] }
+  const r = parseCrewReport(JSON.stringify(d))
+  assert.deepEqual(r.orphanLeases, [{ seat: 'helper', holder: 'issue42/ux-eval', priority: 'benchmark' }])
+})
+
+test('a report from a crew host before multi-root reads: every task is in the default root', () => {
+  const r = parseCrewReport(agnxLine())
+  assert.deepEqual(r.sources, [])
+  assert.ok(r.tasks.every((t) => t.primary && t.root === 'agni-crew-three-seat'))
 })

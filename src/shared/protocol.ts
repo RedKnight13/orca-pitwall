@@ -17,6 +17,8 @@ declare module 'orca' {
     'pitwall.seen': { input: { key: string }; output: Snapshot }
     /** Turn the optional Agni crew section on or off. */
     'pitwall.setCrew': { input: { on: boolean }; output: Snapshot }
+    /** Pick a crew run (root/id) to read in the orchestrator; an empty key goes back to the latest. */
+    'pitwall.crewFocus': { input: { key: string }; output: Snapshot }
     /** Clear tool calls and the log. */
     'pitwall.reset': { output: Snapshot }
   }

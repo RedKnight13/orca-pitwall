@@ -1,0 +1,4127 @@
+{
+ "schema": "pitwall.crew/1",
+ "default_root": "agni-crew-three-seat",
+ "sources": [
+  {
+   "root": "agni-crew-79-qual",
+   "tasks": 4,
+   "unreadable": 0,
+   "events_mtime": 1795557814,
+   "tasks_mtime": 1795557814
+  },
+  {
+   "root": "agni-crew-fallback-qual",
+   "tasks": 3,
+   "unreadable": 0,
+   "events_mtime": 1795523218,
+   "tasks_mtime": 1795523221
+  },
+  {
+   "root": "agni-crew-graph",
+   "tasks": 3,
+   "unreadable": 0,
+   "events_mtime": 1795495488,
+   "tasks_mtime": 1795495488
+  },
+  {
+   "root": "agni-crew-three-seat",
+   "tasks": 32,
+   "unreadable": 0,
+   "events_mtime": 1795554065,
+   "tasks_mtime": 1795554065
+  }
+ ],
+ "status": {
+  "exit": 0,
+  "text": "1124-0856-a58b  legacy       stage=finish  attempts=1 recorded=merge_ready  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-0856-a58b  Fix the inventory package. Stock.add must raise ValueError f\n1124-0953-63bd  legacy       stage=finish  attempts=1 recorded=merge_ready  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-0953-63bd  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1014-c98c  legacy       stage=finish  attempts=1 recorded=merge_ready  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1014-c98c  Fix and extend the ledger package. parse.parse_line(line) ta\n1124-1020-3645  waiting      stage=finish  attempts=2  (the cavalry could help: crew cavalry 1124-1020-3645)  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1020-3645  Fix the cache package. lru.LRU(capacity) must evict the leas\n1124-1035-a872  legacy       stage=finish  attempts=1 recorded=merge_ready  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1035-a872  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1105-5da4  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1105-5da4  Fix the inventory package. Stock.add must raise ValueError f\n1124-1105-e46c  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1105-e46c  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1112-2380  failed       stage=intake  attempts=0  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1112-2380  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1120-46a7  merge_ready  stage=finish  attempts=2  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1120-46a7  Fix the inventory package. Stock.add must raise ValueError f\n1124-1137-f43a  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1137-f43a  Fix the inventory package. Stock.add must raise ValueError f\n1124-1141-97aa  waiting      stage=finish  attempts=1  (the cavalry could help: crew cavalry 1124-1141-97aa)  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1141-97aa  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1144-1752  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1144-1752  Fix and extend the ledger package. parse.parse_line(line) ta\n1124-1153-5cb2  waiting      stage=finish  attempts=2  (the cavalry could help: crew cavalry 1124-1153-5cb2)  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1153-5cb2  Fix the cache package. lru.LRU(capacity) must evict the leas\n1124-1206-2ec9  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1206-2ec9  Fix the inventory package. Stock.add must raise ValueError f\n1124-1209-feaf  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1209-feaf  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1212-f9f9  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1212-f9f9  Fix and extend the ledger package. parse.parse_line(line) ta\n1124-1215-d2eb  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1215-d2eb  Fix the cache package. lru.LRU(capacity) must evict the leas\n1124-1229-94f5  waiting      stage=finish  attempts=1  (the cavalry could help: crew cavalry 1124-1229-94f5)  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1229-94f5  Fix the inventory package. Stock.add must raise ValueError f\n1124-1236-ef67  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1236-ef67  Finish the textkit package. wrap.wrap(text, width) must retu\n1124-1239-ab27  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1239-ab27  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1242-b20d  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1242-b20d  Fix the inventory package. Stock.add must raise ValueError f\n1124-1246-48c2  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1246-48c2  Finish the textkit package. wrap.wrap(text, width) must retu\n1124-1252-0b80  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1252-0b80  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1256-fdaa  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1256-fdaa  Fix the inventory package. Stock.add must raise ValueError f\n1124-1302-ed56  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1302-ed56  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1305-ef68  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1305-ef68  Fix the inventory package. Stock.add must raise ValueError f\n1124-1308-af89  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1308-af89  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1313-ab19  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1313-ab19  Fix the inventory package. Stock.add must raise ValueError f\n1124-1502-9cae  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1502-9cae  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1523-f2f4  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1523-f2f4  Fix the inventory package. Stock.add must raise ValueError f\n1124-2051-8e7f  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-2051-8e7f  Make the durations package correct. durations.parse(text) tu\n1124-2056-0510  waiting      stage=finish  attempts=1  (the cavalry could help: crew cavalry 1124-2056-0510)  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-2056-0510  Make the durations package correct. durations.parse(text) tu\n",
+  "error": null
+ },
+ "tasks": [
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-2200-c1ac",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix and extend the ledger package. parse.parse_line(line) takes 'YYYY-MM-DD,description,amount', strips spaces around each field and returns a dict with date (str), desc (str) and amount (decimal.Decimal). It must raise ValueError for a wro",
+   "created": "2026-11-24T22:00:30+00:00",
+   "updated": "2026-11-24T22:03:34+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "local_pass",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-79-qual"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-2141-f756",
+   "status": "waiting",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the cache package. lru.LRU(capacity) must evict the least recently used key, where both get and put count as use; get of a missing key returns None. It must also count lookups in integer attributes hits and misses. ttl.TTL(seconds, cloc",
+   "created": "2026-11-24T21:41:47+00:00",
+   "updated": "2026-11-24T22:00:29+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "FAIL",
+    "test_exit": 1,
+    "decision": "stop",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-79-qual"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-2139-c197",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix and extend the ledger package. parse.parse_line(line) takes 'YYYY-MM-DD,description,amount', strips spaces around each field and returns a dict with date (str), desc (str) and amount (decimal.Decimal). It must raise ValueError for a wro",
+   "created": "2026-11-24T21:39:27+00:00",
+   "updated": "2026-11-24T21:41:46+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "local_pass",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-79-qual"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-2134-6e28",
+   "status": "waiting",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the cache package. lru.LRU(capacity) must evict the least recently used key, where both get and put count as use; get of a missing key returns None. It must also count lookups in integer attributes hits and misses. ttl.TTL(seconds, cloc",
+   "created": "2026-11-24T21:34:51+00:00",
+   "updated": "2026-11-24T21:39:26+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "FAIL",
+    "test_exit": 1,
+    "decision": "stop",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-79-qual"
+  },
+  {
+   "assignments": {
+    "leader": [
+     "parse.py"
+    ],
+    "helper": [
+     "fmt.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-2056-0510",
+   "status": "waiting",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Make the durations package correct. durations.parse(text) turns compact durations like 1h30m or 1d2h3m4s into total seconds. Units are d, h, m and s, case-insensitive, and surrounding whitespace is ignored. Units must appear in that order, ",
+   "created": "2026-11-24T20:56:53+00:00",
+   "updated": "2026-11-24T21:01:05+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": "helper_assignment_rejected",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-2051-8e7f",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Make the durations package correct. durations.parse(text) turns compact durations like 1h30m or 1d2h3m4s into total seconds. Units are d, h, m and s, case-insensitive, and surrounding whitespace is ignored. Units must appear in that order, ",
+   "created": "2026-11-24T20:51:21+00:00",
+   "updated": "2026-11-24T20:55:54+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "local_pass",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [
+     "stock.py"
+    ],
+    "helper": [
+     "report.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-1523-f2f4",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T15:23:08+00:00",
+   "updated": "2026-11-24T15:26:22+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "local_pass",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-1502-9cae",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T15:02:18+00:00",
+   "updated": "2026-11-24T15:05:11+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "helper": [
+     "report.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-1313-ab19",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T13:13:10+00:00",
+   "updated": "2026-11-24T13:16:39+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "helper": [
+     "slug.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-1308-af89",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T13:08:57+00:00",
+   "updated": "2026-11-24T13:13:09+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [
+     "stock.py"
+    ],
+    "helper": [
+     "report.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-1305-ef68",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T13:05:27+00:00",
+   "updated": "2026-11-24T13:08:56+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [
+     "slug.py"
+    ],
+    "helper": [
+     "wrap.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-1302-ed56",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T13:02:18+00:00",
+   "updated": "2026-11-24T13:05:26+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "helper": [
+     "report.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-1256-fdaa",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T12:56:58+00:00",
+   "updated": "2026-11-24T13:02:17+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "helper": [
+     "slug.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-1252-0b80",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T12:52:24+00:00",
+   "updated": "2026-11-24T12:56:57+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "helper": [],
+    "reviewer": []
+   },
+   "id": "1124-1246-48c2",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. wrap.wrap(text, width) must return a list of lines built greedily from whitespace-separated words so that no line exceeds width, except that a single word longer than width gets a line of its own; empty text retu",
+   "created": "2026-11-24T12:46:51+00:00",
+   "updated": "2026-11-24T12:52:23+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [
+     "stock.py"
+    ],
+    "helper": [
+     "report.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-1242-b20d",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T12:42:36+00:00",
+   "updated": "2026-11-24T12:46:50+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-1239-ab27",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T12:39:48+00:00",
+   "updated": "2026-11-24T12:42:36+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-1236-ef67",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. wrap.wrap(text, width) must return a list of lines built greedily from whitespace-separated words so that no line exceeds width, except that a single word longer than width gets a line of its own; empty text retu",
+   "created": "2026-11-24T12:36:55+00:00",
+   "updated": "2026-11-24T12:39:47+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {},
+   "id": "1124-1229-94f5",
+   "status": "waiting",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T12:29:29+00:00",
+   "updated": "2026-11-24T12:36:54+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "FAIL",
+    "test_exit": 1,
+    "decision": null,
+    "next_actor": null
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {},
+   "id": "1124-1215-d2eb",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the cache package. lru.LRU(capacity) must evict the least recently used key, where both get and put count as use; get of a missing key returns None. It must also count lookups in integer attributes hits and misses. ttl.TTL(seconds, cloc",
+   "created": "2026-11-24T12:15:45+00:00",
+   "updated": "2026-11-24T12:29:28+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": null,
+    "next_actor": null
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {},
+   "id": "1124-1226-b533",
+   "status": "stopped",
+   "stage": "plan",
+   "attempts": 0,
+   "prompt": "Fix the cache package. lru.LRU(capacity) must evict the least recently used key, where both get and put count as use; get of a missing key returns None. It must also count lookups in integer attributes hits and misses. ttl.TTL(seconds, cloc",
+   "created": "2026-11-24T12:26:29+00:00",
+   "updated": "2026-11-24T12:27:01+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": null,
+    "next_actor": null
+   },
+   "root": "agni-crew-fallback-qual"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-1224-87ad",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix and extend the ledger package. parse.parse_line(line) takes 'YYYY-MM-DD,description,amount', strips spaces around each field and returns a dict with date (str), desc (str) and amount (decimal.Decimal). It must raise ValueError for a wro",
+   "created": "2026-11-24T12:24:08+00:00",
+   "updated": "2026-11-24T12:26:28+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-fallback-qual"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-1216-afbe",
+   "status": "failed",
+   "stage": "review",
+   "attempts": 1,
+   "prompt": "Fix the cache package. lru.LRU(capacity) must evict the least recently used key, where both get and put count as use; get of a missing key returns None. It must also count lookups in integer attributes hits and misses. ttl.TTL(seconds, cloc",
+   "created": "2026-11-24T12:16:29+00:00",
+   "updated": "2026-11-24T12:24:08+00:00",
+   "has_test_command": true,
+   "error": "reviewer gave no strict verdict; resume to review the same candidate",
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": null,
+    "next_actor": null
+   },
+   "root": "agni-crew-fallback-qual"
+  },
+  {
+   "assignments": {},
+   "id": "1124-1212-f9f9",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix and extend the ledger package. parse.parse_line(line) takes 'YYYY-MM-DD,description,amount', strips spaces around each field and returns a dict with date (str), desc (str) and amount (decimal.Decimal). It must raise ValueError for a wro",
+   "created": "2026-11-24T12:12:31+00:00",
+   "updated": "2026-11-24T12:15:44+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": null,
+    "next_actor": null
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {},
+   "id": "1124-1209-feaf",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T12:09:20+00:00",
+   "updated": "2026-11-24T12:12:30+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": null,
+    "next_actor": null
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {},
+   "id": "1124-1206-2ec9",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T12:06:00+00:00",
+   "updated": "2026-11-24T12:09:19+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": null,
+    "next_actor": null
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "helper": [],
+    "reviewer": []
+   },
+   "id": "1124-1153-5cb2",
+   "status": "waiting",
+   "stage": "finish",
+   "attempts": 2,
+   "prompt": "Fix the cache package. lru.LRU(capacity) must evict the least recently used key, where both get and put count as use; get of a missing key returns None. It must also count lookups in integer attributes hits and misses. ttl.TTL(seconds, cloc",
+   "created": "2026-11-24T11:53:30+00:00",
+   "updated": "2026-11-24T12:05:58+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": "helper_assignment_rejected",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "helper": [
+     "summary.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-1144-1752",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix and extend the ledger package. parse.parse_line(line) takes 'YYYY-MM-DD,description,amount', strips spaces around each field and returns a dict with date (str), desc (str) and amount (decimal.Decimal). It must raise ValueError for a wro",
+   "created": "2026-11-24T11:44:25+00:00",
+   "updated": "2026-11-24T11:53:29+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-1141-97aa",
+   "status": "waiting",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T11:41:15+00:00",
+   "updated": "2026-11-24T11:44:24+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": "helper_assignment_rejected",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "helper": [
+     "report.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-1137-f43a",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T11:37:00+00:00",
+   "updated": "2026-11-24T11:41:14+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "helper": [
+     "report.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-1120-46a7",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 2,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T11:20:31+00:00",
+   "updated": "2026-11-24T11:33:10+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {},
+   "id": "1124-1112-2380",
+   "status": "failed",
+   "stage": "intake",
+   "attempts": 0,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T11:12:07+00:00",
+   "updated": "2026-11-24T11:12:38+00:00",
+   "has_test_command": true,
+   "error": "the leader did not write a well-formed .crew/task.md",
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": null,
+    "next_actor": null
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-1105-e46c",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T11:05:38+00:00",
+   "updated": "2026-11-24T11:10:21+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-1105-5da4",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T11:05:36+00:00",
+   "updated": "2026-11-24T11:07:50+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-1035-a872",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T10:35:24+00:00",
+   "updated": "2026-11-24T10:38:54+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-1020-3645",
+   "status": "waiting",
+   "stage": "finish",
+   "attempts": 2,
+   "prompt": "Fix the cache package. lru.LRU(capacity) must evict the least recently used key, where both get and put count as use; get of a missing key returns None. It must also count lookups in integer attributes hits and misses. ttl.TTL(seconds, cloc",
+   "created": "2026-11-24T10:20:52+00:00",
+   "updated": "2026-11-24T10:34:03+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 1,
+    "decision": "stop",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "reviewer": []
+   },
+   "id": "1124-1014-c98c",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix and extend the ledger package. parse.parse_line(line) takes 'YYYY-MM-DD,description,amount', strips spaces around each field and returns a dict with date (str), desc (str) and amount (decimal.Decimal). It must raise ValueError for a wro",
+   "created": "2026-11-24T10:14:57+00:00",
+   "updated": "2026-11-24T10:20:48+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "helper": [
+     "wrap.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-0953-63bd",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T09:53:27+00:00",
+   "updated": "2026-11-24T10:14:43+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {
+    "leader": [],
+    "helper": [
+     "report.py"
+    ],
+    "reviewer": []
+   },
+   "id": "1124-0856-a58b",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T08:56:16+00:00",
+   "updated": "2026-11-24T09:00:47+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   },
+   "root": "agni-crew-three-seat"
+  },
+  {
+   "assignments": {},
+   "id": "1124-0434-6ab4",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T04:34:41+00:00",
+   "updated": "2026-11-24T04:44:48+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": null,
+    "next_actor": null
+   },
+   "root": "agni-crew-graph"
+  },
+  {
+   "assignments": {},
+   "id": "1124-0431-5489",
+   "status": "stopped",
+   "stage": "intake",
+   "attempts": 0,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T04:31:47+00:00",
+   "updated": "2026-11-24T04:34:33+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": null,
+    "next_actor": null
+   },
+   "root": "agni-crew-graph"
+  },
+  {
+   "assignments": {},
+   "id": "1124-0430-72b8",
+   "status": "stopped",
+   "stage": "intake",
+   "attempts": 0,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T04:30:08+00:00",
+   "updated": "2026-11-24T04:31:18+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": null,
+    "next_actor": null
+   },
+   "root": "agni-crew-graph"
+  }
+ ],
+ "reserve_roles": [
+  "cavalry",
+  "referee",
+  "escalation"
+ ],
+ "total": 42,
+ "events": [
+  {
+   "ts": "2026-11-24T21:34:51+00:00",
+   "task": "1124-2134-6e28",
+   "root": "agni-crew-79-qual",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "agni1-only",
+   "seconds": 0.02,
+   "reason": "other"
+  },
+  {
+   "ts": "2026-11-24T21:35:24+00:00",
+   "task": "1124-2134-6e28",
+   "root": "agni-crew-79-qual",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 33.22
+  },
+  {
+   "ts": "2026-11-24T21:37:30+00:00",
+   "task": "1124-2134-6e28",
+   "root": "agni-crew-79-qual",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 125.63,
+   "mode": "captain_only",
+   "gate": "jev",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T21:38:50+00:00",
+   "task": "1124-2134-6e28",
+   "root": "agni-crew-79-qual",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 80.78,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T21:38:50+00:00",
+   "task": "1124-2134-6e28",
+   "root": "agni-crew-79-qual",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_fail",
+   "seconds": 0.12,
+   "test_exit": 1
+  },
+  {
+   "ts": "2026-11-24T21:39:26+00:00",
+   "task": "1124-2134-6e28",
+   "root": "agni-crew-79-qual",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "FAIL",
+   "seconds": 35.07,
+   "input_tokens": 4458
+  },
+  {
+   "ts": "2026-11-24T21:39:26+00:00",
+   "task": "1124-2134-6e28",
+   "root": "agni-crew-79-qual",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "stop",
+   "seconds": 0.85,
+   "gate": "jev",
+   "decision": "stop",
+   "verdict": "FAIL",
+   "test_exit": 1,
+   "referee_calls": 1,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T21:39:26+00:00",
+   "task": "1124-2134-6e28",
+   "root": "agni-crew-79-qual",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "waiting",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T21:39:27+00:00",
+   "task": "1124-2139-c197",
+   "root": "agni-crew-79-qual",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "agni1-only",
+   "seconds": 0.01,
+   "reason": "other"
+  },
+  {
+   "ts": "2026-11-24T21:39:48+00:00",
+   "task": "1124-2139-c197",
+   "root": "agni-crew-79-qual",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 20.2
+  },
+  {
+   "ts": "2026-11-24T21:40:20+00:00",
+   "task": "1124-2139-c197",
+   "root": "agni-crew-79-qual",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 32.44,
+   "mode": "captain_only",
+   "gate": "jev",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T21:41:34+00:00",
+   "task": "1124-2139-c197",
+   "root": "agni-crew-79-qual",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 74.15,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T21:41:34+00:00",
+   "task": "1124-2139-c197",
+   "root": "agni-crew-79-qual",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.12,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T21:41:46+00:00",
+   "task": "1124-2139-c197",
+   "root": "agni-crew-79-qual",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 12.07,
+   "input_tokens": 3933
+  },
+  {
+   "ts": "2026-11-24T21:41:46+00:00",
+   "task": "1124-2139-c197",
+   "root": "agni-crew-79-qual",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "jev",
+   "decision": "local_pass",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "referee_calls": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T21:41:46+00:00",
+   "task": "1124-2139-c197",
+   "root": "agni-crew-79-qual",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T21:41:47+00:00",
+   "task": "1124-2141-f756",
+   "root": "agni-crew-79-qual",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "agni1-only",
+   "seconds": 0.01,
+   "reason": "other"
+  },
+  {
+   "ts": "2026-11-24T21:56:54+00:00",
+   "task": "1124-2141-f756",
+   "root": "agni-crew-79-qual",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 906.33
+  },
+  {
+   "ts": "2026-11-24T21:58:04+00:00",
+   "task": "1124-2141-f756",
+   "root": "agni-crew-79-qual",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 70.43,
+   "mode": "captain_only",
+   "gate": "jev",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T21:59:26+00:00",
+   "task": "1124-2141-f756",
+   "root": "agni-crew-79-qual",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 82.21,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T21:59:27+00:00",
+   "task": "1124-2141-f756",
+   "root": "agni-crew-79-qual",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_fail",
+   "seconds": 0.12,
+   "test_exit": 1
+  },
+  {
+   "ts": "2026-11-24T22:00:27+00:00",
+   "task": "1124-2141-f756",
+   "root": "agni-crew-79-qual",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "FAIL",
+   "seconds": 60.75,
+   "input_tokens": 4690
+  },
+  {
+   "ts": "2026-11-24T22:00:29+00:00",
+   "task": "1124-2141-f756",
+   "root": "agni-crew-79-qual",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "stop",
+   "seconds": 1.39,
+   "gate": "jev",
+   "decision": "stop",
+   "verdict": "FAIL",
+   "test_exit": 1,
+   "referee_calls": 1,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T22:00:29+00:00",
+   "task": "1124-2141-f756",
+   "root": "agni-crew-79-qual",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "waiting",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T22:00:30+00:00",
+   "task": "1124-2200-c1ac",
+   "root": "agni-crew-79-qual",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "agni1-only",
+   "seconds": 0.02,
+   "reason": "other"
+  },
+  {
+   "ts": "2026-11-24T22:00:49+00:00",
+   "task": "1124-2200-c1ac",
+   "root": "agni-crew-79-qual",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 19.04
+  },
+  {
+   "ts": "2026-11-24T22:01:51+00:00",
+   "task": "1124-2200-c1ac",
+   "root": "agni-crew-79-qual",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 62.44,
+   "mode": "captain_only",
+   "gate": "jev",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T22:02:50+00:00",
+   "task": "1124-2200-c1ac",
+   "root": "agni-crew-79-qual",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 58.58,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T22:02:50+00:00",
+   "task": "1124-2200-c1ac",
+   "root": "agni-crew-79-qual",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.14,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T22:03:34+00:00",
+   "task": "1124-2200-c1ac",
+   "root": "agni-crew-79-qual",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 44.3,
+   "input_tokens": 3717
+  },
+  {
+   "ts": "2026-11-24T22:03:34+00:00",
+   "task": "1124-2200-c1ac",
+   "root": "agni-crew-79-qual",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "jev",
+   "decision": "local_pass",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "referee_calls": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T22:03:34+00:00",
+   "task": "1124-2200-c1ac",
+   "root": "agni-crew-79-qual",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T12:16:29+00:00",
+   "task": "1124-1216-afbe",
+   "root": "agni-crew-fallback-qual",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "agni1-only",
+   "seconds": 0.01,
+   "reason": "other"
+  },
+  {
+   "ts": "2026-11-24T12:17:10+00:00",
+   "task": "1124-1216-afbe",
+   "root": "agni-crew-fallback-qual",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 41.65
+  },
+  {
+   "ts": "2026-11-24T12:18:43+00:00",
+   "task": "1124-1216-afbe",
+   "root": "agni-crew-fallback-qual",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 93.12,
+   "mode": "captain_only",
+   "gate": "local",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T12:20:29+00:00",
+   "task": "1124-1216-afbe",
+   "root": "agni-crew-fallback-qual",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 105.68,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T12:20:29+00:00",
+   "task": "1124-1216-afbe",
+   "root": "agni-crew-fallback-qual",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_fail",
+   "seconds": 0.1,
+   "test_exit": 1
+  },
+  {
+   "ts": "2026-11-24T12:24:08+00:00",
+   "task": "1124-1216-afbe",
+   "root": "agni-crew-fallback-qual",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "malformed",
+   "seconds": 218.42,
+   "input_tokens": 4157
+  },
+  {
+   "ts": "2026-11-24T12:24:08+00:00",
+   "task": "1124-1224-87ad",
+   "root": "agni-crew-fallback-qual",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "agni1-only",
+   "seconds": 0.01,
+   "reason": "other"
+  },
+  {
+   "ts": "2026-11-24T12:24:27+00:00",
+   "task": "1124-1224-87ad",
+   "root": "agni-crew-fallback-qual",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 18.33
+  },
+  {
+   "ts": "2026-11-24T12:25:06+00:00",
+   "task": "1124-1224-87ad",
+   "root": "agni-crew-fallback-qual",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 39.08,
+   "mode": "captain_only",
+   "gate": "local",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T12:26:09+00:00",
+   "task": "1124-1224-87ad",
+   "root": "agni-crew-fallback-qual",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 63.07,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T12:26:09+00:00",
+   "task": "1124-1224-87ad",
+   "root": "agni-crew-fallback-qual",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.11,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:26:28+00:00",
+   "task": "1124-1224-87ad",
+   "root": "agni-crew-fallback-qual",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 18.48,
+   "input_tokens": 3439
+  },
+  {
+   "ts": "2026-11-24T12:26:28+00:00",
+   "task": "1124-1224-87ad",
+   "root": "agni-crew-fallback-qual",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T12:26:28+00:00",
+   "task": "1124-1224-87ad",
+   "root": "agni-crew-fallback-qual",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T12:26:29+00:00",
+   "task": "1124-1226-b533",
+   "root": "agni-crew-fallback-qual",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "agni1-only",
+   "seconds": 0.01,
+   "reason": "other"
+  },
+  {
+   "ts": "2026-11-24T12:26:58+00:00",
+   "task": "1124-1226-b533",
+   "root": "agni-crew-fallback-qual",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 29.42
+  },
+  {
+   "ts": "2026-11-24T04:36:31+00:00",
+   "task": "1124-0434-6ab4",
+   "root": "agni-crew-graph",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 110.08
+  },
+  {
+   "ts": "2026-11-24T04:37:29+00:00",
+   "task": "1124-0434-6ab4",
+   "root": "agni-crew-graph",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 57.14,
+   "mode": "captain",
+   "gate": "local",
+   "decision": "captain"
+  },
+  {
+   "ts": "2026-11-24T04:39:48+00:00",
+   "task": "1124-0434-6ab4",
+   "root": "agni-crew-graph",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 139.16,
+   "mode": "captain",
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T04:40:35+00:00",
+   "task": "1124-0434-6ab4",
+   "root": "agni-crew-graph",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "no_verdict",
+   "seconds": 46.89
+  },
+  {
+   "ts": "2026-11-24T04:40:35+00:00",
+   "task": "1124-0434-6ab4",
+   "root": "agni-crew-graph",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "stop",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "stop",
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T04:40:35+00:00",
+   "task": "1124-0434-6ab4",
+   "root": "agni-crew-graph",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "waiting",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T04:44:48+00:00",
+   "task": "1124-0434-6ab4",
+   "root": "agni-crew-graph",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 180.93
+  },
+  {
+   "ts": "2026-11-24T04:44:48+00:00",
+   "task": "1124-0434-6ab4",
+   "root": "agni-crew-graph",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T04:44:48+00:00",
+   "task": "1124-0434-6ab4",
+   "root": "agni-crew-graph",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T08:56:45+00:00",
+   "task": "1124-0856-a58b",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 29.06
+  },
+  {
+   "ts": "2026-11-24T08:57:05+00:00",
+   "task": "1124-0856-a58b",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 19.86,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T09:00:14+00:00",
+   "task": "1124-0856-a58b",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 188.9
+  },
+  {
+   "ts": "2026-11-24T09:00:14+00:00",
+   "task": "1124-0856-a58b",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T09:00:47+00:00",
+   "task": "1124-0856-a58b",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 33.07
+  },
+  {
+   "ts": "2026-11-24T09:00:47+00:00",
+   "task": "1124-0856-a58b",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T09:00:47+00:00",
+   "task": "1124-0856-a58b",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T09:57:09+00:00",
+   "task": "1124-0953-63bd",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 222.15
+  },
+  {
+   "ts": "2026-11-24T10:10:26+00:00",
+   "task": "1124-0953-63bd",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 796.85,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T10:14:06+00:00",
+   "task": "1124-0953-63bd",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 220.46
+  },
+  {
+   "ts": "2026-11-24T10:14:06+00:00",
+   "task": "1124-0953-63bd",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.11,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T10:14:43+00:00",
+   "task": "1124-0953-63bd",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 37.14
+  },
+  {
+   "ts": "2026-11-24T10:14:43+00:00",
+   "task": "1124-0953-63bd",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T10:14:43+00:00",
+   "task": "1124-0953-63bd",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T10:16:21+00:00",
+   "task": "1124-1014-c98c",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 83.75
+  },
+  {
+   "ts": "2026-11-24T10:16:45+00:00",
+   "task": "1124-1014-c98c",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 24.86,
+   "mode": "captain_only",
+   "gate": "local",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T10:19:59+00:00",
+   "task": "1124-1014-c98c",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 193.56
+  },
+  {
+   "ts": "2026-11-24T10:19:59+00:00",
+   "task": "1124-1014-c98c",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T10:20:48+00:00",
+   "task": "1124-1014-c98c",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 49.14
+  },
+  {
+   "ts": "2026-11-24T10:20:48+00:00",
+   "task": "1124-1014-c98c",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T10:20:48+00:00",
+   "task": "1124-1014-c98c",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T10:21:44+00:00",
+   "task": "1124-1020-3645",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 52.22
+  },
+  {
+   "ts": "2026-11-24T10:24:10+00:00",
+   "task": "1124-1020-3645",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 145.51,
+   "mode": "captain_only",
+   "gate": "local",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T10:25:41+00:00",
+   "task": "1124-1020-3645",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 91.11
+  },
+  {
+   "ts": "2026-11-24T10:25:41+00:00",
+   "task": "1124-1020-3645",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_fail",
+   "seconds": 0.11,
+   "test_exit": 1
+  },
+  {
+   "ts": "2026-11-24T10:27:44+00:00",
+   "task": "1124-1020-3645",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 122.95
+  },
+  {
+   "ts": "2026-11-24T10:27:44+00:00",
+   "task": "1124-1020-3645",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "retry",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "retry",
+   "verdict": "PASS",
+   "test_exit": 1,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T10:33:23+00:00",
+   "task": "1124-1020-3645",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 2,
+   "outcome": "committed",
+   "seconds": 339.31
+  },
+  {
+   "ts": "2026-11-24T10:33:24+00:00",
+   "task": "1124-1020-3645",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 2,
+   "outcome": "tests_fail",
+   "seconds": 0.11,
+   "test_exit": 1
+  },
+  {
+   "ts": "2026-11-24T10:34:03+00:00",
+   "task": "1124-1020-3645",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 2,
+   "outcome": "PASS",
+   "seconds": 39.9
+  },
+  {
+   "ts": "2026-11-24T10:34:03+00:00",
+   "task": "1124-1020-3645",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 2,
+   "outcome": "stop",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "stop",
+   "verdict": "PASS",
+   "test_exit": 1,
+   "evidence": [
+    "test-2.txt",
+    "review-2.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T10:34:03+00:00",
+   "task": "1124-1020-3645",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 2,
+   "outcome": "waiting",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T10:36:12+00:00",
+   "task": "1124-1035-a872",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 47.82
+  },
+  {
+   "ts": "2026-11-24T10:36:40+00:00",
+   "task": "1124-1035-a872",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 28.35,
+   "mode": "captain_only",
+   "gate": "local",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T10:38:11+00:00",
+   "task": "1124-1035-a872",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 90.79
+  },
+  {
+   "ts": "2026-11-24T10:38:11+00:00",
+   "task": "1124-1035-a872",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.12,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T10:38:54+00:00",
+   "task": "1124-1035-a872",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 42.9
+  },
+  {
+   "ts": "2026-11-24T10:38:54+00:00",
+   "task": "1124-1035-a872",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T10:38:54+00:00",
+   "task": "1124-1035-a872",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T11:06:04+00:00",
+   "task": "1124-1105-5da4",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 27.75
+  },
+  {
+   "ts": "2026-11-24T11:06:32+00:00",
+   "task": "1124-1105-5da4",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 28.06,
+   "mode": "captain_only",
+   "gate": "local",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T11:07:17+00:00",
+   "task": "1124-1105-5da4",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 45.37,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T11:07:17+00:00",
+   "task": "1124-1105-5da4",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T11:07:44+00:00",
+   "task": "1124-1105-e46c",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 125.48
+  },
+  {
+   "ts": "2026-11-24T11:07:50+00:00",
+   "task": "1124-1105-5da4",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 33.01,
+   "input_tokens": 2486
+  },
+  {
+   "ts": "2026-11-24T11:07:50+00:00",
+   "task": "1124-1105-5da4",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T11:07:50+00:00",
+   "task": "1124-1105-5da4",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T11:08:17+00:00",
+   "task": "1124-1105-e46c",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 33.66,
+   "mode": "captain_only",
+   "gate": "local",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T11:09:21+00:00",
+   "task": "1124-1105-e46c",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 64.1,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T11:09:21+00:00",
+   "task": "1124-1105-e46c",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T11:10:21+00:00",
+   "task": "1124-1105-e46c",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 60.02,
+   "input_tokens": 2608
+  },
+  {
+   "ts": "2026-11-24T11:10:21+00:00",
+   "task": "1124-1105-e46c",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T11:10:21+00:00",
+   "task": "1124-1105-e46c",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T11:12:38+00:00",
+   "task": "1124-1112-2380",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "malformed",
+   "seconds": 31.39
+  },
+  {
+   "ts": "2026-11-24T11:21:16+00:00",
+   "task": "1124-1120-46a7",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 44.76
+  },
+  {
+   "ts": "2026-11-24T11:22:01+00:00",
+   "task": "1124-1120-46a7",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 45.49,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T11:26:25+00:00",
+   "task": "1124-1120-46a7",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 263.52,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T11:26:25+00:00",
+   "task": "1124-1120-46a7",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.13,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T11:28:30+00:00",
+   "task": "1124-1120-46a7",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "FAIL",
+   "seconds": 125.52,
+   "input_tokens": 2028
+  },
+  {
+   "ts": "2026-11-24T11:28:30+00:00",
+   "task": "1124-1120-46a7",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "retry",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "retry",
+   "verdict": "FAIL",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T11:32:38+00:00",
+   "task": "1124-1120-46a7",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 2,
+   "outcome": "committed",
+   "seconds": 248.16,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T11:32:39+00:00",
+   "task": "1124-1120-46a7",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 2,
+   "outcome": "tests_pass",
+   "seconds": 0.1,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T11:33:10+00:00",
+   "task": "1124-1120-46a7",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 2,
+   "outcome": "PASS",
+   "seconds": 31.24,
+   "input_tokens": 2517
+  },
+  {
+   "ts": "2026-11-24T11:33:10+00:00",
+   "task": "1124-1120-46a7",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 2,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-2.txt",
+    "review-2.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T11:33:10+00:00",
+   "task": "1124-1120-46a7",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 2,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T11:37:21+00:00",
+   "task": "1124-1137-f43a",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 20.64
+  },
+  {
+   "ts": "2026-11-24T11:37:48+00:00",
+   "task": "1124-1137-f43a",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 27.12,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T11:40:16+00:00",
+   "task": "1124-1137-f43a",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 148.3,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T11:40:17+00:00",
+   "task": "1124-1137-f43a",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.14,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T11:41:14+00:00",
+   "task": "1124-1137-f43a",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 57.08,
+   "input_tokens": 1852
+  },
+  {
+   "ts": "2026-11-24T11:41:14+00:00",
+   "task": "1124-1137-f43a",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T11:41:14+00:00",
+   "task": "1124-1137-f43a",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T11:41:43+00:00",
+   "task": "1124-1141-97aa",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 28.71
+  },
+  {
+   "ts": "2026-11-24T11:42:44+00:00",
+   "task": "1124-1141-97aa",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 60.62,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T11:44:24+00:00",
+   "task": "1124-1141-97aa",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "stop",
+   "seconds": 100.29,
+   "reason": "helper_outside_assignment"
+  },
+  {
+   "ts": "2026-11-24T11:44:24+00:00",
+   "task": "1124-1141-97aa",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "waiting",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T11:49:17+00:00",
+   "task": "1124-1144-1752",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 291.3
+  },
+  {
+   "ts": "2026-11-24T11:49:43+00:00",
+   "task": "1124-1144-1752",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 26.2,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T11:53:01+00:00",
+   "task": "1124-1144-1752",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 198.11,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T11:53:01+00:00",
+   "task": "1124-1144-1752",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.11,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T11:53:29+00:00",
+   "task": "1124-1144-1752",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 27.86,
+   "input_tokens": 2583
+  },
+  {
+   "ts": "2026-11-24T11:53:29+00:00",
+   "task": "1124-1144-1752",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T11:53:29+00:00",
+   "task": "1124-1144-1752",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T11:56:25+00:00",
+   "task": "1124-1153-5cb2",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 175.3
+  },
+  {
+   "ts": "2026-11-24T11:57:21+00:00",
+   "task": "1124-1153-5cb2",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 55.82,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T12:00:19+00:00",
+   "task": "1124-1153-5cb2",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 178.26,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T12:00:20+00:00",
+   "task": "1124-1153-5cb2",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.14,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:02:43+00:00",
+   "task": "1124-1153-5cb2",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "FAIL",
+   "seconds": 143.08,
+   "input_tokens": 2175
+  },
+  {
+   "ts": "2026-11-24T12:02:43+00:00",
+   "task": "1124-1153-5cb2",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "retry",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "retry",
+   "verdict": "FAIL",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T12:05:58+00:00",
+   "task": "1124-1153-5cb2",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 2,
+   "outcome": "stop",
+   "seconds": 195.52,
+   "reason": "leader_edited_helper_file"
+  },
+  {
+   "ts": "2026-11-24T12:05:58+00:00",
+   "task": "1124-1153-5cb2",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 2,
+   "outcome": "waiting",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T12:07:33+00:00",
+   "task": "1124-1206-2ec9",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 93.48
+  },
+  {
+   "ts": "2026-11-24T12:08:04+00:00",
+   "task": "1124-1206-2ec9",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 30.33,
+   "mode": "captain",
+   "gate": "jev",
+   "decision": "captain"
+  },
+  {
+   "ts": "2026-11-24T12:08:45+00:00",
+   "task": "1124-1206-2ec9",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 41.18,
+   "mode": "captain"
+  },
+  {
+   "ts": "2026-11-24T12:08:45+00:00",
+   "task": "1124-1206-2ec9",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.11,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:09:18+00:00",
+   "task": "1124-1206-2ec9",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 32.86,
+   "input_tokens": 1693
+  },
+  {
+   "ts": "2026-11-24T12:09:19+00:00",
+   "task": "1124-1206-2ec9",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 1.42,
+   "gate": "jev",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:09:19+00:00",
+   "task": "1124-1206-2ec9",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T12:10:19+00:00",
+   "task": "1124-1209-feaf",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 58.9
+  },
+  {
+   "ts": "2026-11-24T12:10:54+00:00",
+   "task": "1124-1209-feaf",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 34.96,
+   "mode": "captain",
+   "gate": "jev",
+   "decision": "captain"
+  },
+  {
+   "ts": "2026-11-24T12:11:57+00:00",
+   "task": "1124-1209-feaf",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 62.58,
+   "mode": "captain"
+  },
+  {
+   "ts": "2026-11-24T12:11:57+00:00",
+   "task": "1124-1209-feaf",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:12:29+00:00",
+   "task": "1124-1209-feaf",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 32.06,
+   "input_tokens": 1848
+  },
+  {
+   "ts": "2026-11-24T12:12:30+00:00",
+   "task": "1124-1209-feaf",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 1.42,
+   "gate": "jev",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:12:30+00:00",
+   "task": "1124-1209-feaf",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T12:13:10+00:00",
+   "task": "1124-1212-f9f9",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 38.51
+  },
+  {
+   "ts": "2026-11-24T12:13:38+00:00",
+   "task": "1124-1212-f9f9",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 28.24,
+   "mode": "captain",
+   "gate": "jev",
+   "decision": "captain"
+  },
+  {
+   "ts": "2026-11-24T12:15:01+00:00",
+   "task": "1124-1212-f9f9",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 82.45,
+   "mode": "captain"
+  },
+  {
+   "ts": "2026-11-24T12:15:01+00:00",
+   "task": "1124-1212-f9f9",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:15:42+00:00",
+   "task": "1124-1212-f9f9",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 41.47,
+   "input_tokens": 2046
+  },
+  {
+   "ts": "2026-11-24T12:15:44+00:00",
+   "task": "1124-1212-f9f9",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 1.44,
+   "gate": "jev",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:15:44+00:00",
+   "task": "1124-1212-f9f9",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T12:16:07+00:00",
+   "task": "1124-1215-d2eb",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 21.94
+  },
+  {
+   "ts": "2026-11-24T12:16:43+00:00",
+   "task": "1124-1215-d2eb",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 36.38,
+   "mode": "captain",
+   "gate": "jev",
+   "decision": "captain"
+  },
+  {
+   "ts": "2026-11-24T12:21:46+00:00",
+   "task": "1124-1215-d2eb",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 303.3,
+   "mode": "captain"
+  },
+  {
+   "ts": "2026-11-24T12:21:46+00:00",
+   "task": "1124-1215-d2eb",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:29:26+00:00",
+   "task": "1124-1215-d2eb",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 459.91,
+   "input_tokens": 1780
+  },
+  {
+   "ts": "2026-11-24T12:29:28+00:00",
+   "task": "1124-1215-d2eb",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 1.53,
+   "gate": "jev",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:29:28+00:00",
+   "task": "1124-1215-d2eb",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T12:29:45+00:00",
+   "task": "1124-1229-94f5",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 16.0
+  },
+  {
+   "ts": "2026-11-24T12:30:01+00:00",
+   "task": "1124-1229-94f5",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 16.22,
+   "mode": "captain",
+   "gate": "jev",
+   "decision": "captain"
+  },
+  {
+   "ts": "2026-11-24T12:31:13+00:00",
+   "task": "1124-1229-94f5",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 72.01,
+   "mode": "captain"
+  },
+  {
+   "ts": "2026-11-24T12:31:13+00:00",
+   "task": "1124-1229-94f5",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_fail",
+   "seconds": 0.12,
+   "test_exit": 1
+  },
+  {
+   "ts": "2026-11-24T12:36:53+00:00",
+   "task": "1124-1229-94f5",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "FAIL",
+   "seconds": 339.89,
+   "input_tokens": 2160
+  },
+  {
+   "ts": "2026-11-24T12:36:54+00:00",
+   "task": "1124-1229-94f5",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "stop",
+   "seconds": 0.86,
+   "gate": "jev",
+   "decision": "stop",
+   "verdict": "FAIL",
+   "test_exit": 1
+  },
+  {
+   "ts": "2026-11-24T12:36:54+00:00",
+   "task": "1124-1229-94f5",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "waiting",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T12:37:23+00:00",
+   "task": "1124-1236-ef67",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 28.26
+  },
+  {
+   "ts": "2026-11-24T12:37:53+00:00",
+   "task": "1124-1236-ef67",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 29.06,
+   "mode": "captain_only",
+   "gate": "local",
+   "decision": "solo_no_split",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T12:38:51+00:00",
+   "task": "1124-1236-ef67",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 58.39,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T12:38:51+00:00",
+   "task": "1124-1236-ef67",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.11,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:39:47+00:00",
+   "task": "1124-1236-ef67",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 55.98,
+   "input_tokens": 1240
+  },
+  {
+   "ts": "2026-11-24T12:39:47+00:00",
+   "task": "1124-1236-ef67",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T12:39:47+00:00",
+   "task": "1124-1236-ef67",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T12:40:02+00:00",
+   "task": "1124-1239-ab27",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 14.04
+  },
+  {
+   "ts": "2026-11-24T12:40:46+00:00",
+   "task": "1124-1239-ab27",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 43.73,
+   "mode": "captain_only",
+   "gate": "local",
+   "decision": "solo_no_split",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T12:41:55+00:00",
+   "task": "1124-1239-ab27",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 69.27,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T12:41:55+00:00",
+   "task": "1124-1239-ab27",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:42:36+00:00",
+   "task": "1124-1239-ab27",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 40.36,
+   "input_tokens": 1335
+  },
+  {
+   "ts": "2026-11-24T12:42:36+00:00",
+   "task": "1124-1239-ab27",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T12:42:36+00:00",
+   "task": "1124-1239-ab27",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T12:42:52+00:00",
+   "task": "1124-1242-b20d",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 15.97
+  },
+  {
+   "ts": "2026-11-24T12:43:36+00:00",
+   "task": "1124-1242-b20d",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 43.38,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_split",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T12:45:43+00:00",
+   "task": "1124-1242-b20d",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 127.35,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T12:45:43+00:00",
+   "task": "1124-1242-b20d",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.11,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:46:50+00:00",
+   "task": "1124-1242-b20d",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 66.89,
+   "input_tokens": 1378
+  },
+  {
+   "ts": "2026-11-24T12:46:50+00:00",
+   "task": "1124-1242-b20d",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T12:46:50+00:00",
+   "task": "1124-1242-b20d",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T12:47:12+00:00",
+   "task": "1124-1246-48c2",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 20.84
+  },
+  {
+   "ts": "2026-11-24T12:47:33+00:00",
+   "task": "1124-1246-48c2",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 20.94,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T12:50:09+00:00",
+   "task": "1124-1246-48c2",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 156.29,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T12:50:09+00:00",
+   "task": "1124-1246-48c2",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.16,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:52:23+00:00",
+   "task": "1124-1246-48c2",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 133.7,
+   "input_tokens": 1686
+  },
+  {
+   "ts": "2026-11-24T12:52:23+00:00",
+   "task": "1124-1246-48c2",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T12:52:23+00:00",
+   "task": "1124-1246-48c2",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T12:52:38+00:00",
+   "task": "1124-1252-0b80",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 13.33
+  },
+  {
+   "ts": "2026-11-24T12:53:03+00:00",
+   "task": "1124-1252-0b80",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 25.2,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T12:55:39+00:00",
+   "task": "1124-1252-0b80",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 156.69,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T12:55:40+00:00",
+   "task": "1124-1252-0b80",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T12:56:57+00:00",
+   "task": "1124-1252-0b80",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 77.65,
+   "input_tokens": 1940
+  },
+  {
+   "ts": "2026-11-24T12:56:57+00:00",
+   "task": "1124-1252-0b80",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T12:56:57+00:00",
+   "task": "1124-1252-0b80",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T12:58:17+00:00",
+   "task": "1124-1256-fdaa",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 78.79
+  },
+  {
+   "ts": "2026-11-24T12:58:46+00:00",
+   "task": "1124-1256-fdaa",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 29.03,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T13:01:48+00:00",
+   "task": "1124-1256-fdaa",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 181.25,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T13:01:48+00:00",
+   "task": "1124-1256-fdaa",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.14,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T13:02:17+00:00",
+   "task": "1124-1256-fdaa",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 29.49,
+   "input_tokens": 1951
+  },
+  {
+   "ts": "2026-11-24T13:02:17+00:00",
+   "task": "1124-1256-fdaa",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T13:02:17+00:00",
+   "task": "1124-1256-fdaa",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T13:02:31+00:00",
+   "task": "1124-1302-ed56",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 12.6
+  },
+  {
+   "ts": "2026-11-24T13:03:32+00:00",
+   "task": "1124-1302-ed56",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 60.83,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_split",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T13:04:53+00:00",
+   "task": "1124-1302-ed56",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 81.5,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T13:04:53+00:00",
+   "task": "1124-1302-ed56",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.11,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T13:05:26+00:00",
+   "task": "1124-1302-ed56",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 32.54,
+   "input_tokens": 1388
+  },
+  {
+   "ts": "2026-11-24T13:05:26+00:00",
+   "task": "1124-1302-ed56",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T13:05:26+00:00",
+   "task": "1124-1302-ed56",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T13:05:55+00:00",
+   "task": "1124-1305-ef68",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 28.04
+  },
+  {
+   "ts": "2026-11-24T13:06:49+00:00",
+   "task": "1124-1305-ef68",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 54.22,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_split",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T13:07:53+00:00",
+   "task": "1124-1305-ef68",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 63.77,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T13:07:53+00:00",
+   "task": "1124-1305-ef68",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.13,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T13:08:56+00:00",
+   "task": "1124-1305-ef68",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 63.24,
+   "input_tokens": 1594
+  },
+  {
+   "ts": "2026-11-24T13:08:56+00:00",
+   "task": "1124-1305-ef68",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T13:08:56+00:00",
+   "task": "1124-1305-ef68",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T13:09:27+00:00",
+   "task": "1124-1308-af89",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 29.79
+  },
+  {
+   "ts": "2026-11-24T13:09:50+00:00",
+   "task": "1124-1308-af89",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 23.48,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T13:12:37+00:00",
+   "task": "1124-1308-af89",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 167.02,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T13:12:38+00:00",
+   "task": "1124-1308-af89",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.11,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T13:13:09+00:00",
+   "task": "1124-1308-af89",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 31.54,
+   "input_tokens": 1749
+  },
+  {
+   "ts": "2026-11-24T13:13:09+00:00",
+   "task": "1124-1308-af89",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T13:13:09+00:00",
+   "task": "1124-1308-af89",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T13:13:29+00:00",
+   "task": "1124-1313-ab19",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 18.76
+  },
+  {
+   "ts": "2026-11-24T13:13:51+00:00",
+   "task": "1124-1313-ab19",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 21.72,
+   "mode": "helper",
+   "gate": "local",
+   "decision": "local_helper",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T13:16:10+00:00",
+   "task": "1124-1313-ab19",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 139.07,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T13:16:10+00:00",
+   "task": "1124-1313-ab19",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.11,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T13:16:39+00:00",
+   "task": "1124-1313-ab19",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 29.43,
+   "input_tokens": 2031
+  },
+  {
+   "ts": "2026-11-24T13:16:39+00:00",
+   "task": "1124-1313-ab19",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T13:16:39+00:00",
+   "task": "1124-1313-ab19",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T15:03:21+00:00",
+   "task": "1124-1502-9cae",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 62.8
+  },
+  {
+   "ts": "2026-11-24T15:03:59+00:00",
+   "task": "1124-1502-9cae",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 37.96,
+   "mode": "captain_only",
+   "gate": "local",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T15:05:00+00:00",
+   "task": "1124-1502-9cae",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 61.05,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T15:05:00+00:00",
+   "task": "1124-1502-9cae",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.13,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T15:05:11+00:00",
+   "task": "1124-1502-9cae",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 10.63,
+   "input_tokens": 3363
+  },
+  {
+   "ts": "2026-11-24T15:05:11+00:00",
+   "task": "1124-1502-9cae",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0,
+   "gate": "local",
+   "decision": "merge_ready",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T15:05:11+00:00",
+   "task": "1124-1502-9cae",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T15:23:08+00:00",
+   "task": "1124-1523-f2f4",
+   "root": "agni-crew-three-seat",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "primary",
+   "seconds": 0.19
+  },
+  {
+   "ts": "2026-11-24T15:23:53+00:00",
+   "task": "1124-1523-f2f4",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 44.88
+  },
+  {
+   "ts": "2026-11-24T15:24:29+00:00",
+   "task": "1124-1523-f2f4",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 36.13,
+   "mode": "helper",
+   "gate": "jev",
+   "decision": "safe_helper",
+   "referee_calls": 2
+  },
+  {
+   "ts": "2026-11-24T15:25:35+00:00",
+   "task": "1124-1523-f2f4",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 66.1,
+   "mode": "helper"
+  },
+  {
+   "ts": "2026-11-24T15:25:35+00:00",
+   "task": "1124-1523-f2f4",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.12,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T15:26:22+00:00",
+   "task": "1124-1523-f2f4",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 47.36,
+   "input_tokens": 2933
+  },
+  {
+   "ts": "2026-11-24T15:26:22+00:00",
+   "task": "1124-1523-f2f4",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01,
+   "gate": "jev",
+   "decision": "local_pass",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "referee_calls": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T15:26:22+00:00",
+   "task": "1124-1523-f2f4",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.02
+  },
+  {
+   "ts": "2026-11-24T20:51:21+00:00",
+   "task": "1124-2051-8e7f",
+   "root": "agni-crew-three-seat",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "primary",
+   "seconds": 0.22
+  },
+  {
+   "ts": "2026-11-24T20:51:43+00:00",
+   "task": "1124-2051-8e7f",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 22.51
+  },
+  {
+   "ts": "2026-11-24T20:52:28+00:00",
+   "task": "1124-2051-8e7f",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 44.8,
+   "mode": "captain_only",
+   "gate": "jev",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T20:54:53+00:00",
+   "task": "1124-2051-8e7f",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 144.6,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T20:54:53+00:00",
+   "task": "1124-2051-8e7f",
+   "root": "agni-crew-three-seat",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.13,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T20:55:54+00:00",
+   "task": "1124-2051-8e7f",
+   "root": "agni-crew-three-seat",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 60.96,
+   "input_tokens": 3744
+  },
+  {
+   "ts": "2026-11-24T20:55:54+00:00",
+   "task": "1124-2051-8e7f",
+   "root": "agni-crew-three-seat",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01,
+   "gate": "jev",
+   "decision": "local_pass",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "referee_calls": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T20:55:54+00:00",
+   "task": "1124-2051-8e7f",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.02
+  },
+  {
+   "ts": "2026-11-24T20:56:53+00:00",
+   "task": "1124-2056-0510",
+   "root": "agni-crew-three-seat",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "primary",
+   "seconds": 0.22
+  },
+  {
+   "ts": "2026-11-24T20:57:11+00:00",
+   "task": "1124-2056-0510",
+   "root": "agni-crew-three-seat",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 17.67
+  },
+  {
+   "ts": "2026-11-24T20:58:34+00:00",
+   "task": "1124-2056-0510",
+   "root": "agni-crew-three-seat",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 83.35,
+   "mode": "helper",
+   "gate": "jev",
+   "decision": "safe_helper",
+   "referee_calls": 2
+  },
+  {
+   "ts": "2026-11-24T21:01:05+00:00",
+   "task": "1124-2056-0510",
+   "root": "agni-crew-three-seat",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "stop",
+   "seconds": 150.69,
+   "reason": "helper_outside_assignment"
+  },
+  {
+   "ts": "2026-11-24T21:01:05+00:00",
+   "task": "1124-2056-0510",
+   "root": "agni-crew-three-seat",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "waiting",
+   "seconds": 0.0
+  }
+ ],
+ "seats": [
+  {
+   "seat": "leader",
+   "port": 28084,
+   "health": 200
+  },
+  {
+   "seat": "helper",
+   "port": 28085,
+   "health": 200
+  },
+  {
+   "seat": "reviewer",
+   "port": 8093,
+   "health": 200
+  }
+ ],
+ "lock": {
+  "deployed": true,
+  "seats": []
+ }
+}

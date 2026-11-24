@@ -2,7 +2,7 @@ import { assert, test } from 'orca/testing'
 import { liveLine, liveReport, LIVE_AT } from '../../../test/crew'
 import type { CrewMascotView } from '../../shared/types'
 import { crewLive, FINALE_MS, parseLiveLine, safeBubble, SEAT_SCHEMA } from './live'
-import { parseCrewReport } from './parse'
+import { DEFAULT_ROOT, parseCrewReport, taskKey } from './parse'
 
 const byId = (ms: CrewMascotView[]) => Object.fromEntries(ms.map((m) => [m.id, m]))
 
@@ -113,7 +113,7 @@ test('no code in bubbles: only fixed phrases, outcome words and file names get t
   for (const c of code) for (const bit of ['def ', 'rm -rf', '<script', 'alert', '${', 'os.system', 'return']) assert.ok(!text.includes(bit), `${bit} in ${text}`)
   assert.ok(!text.includes('passwd') && !text.includes('src/app') && !text.includes('C:'), text)
   // The file names survive as names.
-  const decide = r.lines.get(id)!.find((x) => x.kind === 'stage' && x.stage === 'decide')
+  const decide = r.lines.get(taskKey(DEFAULT_ROOT, id))!.find((x) => x.kind === 'stage' && x.stage === 'decide')
   assert.deepEqual(decide && decide.kind === 'stage' ? decide.evidence : null, ['test-1.txt', 'review-1.md'])
   // The last guard refuses anything that reads as code.
   assert.equal(safeBubble(['tests pass', 'def x()']), null)

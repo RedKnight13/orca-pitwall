@@ -24,3 +24,12 @@ export const seatEventsJsonl = () => read('crew-seat-events.jsonl')
 
 /** A moment in the synthetic running task: the leader and the helper are both writing. */
 export const LIVE_AT = Date.parse('2026-11-25T10:15:12Z')
+
+/**
+ * crew-roots.json: the agnx report read on 2026-11-25 with multi-root discovery, from four state
+ * roots (agni-crew-three-seat is the default; 79-qual, fallback-qual and graph are qualification and
+ * experiment roots). It holds the durations task 1124-2056-0510 and the three ownership-gate stops.
+ */
+export const rootsLine = () => JSON.stringify(JSON.parse(read('crew-roots.json')))
+export const rootsReport = () => JSON.parse(read('crew-roots.json')) as Record<string, any>
+export const ROOTS_AT = Date.parse('2026-11-24T22:10:00Z')

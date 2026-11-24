@@ -122,13 +122,12 @@ test('agnx script: reads a crew state folder and sends back whitelisted fields o
     const r = parseCrewReport(out)
     assert.equal(r.tasks.length, 1)
     assert.equal(r.tasks[0].status, 'running')
+    // The plan line sits in another root's log: it belongs to that root, not to this task.
     assert.deepEqual(
       r.tasks[0].stages.map((s) => [s.stage, s.seconds]),
-      [
-        ['intake', 31.4],
-        ['plan', 12]
-      ]
+      [['intake', 31.4]]
     )
+    assert.deepEqual(r.sources.map((x) => [x.root, x.tasks, x.primary]), [['agni-crew-graph', 0, false], ['agni-crew-three-seat', 1, true]])
     assert.equal(r.lockDeployed, true)
     // The seats' health depends on what listens on this machine's loopback; a down seat never shows a holder.
     assert.deepEqual(r.seats.map((s) => s.id), ['leader', 'helper', 'reviewer'])
@@ -167,17 +166,49 @@ test('agnx script: #42 seat lines and the mascot fields go out whitelisted; no p
     const seats = line.events.filter((e: any) => e.seat_event)
     assert.equal(seats.length, 7, 'six #42 lines and the traversal one; the /2 line stays home')
     const build = seats.find((e: any) => e.stage === 'build')
-    assert.deepEqual(build, { schema: 'agni.crew.seat_event/1', seat_event: 'start', ts: '2026-11-25T10:13:42+00:00', task: '1125-1012-ab12', stage: 'build', attempt: 1, seat: 'leader', slot: '', output: 'leader-build-1.out', seconds: 0, exit: null, timed_out: null, output_bytes: 2100 })
+    assert.deepEqual(build, { schema: 'agni.crew.seat_event/1', seat_event: 'start', ts: '2026-11-25T10:13:42+00:00', task: '1125-1012-ab12', stage: 'build', attempt: 1, seat: 'leader', slot: '', output: 'leader-build-1.out', seconds: 0, exit: null, timed_out: null, output_bytes: 2100, root: 'agni-crew-three-seat' })
     const decide = line.events.find((e: any) => e.stage === 'decide')
     assert.deepEqual(decide.evidence, ['test-1.txt', 'review-1.md'])
     assert.equal(decide.referee_calls, 1)
     assert.equal(decide.gate, 'jev')
-    assert.ok(!('decision' in decide) && !('reason' in decide))
+    // Free-text reasons stay home; only the runner's known ownership reasons go out, as codes.
+    assert.ok(!('decision' in decide))
+    assert.equal(decide.reason, 'other')
     // And it reads back as mascots.
     const r = parseCrewReport(out)
     const live = crewLive(r.tasks, r.lines, Date.parse('2026-11-25T10:15:12Z'))!
     assert.equal(live.source, 'seats')
     assert.ok(live.mascots.find((m) => m.id === 'qwen')!.bubble!.includes('leader-build-1.out · 2 kB'))
+  } finally {
+    rmSync(home, { recursive: true })
+  }
+})
+
+test('agnx script: tasks from every state root, tagged with their root; known reasons as codes', () => {
+  const py = python()
+  if (!py) return
+  const home = mkdtempSync(join(tmpdir(), 'pitwall-roots-'))
+  try {
+    const main = join(home, '.local/state/agni-crew-three-seat')
+    const qual = join(home, '.local/state/agni-crew-79-qual')
+    for (const d of [main, qual]) mkdirSync(join(d, 'tasks'), { recursive: true })
+    mkdirSync(join(home, 'agni/crew'), { recursive: true })
+    writeFileSync(join(home, 'agni/crew/crew.toml'), 'state_dir = "~/.local/state/agni-crew-three-seat"\n')
+    const task = (id: string, at: string) => JSON.stringify({ id, status: 'waiting', stage: 'finish', attempts: 1, prompt: 'Fix it', created: at, updated: at })
+    writeFileSync(join(main, 'tasks/1124-2056-0510.json'), task('1124-2056-0510', '2026-11-24T21:01:05+00:00'))
+    writeFileSync(join(qual, 'tasks/1124-2200-c1ac.json'), task('1124-2200-c1ac', '2026-11-24T22:03:34+00:00'))
+    writeFileSync(join(qual, 'tasks/broken.json'), '{')
+    writeFileSync(join(main, 'events.jsonl'), JSON.stringify({ ts: '2026-11-24T21:01:05+00:00', task: '1124-2056-0510', stage: 'build', attempt: 1, outcome: 'stop', seconds: 150.69, reason: 'second author modified files outside its assignment' }) + '\n')
+    writeFileSync(join(qual, 'events.jsonl'), JSON.stringify({ ts: '2026-11-24T22:03:34+00:00', task: '1124-2200-c1ac', stage: 'finish', attempt: 1, outcome: 'merge_ready', seconds: 0, reason: 'FREE TEXT WITH /a/path' }) + '\n')
+    const out = execFileSync(py, ['-I', '-'], { input: AGNX_PY, encoding: 'utf8', env: { ...process.env, HOME: home }, timeout: 30_000 })
+    assert.ok(!out.includes('FREE TEXT') && !out.includes('/a/path'))
+    const line = JSON.parse(out)
+    assert.equal(line.default_root, 'agni-crew-three-seat')
+    assert.deepEqual(line.sources.map((x: any) => [x.root, x.tasks, x.unreadable]), [['agni-crew-79-qual', 2, 1], ['agni-crew-three-seat', 1, 0]])
+    const r = parseCrewReport(out)
+    assert.deepEqual(r.tasks.map((t) => t.key), ['agni-crew-79-qual/1124-2200-c1ac', 'agni-crew-three-seat/1124-2056-0510'])
+    assert.equal(r.tasks[1].stages[0].reason, 'helper_outside_assignment')
+    assert.equal(r.tasks[0].stages[0].reason, 'other', 'an unknown reason goes out as a bare code')
   } finally {
     rmSync(home, { recursive: true })
   }

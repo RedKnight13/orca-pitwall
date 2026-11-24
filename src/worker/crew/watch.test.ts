@@ -124,3 +124,44 @@ test('worker: the Crew section is off until turned on, then fills from the crew 
     main.crewDeps.runner = prev
   }
 })
+
+test('worker: Crew development sessions come from Crew workspaces whatever is focused; a picked run sticks', async () => {
+  const prev = main.crewDeps.runner
+  main.crewDeps.runner = fakeRunner({ agnx: async () => agnxLine(), agni1: async () => gatewayLine() }).run
+  try {
+    const host = mockHost({
+      capabilities: ['agent:read', 'workspace:read', 'storage:own', 'settings:own'],
+      results: {
+        // Focused on an unrelated workspace.
+        'workspace.readContext': { workspaceId: 'w1', branch: 'main', displayName: 'auden', terminals: [] },
+        'workspace.list': {
+          workspaces: [
+            { id: 'w1', kind: 'worktree', name: 'auden', projectId: 'github:x/auden', path: '/a', branch: 'main', hostId: 'local', status: { state: 'active', unread: false, terminalCount: 1, lastActivityAt: null } },
+            { id: 'w9', kind: 'worktree', name: 'crew-issue-84-implementation', projectId: 'github:redknight13/agni-crew', path: '/c', branch: 'crew-issue-84', hostId: 'local', status: { state: 'working', unread: false, terminalCount: 1, lastActivityAt: null } }
+          ],
+          truncated: false
+        },
+        'agents.list': { agents: [{ terminalId: 't9', title: 'Codex', agent: 'codex', state: 'working', stateStartedAt: 5, sessionId: 's9', task: { title: 'Implement #84' } }] },
+        'terminal.list': { terminals: [], truncated: false },
+        'statusBar.update': {}
+      }
+    })
+    const worker = await mountWorker(main, { host, hooks: ['agent.tool.before', 'agent.tool.after'], events: ['agent.status.changed', 'workspace.changed'] })
+    await worker.request('pitwall.setCrew', { on: true })
+    await flush()
+    await flush()
+    let s = (await worker.request('pitwall.snapshot')) as Snapshot
+    assert.equal(s.scope, 'focused')
+    assert.deepEqual(s.crew!.dev!.agents.map((a) => [a.title, a.workspaceName]), [['Implement #84', 'crew-issue-84-implementation']])
+    assert.equal(s.crew!.dev!.workspaces, 1)
+    s = (await worker.request('pitwall.crewFocus', { key: 'agni-crew-three-seat/1124-1020-3645' })) as Snapshot
+    assert.equal(s.crew!.focus, 'agni-crew-three-seat/1124-1020-3645')
+    s = (await worker.request('pitwall.crewFocus', { key: '../../etc' })) as Snapshot
+    assert.equal(s.crew!.focus, null, 'only a root/id key is kept')
+    s = (await worker.request('pitwall.setCrew', { on: false })) as Snapshot
+    assert.equal(s.crew, null)
+    await worker.deactivate()
+  } finally {
+    main.crewDeps.runner = prev
+  }
+})

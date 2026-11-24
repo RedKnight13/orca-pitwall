@@ -234,7 +234,7 @@ function pickTask(tasks: CrewTaskView[], lines: Map<string, LiveLine[]>, now: nu
   for (const t of tasks) {
     const kind = t.status === 'merge_ready' ? 'merge_ready' : t.status === 'failed' || t.status === 'interrupted' || t.status === 'waiting' ? 'failed' : null
     if (!kind) continue
-    const evs = lines.get(t.id) ?? []
+    const evs = lines.get(t.key) ?? []
     const at = Math.max(t.updatedAt ?? 0, evs.length ? evs[evs.length - 1].at : 0)
     if (!at || now - at > FINALE_MS || now - at < -60_000) continue
     if (!best || at > best.finale!.at) best = { task: t, finale: { kind, at } }
@@ -246,7 +246,7 @@ export function crewLive(tasks: CrewTaskView[], lines: Map<string, LiveLine[]>, 
   const picked = pickTask(tasks, lines, now)
   if (!picked) return null
   const { task, finale } = picked
-  const all = [...(lines.get(task.id) ?? [])].sort((a, b) => a.at - b.at)
+  const all = [...(lines.get(task.key) ?? [])].sort((a, b) => a.at - b.at)
   const stages = all.filter((l): l is StageLine => l.kind === 'stage')
   const seats = all.filter((l): l is SeatLine => l.kind === 'seat')
   const running = task.status === 'running'

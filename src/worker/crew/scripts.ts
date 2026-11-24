@@ -14,10 +14,16 @@ import glob, json, os, re, subprocess, urllib.error, urllib.request
 HOME = os.path.expanduser("~")
 STATE = os.path.join(HOME, ".local/state/agni-crew-three-seat")
 CREW = os.path.join(HOME, "agni/bin/crew")
-MAX_TASKS = 20
+MAX_TASKS = 48
+MAX_ROOTS = 16
 TAIL_BYTES = 2 * 1024 * 1024
 SEAT_SCHEMA = "agni.crew.seat_event/1"
 SEATS = (("leader", 28084), ("helper", 28085), ("reviewer", 8093))
+# The runner's ownership-gate reasons, as codes. Any other reason text stays on agnx as "other".
+REASONS = {
+    "second author modified files outside its assignment": "helper_outside_assignment",
+    "leader modified a file assigned to the second author": "leader_edited_helper_file",
+}
 
 
 def clip(v, n):
@@ -68,23 +74,61 @@ def task_row(t):
     }
 
 
+def roots():
+    """Every crew state root on this host (default profile, qualification and experiment runs), bounded."""
+    found = sorted(glob.glob(os.path.join(HOME, ".local/state/agni-crew*")))
+    return [r for r in found if os.path.isdir(r)][:MAX_ROOTS]
+
+
+def default_root():
+    try:
+        with open(os.path.join(HOME, "agni/crew/crew.toml")) as f:
+            m = re.search(r'^state_dir\s*=\s*"([^"]+)"', f.read(), re.M)
+    except Exception:
+        m = None
+    path = os.path.expanduser(m.group(1)) if m else STATE
+    return os.path.basename(path.rstrip("/"))
+
+
+def mtime(path):
+    try:
+        return int(os.stat(path).st_mtime)
+    except Exception:
+        return None
+
+
 def tasks():
-    rows = []
-    for path in glob.glob(os.path.join(STATE, "tasks", "*.json")):
-        try:
-            with open(path) as f:
-                t = json.load(f)
-        except Exception:
-            continue
-        if isinstance(t, dict) and isinstance(t.get("id"), str):
-            rows.append(t)
-    rows.sort(key=lambda t: str(t.get("updated") or t.get("created") or ""), reverse=True)
-    return [task_row(t) for t in rows[:MAX_TASKS]], len(rows)
+    rows, sources = [], []
+    for root in roots():
+        name = os.path.basename(root)
+        paths = glob.glob(os.path.join(root, "tasks", "*.json"))
+        bad = 0
+        for path in paths:
+            try:
+                with open(path) as f:
+                    t = json.load(f)
+            except Exception:
+                bad += 1
+                continue
+            if isinstance(t, dict) and isinstance(t.get("id"), str):
+                rows.append((name, t))
+        if paths or os.path.exists(os.path.join(root, "events.jsonl")):
+            sources.append({"root": name, "tasks": len(paths), "unreadable": bad, "events_mtime": mtime(os.path.join(root, "events.jsonl")), "tasks_mtime": mtime(os.path.join(root, "tasks"))})
+    rows.sort(key=lambda r: str(r[1].get("updated") or r[1].get("created") or ""), reverse=True)
+    listed = []
+    for name, t in rows[:MAX_TASKS]:
+        row = task_row(t)
+        row["root"] = name
+        listed.append(row)
+    return listed, len(rows), sources
 
 
 def events(ids):
+    """ids: (root, task) pairs. Each line carries its root, so one task id in two roots stays two tasks."""
     out = []
-    for path in sorted(glob.glob(os.path.join(HOME, ".local/state/agni-crew*/events.jsonl"))):
+    for root in roots():
+        path = os.path.join(root, "events.jsonl")
+        name = os.path.basename(root)
         try:
             with open(path, "rb") as f:
                 f.seek(0, 2)
@@ -98,15 +142,18 @@ def events(ids):
                 e = json.loads(line)
             except Exception:
                 continue
-            if not isinstance(e, dict) or e.get("task") not in ids:
+            if not isinstance(e, dict) or (name, e.get("task")) not in ids:
                 continue
             if "seat_event" in e:
                 if e.get("schema") == SEAT_SCHEMA:
-                    out.append(seat_row(e))
+                    seat = seat_row(e)
+                    seat["root"] = name
+                    out.append(seat)
                 continue
             row = {
                 "ts": clip(e.get("ts"), 40),
                 "task": e.get("task"),
+                "root": name,
                 "stage": clip(e.get("stage"), 32),
                 "attempt": num(e.get("attempt")),
                 "outcome": clip(str(e.get("outcome")), 32) if e.get("outcome") is not None else None,
@@ -119,6 +166,8 @@ def events(ids):
             for k in ("test_exit", "input_tokens"):
                 if num(e.get(k)) is not None:
                     row[k] = e[k]
+            if isinstance(e.get("reason"), str):
+                row["reason"] = REASONS.get(e["reason"].strip().lower(), "other")
             if isinstance(e.get("referee_calls"), list):
                 row["referee_calls"] = len(e["referee_calls"])
             if isinstance(e.get("evidence"), list):
@@ -221,15 +270,17 @@ def reserve_roles():
 
 
 def main():
-    listed, total = tasks()
+    listed, total, sources = tasks()
     status = run([CREW, "status"], 20)
     print(json.dumps({
         "schema": "pitwall.crew/1",
+        "default_root": default_root(),
+        "sources": sources,
         "status": {"exit": status["exit"], "text": status["out"], "error": status.get("error")},
         "tasks": listed,
         "reserve_roles": reserve_roles(),
         "total": total,
-        "events": events({t["id"] for t in listed}),
+        "events": events({(t["root"], t["id"]) for t in listed}),
         "seats": [{"seat": s, "port": p, "health": health(p)} for s, p in SEATS],
         "lock": seat_lock(),
     }))

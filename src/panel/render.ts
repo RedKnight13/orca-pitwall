@@ -449,7 +449,8 @@ const CREW_STATUS: Record<string, string> = {
   merge_ready: 'Merge-ready',
   failed: 'Failed',
   interrupted: 'Interrupted',
-  stopped: 'Stopped'
+  stopped: 'Stopped',
+  legacy: 'Older record'
 }
 const CREW_TONE: Record<string, string> = { running: 'run', merge_ready: 'pass', needs_owner: 'wait', waiting: 'wait', failed: 'fail', interrupted: 'fail' }
 
@@ -466,9 +467,11 @@ export function crewPill(t: CrewTaskView): string {
 
 /** The owner's next step for a task that waits on them. Pitwall only says it; it never acts on the crew. */
 export function crewHint(t: CrewTaskView): string {
+  if (!t.primary) return `Recorded in <code>${esc(t.root)}</code>, which <code>crew status</code> does not cover. Inspect it with that root's profile.`
   if (t.owner === 'test_command') return `Give it one on agnx: <code>crew resume ${esc(t.id)} --test-command CMD</code>`
   if (t.status === 'interrupted') return `Resume it on agnx: <code>crew resume ${esc(t.id)}</code>`
-  return `Inspect <code>crew/${esc(t.id)}</code>. The Codex cavalry could take it from here.`
+  if (t.cavalryEligible) return `Inspect <code>crew/${esc(t.id)}</code>, or call Codex once to take it over: <code>crew cavalry ${esc(t.id)}</code>`
+  return `Inspect <code>crew/${esc(t.id)}</code>.`
 }
 
 /** Seconds per stage as one strip, widths by time; a running task adds its open stage. */

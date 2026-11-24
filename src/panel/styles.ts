@@ -329,4 +329,46 @@ html.light .m-venice { --mc: #be185d; } html.light .m-codex { --mc: #0f766e; } h
 .badge-bad { flex: none; font-size: 11px; font-weight: 600; padding: 0 6px; border-radius: 4px; color: var(--bg); background: var(--bad); }
 
 .primary { margin-top: 6px; padding: 5px 14px; border-radius: var(--radius); background: var(--orca-primary, var(--fg)); color: var(--orca-primary-foreground, var(--bg)); font-weight: 500; }
+
+/* The story: headline, outcome, then one row per role with a word and a plain sentence. */
+.story { margin-top:10px; font-family:system-ui,sans-serif }
+.story-title { margin:0; font:650 14px/1.3 system-ui; color:#fbfaf6; overflow-wrap:anywhere }
+.story-outcome { margin:4px 0 0; padding:6px 8px; border-radius:6px; font-size:12px; line-height:1.4; background:#14202a; color:var(--c-2); box-shadow:inset 3px 0 0 var(--c-3) }
+.st-bad .story-outcome { color:#ffd2c4; box-shadow:inset 3px 0 0 var(--c-bad); background:color-mix(in srgb,var(--c-bad) 10%,#10171f) }
+.st-ok .story-outcome { color:#c9f7e4; box-shadow:inset 3px 0 0 var(--c-live) }
+.st-warn .story-outcome { color:#ffe3b8; box-shadow:inset 3px 0 0 var(--c-warn) }
+.st-run .story-outcome { color:#c9f7e4; box-shadow:inset 3px 0 0 var(--c-live) }
+.sr-list { list-style:none; margin:8px 0 0; padding:0; display:grid; gap:2px }
+.sr { --tone:var(--c-3); display:grid; grid-template-columns:24px minmax(0,1fr); gap:8px; padding:6px 4px; border-top:1px solid var(--c-line) }
+.sr-ok { --tone:var(--c-live) } .sr-bad { --tone:var(--c-bad) } .sr-warn { --tone:var(--c-warn) } .sr-run { --tone:var(--c-live) } .sr-quiet { --tone:#85c1db }
+.sr-face { width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font:700 11px ui-monospace,monospace; font-style:normal; color:var(--tone); border:1.5px solid color-mix(in srgb,var(--tone) 70%,transparent); background:color-mix(in srgb,var(--tone) 10%,#0b1620) }
+.sr-reserve .sr-face { border-style:dashed }
+.sr-idle .sr-face { opacity:.6 }
+.sr-head { display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; min-width:0 }
+.sr-head b { font-weight:650; color:var(--c-fg) }
+.sr-role { font:10px ui-monospace,monospace; color:var(--c-3); letter-spacing:.04em }
+.sr-word { margin-left:auto; font:600 10.5px ui-monospace,monospace; color:var(--tone); padding:1px 6px; border-radius:9px; background:color-mix(in srgb,var(--tone) 13%,transparent); white-space:nowrap }
+.sr p { margin:2px 0 0; color:var(--c-2); font-size:12px; line-height:1.4; overflow-wrap:anywhere }
+.sr-idle p { color:var(--c-3) }
+.cm-fold.sm { padding:7px 0 2px; border-top:1px solid var(--c-line); margin-top:4px }
+.story-detail { font-size:11px } .story-detail code { font-size:10.5px }
+.root-tag { display:inline-block; margin-right:6px; padding:0 6px; border-radius:4px; font:600 10px/1.6 ui-monospace,monospace; letter-spacing:0; text-transform:none; color:var(--c-res); background:color-mix(in srgb,var(--c-res) 14%,transparent) }
+.command-hub.hub-bad { stroke:var(--c-bad); stroke-width:1.5 } .command-hub.hub-ok { stroke:var(--c-live) } .command-hub.hub-warn { stroke:var(--c-warn) }
+.cm-lease { margin:8px 0 0; padding:6px 8px; border-radius:6px; background:color-mix(in srgb,var(--c-warn) 11%,transparent); color:#ffe3b8; font-size:12px; overflow-wrap:anywhere }
+.cm-lease b { color:var(--c-warn) }
+.cm-roots { list-style:none; margin:0; padding:0; display:grid; gap:3px; font-size:12px; color:var(--c-2) }
+.cm-roots b { font-weight:600; color:var(--c-fg) } .cm-roots code { font-size:10px }
+.cm-dev h2 span { color:var(--c-3) }
+.dv-list { list-style:none; margin:8px 0 0; padding:0; display:grid; gap:6px }
+.dv { --tone:var(--c-3); padding:7px 9px; border-radius:8px; background:var(--c-panel); border:1px solid var(--c-line); box-shadow:inset 3px 0 0 var(--tone) }
+.dv-working { --tone:#79b8ff } .dv-blocked, .dv-waiting { --tone:var(--c-warn) }
+.dv-head { display:flex; align-items:baseline; gap:6px; min-width:0 }
+.dv-head b { font-weight:600; overflow-wrap:anywhere; min-width:0 }
+.dv-state { margin-left:auto; flex:none; font:600 10.5px ui-monospace,monospace; color:var(--tone) }
+.dv-sub, .dv-seen { margin-top:2px; font-size:11px; color:var(--c-3); overflow-wrap:anywhere }
+.dv-seen { color:var(--c-2) }
+.cm-inc-what { flex:1 1 100%; order:5; color:var(--c-fg); font-size:12.5px; overflow-wrap:anywhere }
+.cm-story { font:600 11px ui-monospace,monospace; color:var(--c-live); padding:2px 7px; border:1px solid color-mix(in srgb,var(--c-live) 40%,transparent); border-radius:5px }
+.cm-story[aria-pressed="true"] { background:color-mix(in srgb,var(--c-live) 16%,transparent) }
+.deck-back { display:block; margin-top:6px; font-family:system-ui,sans-serif }
 `

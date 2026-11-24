@@ -5,7 +5,7 @@
 import type { OrcaWorkerApi } from 'orca/worker'
 import '../shared/protocol'
 import { fmtUsd, pct } from '../shared/format'
-import type { AgentState, AgentView, BackgroundView, LogEntry, Scope, Snapshot, SubagentView, TurnView } from '../shared/types'
+import type { AgentState, AgentView, BackgroundView, CrewDevView, CrewView, LogEntry, Scope, Snapshot, SubagentView, TurnView } from '../shared/types'
 import { claudeDir, compactSettings, TranscriptLocator, type CompactSettings } from './claude/files'
 import { ClaudeSession, turnView } from './claude/session'
 import { demoSnapshot } from './demo'
@@ -13,6 +13,7 @@ import { Gate } from './gate'
 import { modelWindow } from './pricing'
 import { sshRunner, validHost, type Runner } from './crew/remote'
 import { CrewWatch } from './crew/watch'
+import { readCrewDev } from './crew/dev'
 
 /** How the Crew section reaches its hosts; tests swap in a fake. */
 export const crewDeps: { runner: Runner } = { runner: sshRunner }
@@ -54,6 +55,10 @@ const LOG_MAX = 120
 const POLL_MS = 1000
 const POST_MIN_MS = 250
 const REFRESH_MS = 5000
+/** Crew workspaces are read every 10 polls (10 s). */
+const CREW_DEV_TICKS = 10
+
+const withDev = (c: CrewView | null, dev: CrewDevView | null, focus: string | null): CrewView | null => (c ? { ...c, dev, focus } : null)
 
 export class Pitwall {
   scope: Scope = 'focused'
@@ -81,6 +86,11 @@ export class Pitwall {
   private timer: ReturnType<typeof setInterval> | null = null
   private ticks = 0
   private note: string | null = null
+  /** Orca agents in Crew workspaces, read whatever the scope while Crew mode is on. */
+  private crewDev: CrewDevView | null = null
+  private crewDevBusy = false
+  /** The run picked to read in the orchestrator (root/id); kept across panel reloads. */
+  crewFocus: string | null = null
 
   /** When this worker started: an agent first met already done, but done after this, finished unseen. */
   private readonly startedAt = Date.now()
@@ -135,6 +145,7 @@ export class Pitwall {
     try {
       if (this.ticks % Math.round(REFRESH_MS / POLL_MS) === 0) void this.scheduleRefresh()
       if (this.ticks % 10 === 1) this.compact = await compactSettings(claudeDir(this.configDir))
+      if (this.ticks % CREW_DEV_TICKS === 1) void this.pollCrewDev()
       if (await this.pollTranscripts()) this.dirty = true
       // Calls read from the transcript after a restart, while the agent already waits on the person.
       for (const t of this.tracked.values()) if (asks(t.state)) this.gate.blocked(t.key, t.stateSince)
@@ -143,6 +154,29 @@ export class Pitwall {
     } catch (err) {
       this.orca.log(`tick failed: ${(err as Error).message}`)
     }
+  }
+
+  // ---- Crew development sessions ----------------------------------------------------------
+
+  /** Reads the Crew workspaces' agents while Crew mode is on; off, it forgets them. */
+  async pollCrewDev(): Promise<void> {
+    if (!this.crew.enabled || this.demo) {
+      if (this.crewDev) this.dirty = true
+      this.crewDev = null
+      return
+    }
+    if (this.crewDevBusy) return
+    this.crewDevBusy = true
+    try {
+      const host = this.orca.host
+      this.crewDev = await readCrewDev((name, params) => host.call(name as never, params as never) as never, Date.now())
+    } catch (err) {
+      const prev = this.crewDev
+      this.crewDev = { at: prev?.at ?? null, ok: false, error: (err as Error).message || 'Orca did not list workspaces', agents: prev?.agents ?? [], workspaces: prev?.workspaces ?? 0 }
+    } finally {
+      this.crewDevBusy = false
+    }
+    this.dirty = true
   }
 
   // ---- agents from Orca ------------------------------------------------------------------
@@ -419,7 +453,7 @@ export class Pitwall {
       gate: this.gate.list(160, (e) => keys.has(e.agentKey)),
       log: this.log.filter((e) => keys.has(e.agentKey)).slice(-60),
       note: agents.length === 0 ? (this.note ?? 'No agents in this workspace yet. Start Claude Code in an Orca terminal.') : this.note,
-      crew: this.crew.view(now)
+      crew: withDev(this.crew.view(now), this.crewDev, this.crewFocus)
     }
   }
 
@@ -495,6 +529,14 @@ export class Pitwall {
   async setCrew(on: boolean): Promise<Snapshot> {
     await this.orca.settings.set('crew', on).catch(() => {})
     this.crew.configure(on, this.crew.crewHost, this.crew.gatewayHost)
+    void this.pollCrewDev().then(() => this.flush(true))
+    this.flush(true)
+    return this.snapshot()
+  }
+
+  setCrewFocus(key: string | null): Snapshot {
+    this.crewFocus = key && /^[\w.-]{1,80}\/[\w.-]{1,80}$/.test(key) ? key : null
+    this.dirty = true
     this.flush(true)
     return this.snapshot()
   }
@@ -628,6 +670,7 @@ export default function activate(orca: OrcaWorkerApi): void {
   orca.panels.handle('pitwall.setDemo', async ({ on }) => pw.setDemo(on === true))
   orca.panels.handle('pitwall.reset', async () => pw.reset())
   orca.panels.handle('pitwall.setCrew', async ({ on }) => pw.setCrew(on === true))
+  orca.panels.handle('pitwall.crewFocus', async ({ key }) => pw.setCrewFocus(typeof key === 'string' && key ? key : null))
   orca.panels.handle('pitwall.focus', async ({ key }) => pw.focus(String(key ?? '')))
   orca.panels.handle('pitwall.seen', async ({ key }) => pw.markSeen(String(key ?? '')))
 

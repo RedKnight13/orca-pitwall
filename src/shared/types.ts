@@ -131,6 +131,13 @@ export type CrewTone = 'pass' | 'fail' | 'wait' | 'run'
 /** One line of the crew's event log: a stage that finished, with its outcome and seconds. */
 export interface CrewStageView {
   evidence?: string[]
+  /** Receipts the crew writes on the line: plan mode (solo, helper), the gate that judged it (jev), its decision, and Jev's calls. */
+  mode?: string
+  gate?: string
+  decision?: string
+  refereeCalls?: number
+  /** The runner's ownership gate, as a code: helper_outside_assignment, leader_edited_helper_file, other. */
+  reason?: string
   stage: string
   attempt: number
   outcome: string
@@ -142,6 +149,15 @@ export interface CrewStageView {
 export interface CrewTaskView {
   assignments?: Record<string, string[]>
   id: string
+  /** Source identity: the state root on the crew host (agni-crew-three-seat, agni-crew-79-qual…) plus the id. */
+  key: string
+  root: string
+  /** The root the default crew profile uses. Only its tasks are confirmed by `crew status`; the others are as recorded. */
+  primary: boolean
+  /** Recorded or crew-reported decision (helper_assignment_rejected, local_pass, stop…). */
+  decision: string | null
+  /** `crew status` says the Codex cavalry could take this waiting task (`crew cavalry <id>`). */
+  cavalryEligible: boolean
   /** As `crew status` shows it: running, waiting, needs_owner, merge_ready, failed, interrupted, stopped. */
   status: string
   stage: string | null
@@ -228,8 +244,56 @@ export interface CrewLiveView {
   source: 'seats' | 'stages'
 }
 
+/** One crew state root on the crew host, and how fresh its records are. */
+export interface CrewSourceView {
+  root: string
+  primary: boolean
+  tasks: number
+  unreadable: number
+  /** Last write to its events log or task folder; null when it has none. */
+  lastWriteAt: number | null
+}
+
+/** A seat lease whose holder is not a task in the report (a benchmark, another tool, a task past the window). */
+export interface CrewOrphanLease {
+  seat: string
+  holder: string
+  priority: string | null
+}
+
+/** An Orca agent working in a Crew project workspace: development of the crew, not a crew run. */
+export interface CrewDevAgentView {
+  key: string
+  agentKind: string
+  workspaceName: string
+  branch: string | null
+  /** The agent's task title as Orca knows it, else its terminal title. */
+  title: string
+  /** The terminal title when it differs from the task title: the last thing Orca saw it doing. */
+  lastSeen: string | null
+  state: AgentState
+  stateSince: number
+}
+
+export interface CrewDevView {
+  /** When Orca last answered; null when never. */
+  at: number | null
+  ok: boolean
+  error: string | null
+  agents: CrewDevAgentView[]
+  /** Crew workspaces with open terminals that were checked. */
+  workspaces: number
+}
+
 export interface CrewView {
   reserveRoles?: string[]
+  /** State roots the read covered. Empty from a crew host that predates multi-root reads. */
+  sources?: CrewSourceView[]
+  orphanLeases?: CrewOrphanLease[]
+  /** The run the owner picked to read in the orchestrator (a task key); null shows the live or latest run. */
+  focus?: string | null
+  /** Orca development sessions in Crew workspaces; separate from the crew's model seats. */
+  dev?: CrewDevView | null
   host: string
   /** When agnx last answered; null when never. */
   at: number | null

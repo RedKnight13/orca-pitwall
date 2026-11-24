@@ -186,6 +186,11 @@ function onClick(e: MouseEvent): void {
     })
     return
   }
+  if (action === 'crew-focus') {
+    setUi({ playback: undefined })
+    void request(() => orca.plugin.request('pitwall.crewFocus', { key: target.dataset.key ?? '' })).then((s) => s && accept(s))
+    return
+  }
   if (action === 'crew') {
     setUi({ menu: false })
     void request(() => orca.plugin.request('pitwall.setCrew', { on: !snap.crew })).then((s) => s && accept(s))

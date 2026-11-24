@@ -3,8 +3,9 @@
 // owner (cause, last good stage, next step), then the orchestrator map with its run sheet and an
 // explicit replay, then backend health and run history. Pure HTML from the snapshot, like render.ts.
 import { fmtDuration } from '../shared/format'
-import type { CrewMascotView, CrewStageView, CrewTaskView, CrewView, Snapshot } from '../shared/types'
-import { crewReplay, deckTask } from './crewReplay'
+import type { CrewDevView, CrewMascotView, CrewStageView, CrewTaskView, CrewView, Snapshot } from '../shared/types'
+import { crewReplay, deckTask, rootName } from './crewReplay'
+import { headline } from './crewStory'
 import { finale, handoff } from './mascots'
 import { crewCard, crewHint, crewLine, crewPill, esc, fmtSecs, type UiState } from './render'
 
@@ -84,24 +85,58 @@ function nowRunning(c: CrewView, t: CrewTaskView, now: number): string {
     ? `<div class="cm-wait" role="status"><b>Queued</b> for the ${esc(t.waitingOn.seat)} seat · held by <code>${esc(t.waitingOn.holder)}</code></div>`
     : ''
   return `<section class="cm-now run" aria-label="Running task">
-  <div class="cm-kicker"><span>Running</span><code>${esc(t.id)}</code>${t.attempts > 1 ? `<span>attempt ${esc(t.attempts)}</span>` : ''}</div>
+  <div class="cm-kicker" title="Task ${esc(t.id)} in ${esc(t.root)}"><span>${t.primary ? 'Running' : 'Recorded as running'}</span>${t.primary ? '' : `<span class="root-tag">${esc(rootName(t.root))}</span>`}${t.attempts > 1 ? `<span>attempt ${esc(t.attempts)}</span>` : ''}</div>
   <div class="cm-stage"><h1>${words(t.stage ?? 'starting')}</h1>${started ? `<span class="cm-elapsed" title="Elapsed since the task started">${since(started, now)}</span>` : ''}</div>
-  <p class="cm-prompt" title="${esc(t.prompt)}">${esc(t.prompt)}</p>
+  <p class="cm-prompt" title="${esc(t.prompt)}">${esc(headline(t.prompt))}</p>
   ${seat}${events(c, now)}
   <dl class="cm-facts"><dt>Latest</dt><dd>${progress}</dd><dt>Working</dt><dd><ul class="cm-who">${crew}</ul></dd></dl>
 </section>`
 }
 
+function leaseNote(c: CrewView): string {
+  const held = c.orphanLeases ?? []
+  if (!held.length) return ''
+  return `<p class="cm-lease" role="status"><b>Seat in use:</b> ${held.map((l) => `the ${esc(l.seat)} seat is held by <code>${esc(l.holder)}</code>${l.priority ? ` (${esc(l.priority)})` : ''}`).join('; ')}. No task in this report matches, so something else is using it.</p>`
+}
+
 function nowIdle(c: CrewView, now: number): string {
   const last = [...c.tasks].sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))[0]
+  const roots = c.sources?.length ?? 0
   const ended = last
-    ? `<p class="cm-last">Last run <code>${esc(last.id)}</code> ${crewPill(last)}${last.updatedAt ? ` · ended ${ago(last.updatedAt, now)} ago` : ''}</p>`
+    ? `<p class="cm-last">Last run: ${esc(headline(last.prompt))} ${crewPill(last)}${last.updatedAt ? ` · ended ${ago(last.updatedAt, now)} ago` : ''}${last.primary ? '' : ` · <span class="root-tag">${esc(rootName(last.root))}</span>`}</p>`
     : '<p class="cm-last">No crew tasks yet.</p>'
-  return `<section class="cm-now idle" aria-label="No task running">
+  const scope = roots ? `<p class="cm-note">Checked ${roots} run root${roots === 1 ? '' : 's'} on ${esc(c.host)}. Runs elsewhere are not seen.</p>` : ''
+  return `<section class="cm-now idle" aria-label="No crew run in progress">
   <div class="cm-kicker"><span>Idle</span></div>
-  <div class="cm-stage"><h1>No task running</h1></div>
-  ${events(c, now)}${ended}
+  <div class="cm-stage"><h1>No crew run in progress</h1></div>
+  ${leaseNote(c)}${events(c, now)}${ended}${scope}
 </section>`
+}
+
+/** Where the runs come from: every state root read, with how recently each was written. */
+function sources(c: CrewView, ui: UiState, now: number): string {
+  const xs = c.sources ?? []
+  if (!xs.length) return `<section class="cm-block cm-sources"><h2>Runs seen</h2><p class="cm-note">This crew host reports only its default root; runs in other roots are not seen.</p></section>`
+  const open = !!ui.expanded['crew:sources']
+  const rows = xs
+    .map((x) => `<li><b>${esc(x.primary ? 'Default crew' : rootName(x.root))}</b> <span>${esc(x.tasks)} task${x.tasks === 1 ? '' : 's'}</span>${x.lastWriteAt ? ` <span class="cm-t">written ${ago(x.lastWriteAt, now)} ago</span>` : ''}${x.unreadable ? ` <span class="bad-t">${esc(x.unreadable)} unreadable</span>` : ''}${open ? ` <code>${esc(x.root)}</code>` : ''}</li>`)
+    .join('')
+  return `<section class="cm-block cm-sources"><button class="cm-fold" data-action="expand" data-key-x="crew:sources" aria-expanded="${open}"><h2>Runs seen</h2><span>${xs.length} root${xs.length === 1 ? '' : 's'} ${open ? '−' : '+'}</span></button><ul class="cm-roots">${rows}</ul><p class="cm-note">Only the default root is confirmed by <code>crew status</code>; the others show what their records say.</p></section>`
+}
+
+const DEV_STATE: Record<string, string> = { working: 'working', blocked: 'needs you', waiting: 'needs you', done: 'idle', unknown: 'unknown' }
+
+/** Orca agents working on the crew's code: development, not crew runs or model seats. */
+function development(d: CrewDevView | null | undefined, now: number): string {
+  const head = '<h2>Crew development <span>in Orca</span></h2>'
+  if (!d) return `<section class="cm-block cm-dev">${head}<p class="cm-note">Reading Crew workspaces in Orca…</p></section>`
+  const fresh = d.at ? ` · read ${ago(d.at, now)} ago` : ''
+  const gap = !d.ok ? `<p class="cm-note warn-t">${esc(d.error ?? 'Orca did not answer')}${d.at ? '' : '; what runs there is unknown'}.</p>` : ''
+  const rows = d.agents
+    .map((a) => `<li class="dv dv-${esc(a.state)}"><div class="dv-head"><b>${esc(a.title)}</b><span class="dv-state">${esc(DEV_STATE[a.state] ?? a.state)}</span></div><div class="dv-sub"><span>${esc(a.agentKind)}</span> · <span>${esc(a.workspaceName)}</span> · <span class="cm-t">${a.state === 'working' ? 'for ' + since(a.stateSince, now) : ago(a.stateSince, now) + ' ago'}</span></div>${a.lastSeen ? `<div class="dv-seen">Last seen: ${esc(a.lastSeen)}</div>` : ''}</li>`)
+    .join('')
+  const none = d.ok && !d.agents.length ? `<p class="cm-note">No agents in ${d.workspaces ? `the ${d.workspaces} open Crew workspace${d.workspaces === 1 ? '' : 's'}` : 'any open Crew workspace'}.</p>` : ''
+  return `<section class="cm-block cm-dev" aria-label="Crew development in Orca">${head}<p class="cm-note">Orca sessions on the crew's code, in every Crew workspace whatever is focused${fresh}. Separate from the model seats.</p>${gap}${rows ? `<ul class="dv-list">${rows}</ul>` : ''}${none}</section>`
 }
 
 function nowOff(c: CrewView, now: number): string {
@@ -127,7 +162,7 @@ function incidents(c: CrewView, ui: UiState, now: number): string {
       const good = lastGood(t)
       const at = latest(t)
       return `<article class="cm-incident">
-  <div class="cm-inc-head"><b>${esc(t.owner === 'test_command' ? OWNER_TITLE.test_command : (STATUS_TITLE[t.status] ?? OWNER_TITLE.stuck))}</b><code>${esc(t.id)}</code>${t.updatedAt ? `<span class="cm-t">${ago(t.updatedAt, now)} ago</span>` : ''}</div>
+  <div class="cm-inc-head"><b>${esc(t.owner === 'test_command' ? OWNER_TITLE.test_command : (STATUS_TITLE[t.status] ?? OWNER_TITLE.stuck))}</b><span class="cm-inc-what" title="${esc(`${t.id} in ${t.root}`)}">${esc(headline(t.prompt))}</span>${t.updatedAt ? `<span class="cm-t">${ago(t.updatedAt, now)} ago</span>` : ''}<button class="cm-story" data-action="crew-focus" data-key="${esc(t.key)}" aria-pressed="${c.focus === t.key}" title="Show who did what in this run">Story ›</button></div>
   <dl class="cm-facts">
     <dt>Cause</dt><dd>${t.detail ? esc(t.detail) : at ? `${words(at.stage)} ended ${words(at.outcome || 'without an outcome')}` : 'Not recorded'}</dd>
     <dt>Reached</dt><dd>${good ? `${words(good.stage)} passed` : 'No stage passed'}${at && at !== good ? `; stopped at ${words(at.stage)}` : ''}</dd>
@@ -154,7 +189,8 @@ function health(c: CrewView, now: number): string {
     : bad.length
       ? `LiteLLM: ${bad.map((k) => `<code>${esc(k.alias)}</code> ${k.pct !== null && k.pct >= 100 ? 'out of budget' : 'expired or expiring'}`).join(', ')}`
       : ''
-  const notes = [c.agni1Only ? 'agni2 off: agni1-only mode' : '', c.seats.length && !c.lockDeployed ? 'seat lock not deployed: holders unknown' : '', gate].filter(Boolean)
+  const held = (c.orphanLeases ?? []).map((l) => `${esc(l.seat)} seat held by <code>${esc(l.holder)}</code>, not a task in this report`)
+  const notes = [...held, c.agni1Only ? 'agni2 off: agni1-only mode' : '', c.seats.length && !c.lockDeployed ? 'seat lock not deployed: holders unknown' : '', gate].filter(Boolean)
   if (!seats && !notes.length) return ''
   return `<section class="cm-block cm-health" aria-label="Seats"><h2>Seats</h2>${seats ? `<ul class="cm-seats">${seats}</ul>` : ''}${notes.map((n) => `<p class="cm-note">${n}</p>`).join('')}</section>`
 }
@@ -172,7 +208,9 @@ export function renderCrewConsole(s: Snapshot, ui: UiState, now: number): { head
   const c = s.crew!
   const running = c.reachable ? c.tasks.find((t) => t.id === c.live?.taskId && t.status === 'running') ?? c.tasks.find((t) => t.status === 'running') : undefined
   const head = !c.reachable ? nowOff(c, now) : running ? nowRunning(c, running, now) : nowIdle(c, now)
-  const deck = c.reachable && deckTask(c, ui.playback) ? crewReplay(c, ui.playback, running?.id ?? null) : ''
-  const body = `${head}${c.reachable ? incidents(c, ui, now) : ''}${deck}${health(c, now)}${history(c, ui, now)}`
+  const deck = c.reachable && deckTask(c, ui.playback) ? crewReplay(c, ui.playback, running?.id ?? null, ui) : ''
+  // A run the owner picked comes straight after the live state; otherwise what needs them comes first.
+  const picked = !!c.focus && !ui.playback && !running && deck
+  const body = `${head}${picked ? deck : ''}${c.reachable ? incidents(c, ui, now) : ''}${picked ? '' : deck}${health(c, now)}${development(c.dev, now)}${c.reachable ? sources(c, ui, now) : ''}${history(c, ui, now)}`
   return { header: bar(c, now), crew: `<main class="crew-console" aria-label="Crew operations">${body}</main>` }
 }
