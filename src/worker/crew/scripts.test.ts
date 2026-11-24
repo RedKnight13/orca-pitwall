@@ -60,7 +60,7 @@ test('gateway script: only alias, spend, budget and expiry leave the host; never
     assert.equal(out.trim().split('\n').length, 1)
     const line = JSON.parse(out)
     assert.deepEqual(line.keys, [{ alias: 'agni-crew-jev', spend: 4.1, max_budget: 5, expires: '2026-12-24T08:50:20.207000Z' }])
-    assert.deepEqual(line.missing, ['agni-crew-claude'])
+    assert.deepEqual(line.missing, ['agni-crew-claude', 'agni-crew-cavalry', 'agni-crew-frontdoor'])
     const g = parseGatewayReport(out, Date.parse('2026-11-24T12:00:00Z'))
     assert.equal(g.keys[0].tone, 'warn')
 

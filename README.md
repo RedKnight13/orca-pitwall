@@ -114,7 +114,7 @@ Settings → Plugins → Pitwall → *Show the Agni crew section*). The same ite
   Codex cavalry could take. Past three, the rest are a count. The status bar adds `crew N for you`.
 - **Seats:** Leader Qwen (agnx :28084), Helper Gemma (:28085), Reviewer Inkling (agni2 :8093), each up, down or busy,
   with the seat lock's holder when the lock is deployed. When :8093 does not answer: *agni2 off, agni1-only mode*.
-- **Gateway:** spend of `agni-crew-jev` and `agni-crew-claude` against their budgets and the days to expiry, amber at
+- **Gateway:** spend of `agni-crew-jev`, `agni-crew-claude`, `agni-crew-cavalry` and `agni-crew-frontdoor` against their budgets and the days to expiry, amber at
   80% or 7 days, red at 100% or 1 day (red also goes to the top). This is the alert surface for those keys. A link opens
   the LiteLLM dashboard in your browser.
 

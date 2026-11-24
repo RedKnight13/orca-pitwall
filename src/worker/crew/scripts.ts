@@ -342,7 +342,7 @@ export function agnxScript(cursor: AgnxCursor | null): string {
 export const GATEWAY_PY = String.raw`
 import json, os, urllib.error, urllib.request
 
-ALIASES = ("agni-crew-jev", "agni-crew-claude")
+ALIASES = ("agni-crew-jev", "agni-crew-claude", "agni-crew-cavalry", "agni-crew-frontdoor")
 ENV = "~/.local/share/agni-inference-stack/gateway-current/environment/gateway.env"
 URL = "http://127.0.0.1:4000/key/list?return_full_object=true&size=100&page=%d"
 
