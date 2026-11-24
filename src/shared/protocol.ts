@@ -15,6 +15,8 @@ declare module 'orca' {
     'pitwall.focus': { input: { key: string }; output: { focused: boolean; reason?: string } }
     /** The person looked at an agent in the panel: its finished turn is no longer new. */
     'pitwall.seen': { input: { key: string }; output: Snapshot }
+    /** Turn the optional Agni crew section on or off. */
+    'pitwall.setCrew': { input: { on: boolean }; output: Snapshot }
     /** Clear tool calls and the log. */
     'pitwall.reset': { output: Snapshot }
   }

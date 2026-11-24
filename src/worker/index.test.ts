@@ -125,7 +125,8 @@ test('status bar text: asking first, context and cost', () => {
     agents: [],
     gate: [],
     log: [],
-    note: null
+    note: null,
+    crew: null
   }
   assert.equal(statusBarOf(base, true).text, 'no agents')
   const agent = {
@@ -246,7 +247,7 @@ test('a failed agents.list keeps the agents; hooks from other workspaces are ign
 test('a huge snapshot is trimmed under the post limit', () => {
   const gate = Array.from({ length: 160 }, (_, i) => ({ id: `g${i}`, at: i, endedAt: i, agentKey: 'k', sub: false, tool: 'Bash', family: 'shell' as const, summary: 'x'.repeat(90), state: 'ok' as const }))
   const log = Array.from({ length: 60 }, (_, i) => ({ at: i, agentKey: 'k', kind: 'edit' as const, text: 'y'.repeat(200) }))
-  const s: Snapshot = { v: 1, at: 0, scope: 'all', demo: false, showCost: true, agents: [], gate, log, note: null }
+  const s: Snapshot = { v: 1, at: 0, scope: 'all', demo: false, showCost: true, agents: [], gate, log, note: null, crew: null }
   const out = fitSnapshot(s, 10_000)
   assert.ok(JSON.stringify(out).length <= 10_000 || out.gate.length === 0)
   assert.equal(fitSnapshot(s).gate.length, 160)

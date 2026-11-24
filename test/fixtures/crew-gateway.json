@@ -1,0 +1,18 @@
+{
+    "schema": "pitwall.gateway/1",
+    "keys": [
+        {
+            "alias": "agni-crew-jev",
+            "spend": 0.002020326,
+            "max_budget": 5.0,
+            "expires": "2026-12-24T08:50:20.207000Z"
+        },
+        {
+            "alias": "agni-crew-claude",
+            "spend": 0.000148,
+            "max_budget": 100.0,
+            "expires": "2026-12-24T08:51:59.494000Z"
+        }
+    ],
+    "missing": []
+}

@@ -60,7 +60,8 @@ Pitwall reads; the one thing it changes is which terminal is in front, and only 
 | Files under `~/.claude` | Claude Code's session transcripts and `settings.json`, for model, tokens, cost, subagents, background work and the auto-compact window. |
 
 It never sends anything over the network, never starts a process, never types into a terminal and never
-writes outside its own storage. The one link out, **★ Star on GitHub**, opens this repository in your browser
+writes outside its own storage. The one exception is the optional [Crew section](#crew-section-agni-crew), off by default:
+while you turn it on, it runs `ssh` to read the Agni crew. The one link out, **★ Star on GitHub**, opens this repository in your browser
 only when you click it, after Orca asks. Tokens, keys, passwords and connection strings in tool summaries are masked
 before they reach the screen, so a screenshot of Pitwall does not leak them.
 
@@ -73,6 +74,56 @@ before they reach the screen, so a screenshot of Pitwall does not leak them.
 | Context window | Auto | Auto uses your auto-compact window, else the model's. Or force 200k, 400k or 1M. |
 | Status bar | On | Show the summary in Orca's status bar. |
 | Claude config folder | empty | Where Claude Code keeps its data. Empty means `$CLAUDE_CONFIG_DIR`, else `~/.claude`. |
+| Show the Agni crew section | Off | The [Crew section](#crew-section-agni-crew). Also menu ⋯ → Crew. |
+| Crew host | `agnx` | SSH alias of the host where `crew` runs. |
+| Gateway host | `agni1` | SSH alias of the host where the LiteLLM gateway runs. |
+
+## Crew section (Agni crew)
+
+An optional section for the Agni coding crew, next to your agents. **It is off by default**; nothing below
+happens until you turn it on.
+
+**Turn it on:** menu ⋯ → **Crew** in the panel (or the command *Pitwall: Show or hide the Agni crew section*, or
+Settings → Plugins → Pitwall → *Show the Agni crew section*). The same item turns it off, which stops every read.
+
+**What it shows**
+
+- **Tasks** from `crew status` on the crew host: id, status (running, waiting, needs_owner, merge_ready, failed,
+  interrupted), stage and attempt. A running task is a card with its stage timeline (one segment per stage, width by
+  seconds) and the run sheet of its event lines: stage, outcome and seconds, coloured as in the Agni Crew Replay.
+  Other tasks are one line each; click one to open its card.
+- **Tasks waiting on you go to the top**, like needs-you alerts: no test command (with the exact
+  `crew resume <id> --test-command CMD`), or a task that stopped short (waiting, failed, interrupted) that the
+  Codex cavalry could take. Past three, the rest are a count. The status bar adds `crew N for you`.
+- **Seats:** Leader Qwen (agnx :28084), Helper Gemma (:28085), Reviewer Inkling (agni2 :8093), each up, down or busy,
+  with the seat lock's holder when the lock is deployed. When :8093 does not answer: *agni2 off, agni1-only mode*.
+- **Gateway:** spend of `agni-crew-jev` and `agni-crew-claude` against their budgets and the days to expiry, amber at
+  80% or 7 days, red at 100% or 1 day (red also goes to the top). This is the alert surface for those keys. A link opens
+  the LiteLLM dashboard in your browser.
+
+**How it reads, and what it never does**
+
+- Every 15 s (gateway every 60 s) it runs `ssh -o BatchMode=yes <host> python3 -` with your own SSH config and
+  agent, and sends a short read-only script on stdin. Nothing is installed on the hosts and no port is opened.
+- On the crew host the script reads `crew status`, the task records under `~/.local/state/agni-crew-three-seat/`,
+  the stage lines of `~/.local/state/agni-crew*/events.jsonl`, `agni-seat-lock status` and each seat's `/health` on
+  loopback. It sends back only the fields above.
+- On the gateway host the script reads the LiteLLM master key from the gateway's environment file *there*, asks the
+  admin API on `127.0.0.1:4000`, and prints only alias, spend, budget and expiry of the two crew keys. The master key
+  never leaves that host and is never printed; no key value or hash comes back.
+- It never starts, stops or changes a task, a seat or a key. Pitwall stores no crew data.
+- When a host does not answer, the section says **crew unreachable** (or gateway unreachable) and when it last
+  answered; the rest of Pitwall carries on.
+
+**Install this build (fork branch `feature/agni-crew`)**
+
+```bash
+git clone -b feature/agni-crew git@github.com:RedKnight13/orca-pitwall.git && cd orca-pitwall
+orca plugin dev load .        # then --approve <fingerprint> as printed
+```
+
+Then open Pitwall (⌘⌥P) and choose menu ⋯ → **Crew**. A `dev load` of this folder replaces any other development
+folder loaded as `pitwall`.
 
 ## Agents
 

@@ -4,7 +4,7 @@
   "id": "pitwall",
   "name": "Pitwall",
   "version": "0.2.0",
-  "description": "A live pit wall for your coding agents: context, cost, subagents and every tool call, in Orca's right sidebar. Read-only, local, no network.",
+  "description": "A live pit wall for your coding agents: context, cost, subagents and every tool call, in Orca's right sidebar. Read-only and local; the optional Crew section reads an Agni crew over your own SSH.",
   "author": {
     "name": "sonthh",
     "url": "https://github.com/sonthh"
@@ -87,6 +87,10 @@
         "title": "Pitwall: Toggle demo mode (synthetic session)"
       },
       {
+        "id": "pitwall.crew",
+        "title": "Pitwall: Show or hide the Agni crew section"
+      },
+      {
         "id": "pitwall.reset",
         "title": "Pitwall: Clear tool calls and log"
       }
@@ -160,6 +164,29 @@
         "type": "string",
         "default": "",
         "placeholder": "~/.claude"
+      },
+      {
+        "key": "crew",
+        "title": "Show the Agni crew section",
+        "description": "Off by default. Reads the crew's tasks and seats from the crew host, and the crew keys' spend from the gateway host, over your own SSH (BatchMode, no new ports). Read-only.",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "key": "crewHost",
+        "title": "Crew host (SSH alias)",
+        "description": "Where `crew` runs. Pitwall runs `ssh <alias> python3 -` with a read-only script.",
+        "type": "string",
+        "default": "agnx",
+        "placeholder": "agnx"
+      },
+      {
+        "key": "gatewayHost",
+        "title": "Gateway host (SSH alias)",
+        "description": "Where the LiteLLM gateway runs. Its master key is read there and never leaves that host.",
+        "type": "string",
+        "default": "agni1",
+        "placeholder": "agni1"
       }
     ]
   }

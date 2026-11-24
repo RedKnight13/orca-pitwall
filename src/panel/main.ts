@@ -3,7 +3,7 @@
 import '../shared/protocol'
 import { fmtDuration, fmtUntil } from '../shared/format'
 import { EMPTY_SNAPSHOT, type Scope, type Snapshot, type ToolFamily } from '../shared/types'
-import { INITIAL_UI, REPO_URL, render, sectionOpen, type Rendered, type UiState } from './render'
+import { INITIAL_UI, LITELLM_URL, REPO_URL, render, sectionOpen, type Rendered, type UiState } from './render'
 import { CSS } from './styles'
 
 let snap: Snapshot = EMPTY_SNAPSHOT
@@ -35,7 +35,7 @@ function mountShell(): void {
   const style = document.createElement('style')
   style.textContent = CSS
   document.head.appendChild(style)
-  for (const k of ['header', 'alerts', 'agents', 'gate', 'log', 'footer'] as (keyof Rendered)[]) {
+  for (const k of ['header', 'alerts', 'agents', 'crew', 'gate', 'log', 'footer'] as (keyof Rendered)[]) {
     const el = document.createElement('div')
     el.dataset.part = k
     document.body.appendChild(el)
@@ -146,6 +146,16 @@ function onClick(e: MouseEvent): void {
     void request(() => orca.plugin.request('pitwall.focus', { key })).then((r) => {
       if (r && !r.focused) console.warn('pitwall: could not focus the terminal:', r.reason ?? 'unknown')
     })
+    return
+  }
+  if (action === 'crew') {
+    setUi({ menu: false })
+    void request(() => orca.plugin.request('pitwall.setCrew', { on: !snap.crew })).then((s) => s && accept(s))
+    return
+  }
+  if (action === 'litellm') {
+    // Only on this click, in the person's browser; Orca asks once before opening the host.
+    void request(async () => (orca.shell ? orca.shell.openExternal(LITELLM_URL) : null))
     return
   }
   if (action === 'github') {

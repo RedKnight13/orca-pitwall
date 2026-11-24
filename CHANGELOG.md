@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (fork: feature/agni-crew)
+
+- **Crew section** (optional, off by default; menu ⋯ → Crew): Agni crew tasks with stage timelines and run sheets, tasks waiting on you at the top, seat state and seat lock holder, and the gateway's crew keys against budget and expiry. Read-only, over your own SSH.
+
 ## 0.2.0
 
 - **Background** on each agent: background shells and Monitor watches still running, cron jobs and the `/loop` wakeup with their next run. An idle agent's row shows the next run or how many run; the status bar counts them (`2 bg`).

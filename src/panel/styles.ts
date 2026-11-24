@@ -159,5 +159,39 @@ b { font-weight: 600; }
 .empty { padding: 28px 12px; text-align: center; }
 .empty-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
 .empty p { margin: 0 0 8px; }
+/* Agni crew: status pills and stage colours follow the Agni Crew Replay (pass, fail, wait, running). */
+.crew-body { padding-left: 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+.crew-body > .block-title { margin-top: 2px; }
+.crew-body .cards { margin: 2px 0 4px; }
+.crew-body .lines { padding-left: 0; }
+.crew-card { padding: 8px 10px 8px; }
+.crew-card .card-head { padding-right: 0; }
+.crew-card.run { border-color: color-mix(in srgb, var(--run) 35%, var(--line)); }
+.crew-card .prompt { margin-top: 5px; }
+.tid { font-weight: 600; font-size: 12px; }
+.cpill, .opill { flex: none; font-size: 10.5px; font-weight: 500; padding: 0 6px; border-radius: 9px; border: 1px solid var(--line); color: var(--text-2); white-space: nowrap; }
+.cpill { margin-left: auto; }
+.cpill.run, .opill.run { color: var(--run); border-color: color-mix(in srgb, var(--run) 50%, transparent); }
+.cpill.pass, .opill.pass { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 50%, transparent); }
+.cpill.wait, .opill.wait { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 50%, transparent); }
+.cpill.fail, .opill.fail { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 50%, transparent); }
+.crew-line .cpill { margin-left: 0; }
+.crew-line .tid { flex: none; }
+.strip { display: flex; gap: 1px; height: 6px; margin-top: 7px; border-radius: 3px; overflow: hidden; background: var(--surface-2); }
+.strip i { display: block; min-width: 3px; flex-basis: 0; }
+.seg-pass { background: var(--ok); } .seg-fail { background: var(--bad); } .seg-wait { background: var(--warn); } .seg-run { background: var(--run); }
+.sheet { margin-top: 6px; display: grid; gap: 1px; }
+.sheet-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 44px; gap: 6px; align-items: center; font-size: 11.5px; padding: 1px 0; }
+.sheet-row.current { color: var(--run); }
+.secs { text-align: right; font-variant-numeric: tabular-nums; }
+.seat { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 6px; align-items: center; font-size: 12px; }
+.seat-holder { padding-left: 18px; }
+.dot.seat-up { background: var(--ok); } .dot.seat-busy { background: var(--run); } .dot.seat-down { background: var(--bad); }
+.seat-state { font-size: 11px; color: var(--text-2); } .seat-state.seat-down { color: var(--bad); } .seat-state.seat-busy { color: var(--run); }
+.key { display: grid; gap: 2px; }
+.key + .key { margin-top: 4px; }
+.crew-off { padding: 6px 8px; border-radius: var(--radius); background: var(--surface); }
+.badge-bad { flex: none; font-size: 11px; font-weight: 600; padding: 0 6px; border-radius: 4px; color: var(--bg); background: var(--bad); }
+
 .primary { margin-top: 6px; padding: 5px 14px; border-radius: var(--radius); background: var(--orca-primary, var(--fg)); color: var(--orca-primary-foreground, var(--bg)); font-weight: 500; }
 `

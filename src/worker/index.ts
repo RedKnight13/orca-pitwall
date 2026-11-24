@@ -1,6 +1,7 @@
 // Pitwall's worker: follows every agent Orca runs, reads Claude Code transcripts as they grow,
 // records tool calls from Orca's hooks, and sends one snapshot to the open panels. Read-only:
-// hooks always pass, no network, no writes outside the plugin's own storage.
+// hooks always pass, no writes outside the plugin's own storage. No network, except the optional
+// Crew section: while the person turns it on, it reads the Agni crew over their own SSH setup.
 import type { OrcaWorkerApi } from 'orca/worker'
 import '../shared/protocol'
 import { fmtUsd, pct } from '../shared/format'
@@ -10,6 +11,11 @@ import { ClaudeSession, turnView } from './claude/session'
 import { demoSnapshot } from './demo'
 import { Gate } from './gate'
 import { modelWindow } from './pricing'
+import { sshRunner, validHost, type Runner } from './crew/remote'
+import { CrewWatch } from './crew/watch'
+
+/** How the Crew section reaches its hosts; tests swap in a fake. */
+export const crewDeps: { runner: Runner } = { runner: sshRunner }
 
 interface Tracked {
   key: string
@@ -56,6 +62,7 @@ export class Pitwall {
   demo = false
   contextSetting = 'auto'
   configDir = ''
+  readonly crew: CrewWatch
   readonly tracked = new Map<string, Tracked>()
   readonly gate: Gate
   readonly log: LogEntry[] = []
@@ -81,6 +88,14 @@ export class Pitwall {
   constructor(private readonly orca: OrcaWorkerApi) {
     this.gate = new Gate((e) => this.pushLog(e))
     this.locator = new TranscriptLocator(() => claudeDir(this.configDir))
+    this.crew = new CrewWatch(
+      (host, script, ms) => crewDeps.runner(host, script, ms),
+      () => {
+        this.dirty = true
+        this.flush()
+      },
+      (msg) => this.orca.log(msg)
+    )
   }
 
   // ---- lifecycle -------------------------------------------------------------------------
@@ -100,6 +115,7 @@ export class Pitwall {
   stop(): void {
     if (this.timer) clearInterval(this.timer)
     this.timer = null
+    this.crew.stop()
   }
 
   async loadSettings(): Promise<void> {
@@ -109,6 +125,8 @@ export class Pitwall {
     this.statusBar = s.statusBar !== false
     this.contextSetting = typeof s.contextWindow === 'string' ? s.contextWindow : 'auto'
     this.configDir = typeof s.claudeConfigDir === 'string' ? s.claudeConfigDir : ''
+    const host = (v: unknown, dflt: string) => (typeof v === 'string' && validHost(v.trim()) ? v.trim() : dflt)
+    this.crew.configure(s.crew === true, host(s.crewHost, 'agnx'), host(s.gatewayHost, 'agni1'))
     this.dirty = true
   }
 
@@ -400,7 +418,8 @@ export class Pitwall {
       agents,
       gate: this.gate.list(160, (e) => keys.has(e.agentKey)),
       log: this.log.filter((e) => keys.has(e.agentKey)).slice(-60),
-      note: agents.length === 0 ? (this.note ?? 'No agents in this workspace yet. Start Claude Code in an Orca terminal.') : this.note
+      note: agents.length === 0 ? (this.note ?? 'No agents in this workspace yet. Start Claude Code in an Orca terminal.') : this.note,
+      crew: this.crew.view(now)
     }
   }
 
@@ -472,6 +491,14 @@ export class Pitwall {
     return this.snapshot()
   }
 
+  /** Turns the Crew section on or off; off stops every read of the crew's hosts. */
+  async setCrew(on: boolean): Promise<Snapshot> {
+    await this.orca.settings.set('crew', on).catch(() => {})
+    this.crew.configure(on, this.crew.crewHost, this.crew.gatewayHost)
+    this.flush(true)
+    return this.snapshot()
+  }
+
   reset(): Snapshot {
     this.gate.clear()
     this.log.length = 0
@@ -501,7 +528,9 @@ export function statusBarOf(snap: Snapshot, enabled: boolean): { text: string; t
   if (bg) parts.push(`${bg} bg`)
   if (ctx !== null) parts.push(`ctx ${ctx}%`)
   if (cost !== null) parts.push(fmtUsd(cost))
-  const tone = asking ? 'warning' : ctx !== null && ctx >= 90 ? 'danger' : ctx !== null && ctx >= 75 ? 'warning' : working ? 'accent' : 'neutral'
+  const crewWaits = crewAttention(snap)
+  if (crewWaits) parts.push(`crew ${crewWaits} for you`)
+  const tone = asking || crewWaits ? 'warning' : ctx !== null && ctx >= 90 ? 'danger' : ctx !== null && ctx >= 75 ? 'warning' : working ? 'accent' : 'neutral'
   const tooltip = agents.length
     ? agents
         .slice(0, 8)
@@ -509,6 +538,13 @@ export function statusBarOf(snap: Snapshot, enabled: boolean): { text: string; t
         .join('\n') + '\n\nClick to toggle the Pitwall sidebar'
     : 'Pitwall: click to toggle the sidebar'
   return { text: parts.join(' · '), tone, tooltip, visible: enabled }
+}
+
+/** Crew tasks waiting on the owner, plus gateway keys at their limit. */
+export function crewAttention(snap: Snapshot): number {
+  const c = snap.crew
+  if (!c) return 0
+  return c.tasks.filter((t) => t.owner).length + c.gateway.keys.filter((k) => k.tone === 'bad').length
 }
 
 const SUBAGENTS_SENT = 12
@@ -591,6 +627,7 @@ export default function activate(orca: OrcaWorkerApi): void {
   orca.panels.handle('pitwall.setScope', async ({ scope }) => pw.setScope(scope === 'all' ? 'all' : 'focused'))
   orca.panels.handle('pitwall.setDemo', async ({ on }) => pw.setDemo(on === true))
   orca.panels.handle('pitwall.reset', async () => pw.reset())
+  orca.panels.handle('pitwall.setCrew', async ({ on }) => pw.setCrew(on === true))
   orca.panels.handle('pitwall.focus', async ({ key }) => pw.focus(String(key ?? '')))
   orca.panels.handle('pitwall.seen', async ({ key }) => pw.markSeen(String(key ?? '')))
 
@@ -601,6 +638,10 @@ export default function activate(orca: OrcaWorkerApi): void {
   orca.commands.register('pitwall.demo', async () => {
     const s = await pw.setDemo(!pw.demo)
     return s.demo ? 'Pitwall demo mode on' : 'Pitwall demo mode off'
+  })
+  orca.commands.register('pitwall.crew', async () => {
+    const s = await pw.setCrew(!pw.crew.enabled)
+    return s.crew ? 'Pitwall Crew section on' : 'Pitwall Crew section off'
   })
   orca.commands.register('pitwall.reset', () => {
     pw.reset()

@@ -1,0 +1,225 @@
+// The two scripts the Crew section runs, sent to `ssh <host> python3 -` on stdin: nothing is
+// installed on the hosts and no port is opened. Both are read-only, use the standard library only,
+// and print exactly one JSON line. Each sends back a whitelist of fields, never a whole record.
+
+/**
+ * Runs on agnx. Reads `crew status` (the crew's own view of each task's status), the task records,
+ * the stage lines of every events.jsonl, the seat lock's status, and each seat's /health on loopback.
+ */
+export const AGNX_PY = String.raw`
+import glob, json, os, re, subprocess, urllib.error, urllib.request
+
+HOME = os.path.expanduser("~")
+STATE = os.path.join(HOME, ".local/state/agni-crew-three-seat")
+CREW = os.path.join(HOME, "agni/bin/crew")
+MAX_TASKS = 20
+TAIL_BYTES = 2 * 1024 * 1024
+SEATS = (("leader", 28084), ("helper", 28085), ("reviewer", 8093))
+
+
+def clip(v, n):
+    return v[:n] if isinstance(v, str) else None
+
+
+def num(v):
+    return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+
+def run(cmd, timeout):
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        return {"exit": r.returncode, "out": r.stdout[-60000:]}
+    except Exception as e:
+        return {"exit": None, "out": "", "error": type(e).__name__}
+
+
+def task_row(t):
+    res = t.get("result") if isinstance(t.get("result"), dict) else {}
+    wait = t.get("waiting_on_seat") if isinstance(t.get("waiting_on_seat"), dict) else None
+    return {
+        "id": clip(t.get("id"), 64),
+        "status": clip(t.get("status"), 32),
+        "stage": clip(t.get("stage"), 32),
+        "attempts": num(t.get("attempts")),
+        "prompt": clip(t.get("prompt"), 240),
+        "created": clip(t.get("created"), 40),
+        "updated": clip(t.get("updated"), 40),
+        "has_test_command": bool(t.get("test_command")),
+        "error": clip(t.get("error"), 240),
+        "waiting_on_seat": {"seat": clip(wait.get("seat"), 32), "holder": clip(wait.get("holder"), 128)} if wait else None,
+        "result": {
+            "verdict": clip(res.get("verdict"), 32),
+            "test_exit": num(res.get("test_exit")),
+            "decision": clip(res.get("decision"), 32),
+            "next_actor": clip(res.get("next_actor"), 32),
+        },
+    }
+
+
+def tasks():
+    rows = []
+    for path in glob.glob(os.path.join(STATE, "tasks", "*.json")):
+        try:
+            with open(path) as f:
+                t = json.load(f)
+        except Exception:
+            continue
+        if isinstance(t, dict) and isinstance(t.get("id"), str):
+            rows.append(t)
+    rows.sort(key=lambda t: str(t.get("updated") or t.get("created") or ""), reverse=True)
+    return [task_row(t) for t in rows[:MAX_TASKS]], len(rows)
+
+
+def events(ids):
+    out = []
+    for path in sorted(glob.glob(os.path.join(HOME, ".local/state/agni-crew*/events.jsonl"))):
+        try:
+            with open(path, "rb") as f:
+                f.seek(0, 2)
+                size = f.tell()
+                f.seek(max(0, size - TAIL_BYTES))
+                lines = f.read().decode("utf-8", "replace").splitlines()
+        except Exception:
+            continue
+        for line in lines:
+            try:
+                e = json.loads(line)
+            except Exception:
+                continue
+            if not isinstance(e, dict) or e.get("task") not in ids:
+                continue
+            out.append({
+                "ts": clip(e.get("ts"), 40),
+                "task": e.get("task"),
+                "stage": clip(e.get("stage"), 32),
+                "attempt": num(e.get("attempt")),
+                "outcome": clip(str(e.get("outcome")), 32) if e.get("outcome") is not None else None,
+                "seconds": num(e.get("seconds")),
+            })
+    return out
+
+
+def health(port):
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:%d/health" % port, timeout=2) as r:
+            return r.status
+    except urllib.error.HTTPError as e:
+        return e.code
+    except Exception:
+        return None
+
+
+def seat_lock():
+    try:
+        with open(CREW) as f:
+            m = re.search(r'exec\s+"([^"]+)/crew"', f.read())
+    except Exception:
+        m = None
+    if not m:
+        return {"deployed": False, "seats": []}
+    helper = os.path.join(m.group(1).replace("$HOME", HOME), "helpers", "agni-seat-lock")
+    if not os.path.exists(helper):
+        return {"deployed": False, "seats": []}
+    r = run(["python3", helper, "status"], 10)
+    try:
+        rows = json.loads(r["out"]).get("seats") or []
+    except Exception:
+        return {"deployed": True, "seats": [], "error": "bad_output"}
+    return {"deployed": True, "seats": [
+        {"seat": clip(x.get("seat"), 32), "holder": clip(x.get("holder"), 128), "priority": clip(x.get("priority"), 16)}
+        for x in rows if isinstance(x, dict)
+    ]}
+
+
+def main():
+    listed, total = tasks()
+    status = run([CREW, "status"], 20)
+    print(json.dumps({
+        "schema": "pitwall.crew/1",
+        "status": {"exit": status["exit"], "text": status["out"], "error": status.get("error")},
+        "tasks": listed,
+        "total": total,
+        "events": events({t["id"] for t in listed}),
+        "seats": [{"seat": s, "port": p, "health": health(p)} for s, p in SEATS],
+        "lock": seat_lock(),
+    }))
+
+
+if __name__ == "__main__":
+    main()
+`
+
+/**
+ * Runs on agni1. Reads the LiteLLM master key from the gateway's environment file there, asks the
+ * admin API on loopback for the keys, and prints only alias, spend, budget and expiry of the crew's
+ * two keys. The master key never leaves agni1 and is never printed; no key value or hash is sent.
+ */
+export const GATEWAY_PY = String.raw`
+import json, os, urllib.error, urllib.request
+
+ALIASES = ("agni-crew-jev", "agni-crew-claude")
+ENV = "~/.local/share/agni-inference-stack/gateway-current/environment/gateway.env"
+URL = "http://127.0.0.1:4000/key/list?return_full_object=true&size=100&page=%d"
+
+
+def master_key(path):
+    with open(os.path.expanduser(path)) as f:
+        for line in f:
+            if line.startswith("LITELLM_MASTER_KEY="):
+                return line.split("=", 1)[1].strip().strip("'\"")
+    return None
+
+
+def num(v):
+    return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+
+def text(v):
+    return v[:40] if isinstance(v, str) else None
+
+
+def main(urlopen=urllib.request.urlopen, env_path=ENV):
+    try:
+        key = master_key(env_path)
+    except Exception:
+        key = None
+    if not key:
+        print(json.dumps({"schema": "pitwall.gateway/1", "error": "no_master_key"}))
+        return
+    found = {}
+    try:
+        page = 1
+        while page <= 20:
+            req = urllib.request.Request(URL % page, headers={"Authorization": "Bearer " + key})
+            with urlopen(req, timeout=5) as r:
+                d = json.load(r)
+            for k in d.get("keys") or []:
+                alias = k.get("key_alias") if isinstance(k, dict) else None
+                if alias in ALIASES:
+                    found[alias] = {
+                        "alias": alias,
+                        "spend": num(k.get("spend")),
+                        "max_budget": num(k.get("max_budget")),
+                        "expires": text(k.get("expires")),
+                    }
+            if page >= int(d.get("total_pages") or 1):
+                break
+            page += 1
+    except urllib.error.HTTPError as e:
+        print(json.dumps({"schema": "pitwall.gateway/1", "error": "http_%d" % e.code}))
+        return
+    except Exception as e:
+        print(json.dumps({"schema": "pitwall.gateway/1", "error": type(e).__name__}))
+        return
+    finally:
+        key = None
+    print(json.dumps({
+        "schema": "pitwall.gateway/1",
+        "keys": [found[a] for a in ALIASES if a in found],
+        "missing": [a for a in ALIASES if a not in found],
+    }))
+
+
+if __name__ == "__main__":
+    main()
+`

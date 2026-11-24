@@ -182,5 +182,5 @@ export function demoSnapshot(now: number, startedAt: number, showCost: boolean):
     backgroundCount: { running: 0, scheduled: 0 }
   }
   log.sort((a, b) => a.at - b.at)
-  return { v: 1, at: now, scope: 'all', demo: true, showCost, agents: [a1, a2, a3], gate, log: log.slice(-60), note: null }
+  return { v: 1, at: now, scope: 'all', demo: true, showCost, agents: [a1, a2, a3], gate, log: log.slice(-60), note: null, crew: null }
 }

@@ -1,0 +1,634 @@
+{
+ "schema": "pitwall.crew/1",
+ "status": {
+  "exit": 0,
+  "text": "1124-0856-a58b  waiting      stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-0856-a58b  Fix the inventory package. Stock.add must raise ValueError f\n1124-0953-63bd  waiting      stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-0953-63bd  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1014-c98c  waiting      stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1014-c98c  Fix and extend the ledger package. parse.parse_line(line) ta\n1124-1020-3645  waiting      stage=finish  attempts=2  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1020-3645  Fix the cache package. lru.LRU(capacity) must evict the leas\n1124-1035-a872  waiting      stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1035-a872  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1105-5da4  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1105-5da4  Fix the inventory package. Stock.add must raise ValueError f\n1124-1105-e46c  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1105-e46c  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1112-2380  failed       stage=intake  attempts=0  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1112-2380  Finish the textkit package. slug.slugify(text) must lowercas\n1124-1120-46a7  running      stage=intake  attempts=0  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-1120-46a7  Fix the inventory package. Stock.add must raise ValueError f\nseat leader  holder=crew/1124-1120-46a7  priority=crew\n",
+  "error": null
+ },
+ "tasks": [
+  {
+   "id": "1124-1120-46a7",
+   "status": "running",
+   "stage": "intake",
+   "attempts": 0,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T11:20:31+00:00",
+   "updated": "2026-11-24T11:20:31+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": null,
+    "next_actor": null
+   }
+  },
+  {
+   "id": "1124-1112-2380",
+   "status": "failed",
+   "stage": "intake",
+   "attempts": 0,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T11:12:07+00:00",
+   "updated": "2026-11-24T11:12:38+00:00",
+   "has_test_command": true,
+   "error": "the leader did not write a well-formed .crew/task.md",
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": null,
+    "next_actor": null
+   }
+  },
+  {
+   "id": "1124-1105-e46c",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T11:05:38+00:00",
+   "updated": "2026-11-24T11:10:21+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   }
+  },
+  {
+   "id": "1124-1105-5da4",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T11:05:36+00:00",
+   "updated": "2026-11-24T11:07:50+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   }
+  },
+  {
+   "id": "1124-1035-a872",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T10:35:24+00:00",
+   "updated": "2026-11-24T10:38:54+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   }
+  },
+  {
+   "id": "1124-1020-3645",
+   "status": "waiting",
+   "stage": "finish",
+   "attempts": 2,
+   "prompt": "Fix the cache package. lru.LRU(capacity) must evict the least recently used key, where both get and put count as use; get of a missing key returns None. It must also count lookups in integer attributes hits and misses. ttl.TTL(seconds, cloc",
+   "created": "2026-11-24T10:20:52+00:00",
+   "updated": "2026-11-24T10:34:03+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 1,
+    "decision": "stop",
+    "next_actor": "owner"
+   }
+  },
+  {
+   "id": "1124-1014-c98c",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix and extend the ledger package. parse.parse_line(line) takes 'YYYY-MM-DD,description,amount', strips spaces around each field and returns a dict with date (str), desc (str) and amount (decimal.Decimal). It must raise ValueError for a wro",
+   "created": "2026-11-24T10:14:57+00:00",
+   "updated": "2026-11-24T10:20:48+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   }
+  },
+  {
+   "id": "1124-0953-63bd",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase the text, replace every run of characters other than a-z and 0-9 with a single dash, and strip leading and trailing dashes. wrap.wrap(text, width) must return a list of lines bui",
+   "created": "2026-11-24T09:53:27+00:00",
+   "updated": "2026-11-24T10:14:43+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   }
+  },
+  {
+   "id": "1124-0856-a58b",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Fix the inventory package. Stock.add must raise ValueError for a quantity of zero or less. Stock.remove must raise KeyError for an unknown item, ValueError when asked to remove more than is held, and must delete an item whose quantity reach",
+   "created": "2026-11-24T08:56:16+00:00",
+   "updated": "2026-11-24T09:00:47+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "merge_ready",
+    "next_actor": "owner"
+   }
+  }
+ ],
+ "total": 9,
+ "events": [
+  {
+   "ts": "2026-11-24T08:56:45+00:00",
+   "task": "1124-0856-a58b",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 29.06
+  },
+  {
+   "ts": "2026-11-24T08:57:05+00:00",
+   "task": "1124-0856-a58b",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 19.86
+  },
+  {
+   "ts": "2026-11-24T09:00:14+00:00",
+   "task": "1124-0856-a58b",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 188.9
+  },
+  {
+   "ts": "2026-11-24T09:00:14+00:00",
+   "task": "1124-0856-a58b",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1
+  },
+  {
+   "ts": "2026-11-24T09:00:47+00:00",
+   "task": "1124-0856-a58b",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 33.07
+  },
+  {
+   "ts": "2026-11-24T09:00:47+00:00",
+   "task": "1124-0856-a58b",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T09:00:47+00:00",
+   "task": "1124-0856-a58b",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T09:57:09+00:00",
+   "task": "1124-0953-63bd",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 222.15
+  },
+  {
+   "ts": "2026-11-24T10:10:26+00:00",
+   "task": "1124-0953-63bd",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 796.85
+  },
+  {
+   "ts": "2026-11-24T10:14:06+00:00",
+   "task": "1124-0953-63bd",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 220.46
+  },
+  {
+   "ts": "2026-11-24T10:14:06+00:00",
+   "task": "1124-0953-63bd",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.11
+  },
+  {
+   "ts": "2026-11-24T10:14:43+00:00",
+   "task": "1124-0953-63bd",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 37.14
+  },
+  {
+   "ts": "2026-11-24T10:14:43+00:00",
+   "task": "1124-0953-63bd",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T10:14:43+00:00",
+   "task": "1124-0953-63bd",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T10:16:21+00:00",
+   "task": "1124-1014-c98c",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 83.75
+  },
+  {
+   "ts": "2026-11-24T10:16:45+00:00",
+   "task": "1124-1014-c98c",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 24.86
+  },
+  {
+   "ts": "2026-11-24T10:19:59+00:00",
+   "task": "1124-1014-c98c",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 193.56
+  },
+  {
+   "ts": "2026-11-24T10:19:59+00:00",
+   "task": "1124-1014-c98c",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1
+  },
+  {
+   "ts": "2026-11-24T10:20:48+00:00",
+   "task": "1124-1014-c98c",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 49.14
+  },
+  {
+   "ts": "2026-11-24T10:20:48+00:00",
+   "task": "1124-1014-c98c",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T10:20:48+00:00",
+   "task": "1124-1014-c98c",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T10:21:44+00:00",
+   "task": "1124-1020-3645",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 52.22
+  },
+  {
+   "ts": "2026-11-24T10:24:10+00:00",
+   "task": "1124-1020-3645",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 145.51
+  },
+  {
+   "ts": "2026-11-24T10:25:41+00:00",
+   "task": "1124-1020-3645",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 91.11
+  },
+  {
+   "ts": "2026-11-24T10:25:41+00:00",
+   "task": "1124-1020-3645",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_fail",
+   "seconds": 0.11
+  },
+  {
+   "ts": "2026-11-24T10:27:44+00:00",
+   "task": "1124-1020-3645",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 122.95
+  },
+  {
+   "ts": "2026-11-24T10:27:44+00:00",
+   "task": "1124-1020-3645",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "retry",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T10:33:23+00:00",
+   "task": "1124-1020-3645",
+   "stage": "build",
+   "attempt": 2,
+   "outcome": "committed",
+   "seconds": 339.31
+  },
+  {
+   "ts": "2026-11-24T10:33:24+00:00",
+   "task": "1124-1020-3645",
+   "stage": "grade",
+   "attempt": 2,
+   "outcome": "tests_fail",
+   "seconds": 0.11
+  },
+  {
+   "ts": "2026-11-24T10:34:03+00:00",
+   "task": "1124-1020-3645",
+   "stage": "review",
+   "attempt": 2,
+   "outcome": "PASS",
+   "seconds": 39.9
+  },
+  {
+   "ts": "2026-11-24T10:34:03+00:00",
+   "task": "1124-1020-3645",
+   "stage": "decide",
+   "attempt": 2,
+   "outcome": "stop",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T10:34:03+00:00",
+   "task": "1124-1020-3645",
+   "stage": "finish",
+   "attempt": 2,
+   "outcome": "waiting",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T10:36:12+00:00",
+   "task": "1124-1035-a872",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 47.82
+  },
+  {
+   "ts": "2026-11-24T10:36:40+00:00",
+   "task": "1124-1035-a872",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 28.35
+  },
+  {
+   "ts": "2026-11-24T10:38:11+00:00",
+   "task": "1124-1035-a872",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 90.79
+  },
+  {
+   "ts": "2026-11-24T10:38:11+00:00",
+   "task": "1124-1035-a872",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.12
+  },
+  {
+   "ts": "2026-11-24T10:38:54+00:00",
+   "task": "1124-1035-a872",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 42.9
+  },
+  {
+   "ts": "2026-11-24T10:38:54+00:00",
+   "task": "1124-1035-a872",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T10:38:54+00:00",
+   "task": "1124-1035-a872",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T11:06:04+00:00",
+   "task": "1124-1105-5da4",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 27.75
+  },
+  {
+   "ts": "2026-11-24T11:06:32+00:00",
+   "task": "1124-1105-5da4",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 28.06
+  },
+  {
+   "ts": "2026-11-24T11:07:17+00:00",
+   "task": "1124-1105-5da4",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 45.37
+  },
+  {
+   "ts": "2026-11-24T11:07:17+00:00",
+   "task": "1124-1105-5da4",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1
+  },
+  {
+   "ts": "2026-11-24T11:07:44+00:00",
+   "task": "1124-1105-e46c",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 125.48
+  },
+  {
+   "ts": "2026-11-24T11:07:50+00:00",
+   "task": "1124-1105-5da4",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 33.01
+  },
+  {
+   "ts": "2026-11-24T11:07:50+00:00",
+   "task": "1124-1105-5da4",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T11:07:50+00:00",
+   "task": "1124-1105-5da4",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T11:08:17+00:00",
+   "task": "1124-1105-e46c",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 33.66
+  },
+  {
+   "ts": "2026-11-24T11:09:21+00:00",
+   "task": "1124-1105-e46c",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 64.1
+  },
+  {
+   "ts": "2026-11-24T11:09:21+00:00",
+   "task": "1124-1105-e46c",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.1
+  },
+  {
+   "ts": "2026-11-24T11:10:21+00:00",
+   "task": "1124-1105-e46c",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 60.02
+  },
+  {
+   "ts": "2026-11-24T11:10:21+00:00",
+   "task": "1124-1105-e46c",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.0
+  },
+  {
+   "ts": "2026-11-24T11:10:21+00:00",
+   "task": "1124-1105-e46c",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01
+  },
+  {
+   "ts": "2026-11-24T11:12:38+00:00",
+   "task": "1124-1112-2380",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "malformed",
+   "seconds": 31.39
+  }
+ ],
+ "seats": [
+  {
+   "seat": "leader",
+   "port": 28084,
+   "health": 200
+  },
+  {
+   "seat": "helper",
+   "port": 28085,
+   "health": 200
+  },
+  {
+   "seat": "reviewer",
+   "port": 8093,
+   "health": 200
+  }
+ ],
+ "lock": {
+  "deployed": true,
+  "seats": [
+   {
+    "seat": "leader",
+    "holder": "crew/1124-1120-46a7",
+    "priority": "crew"
+   }
+  ]
+ }
+}

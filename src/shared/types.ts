@@ -120,6 +120,89 @@ export interface Snapshot {
   gate: GateEntry[]
   log: LogEntry[]
   note: string | null
+  /** The optional Agni crew section; null while it is off (the default). */
+  crew: CrewView | null
+}
+
+// ---- Agni crew (optional section, read over SSH) -------------------------------------------
+
+export type CrewTone = 'pass' | 'fail' | 'wait' | 'run'
+
+/** One line of the crew's event log: a stage that finished, with its outcome and seconds. */
+export interface CrewStageView {
+  stage: string
+  attempt: number
+  outcome: string
+  seconds: number
+  tone: CrewTone
+  at: number
+}
+
+export interface CrewTaskView {
+  id: string
+  /** As `crew status` shows it: running, waiting, needs_owner, merge_ready, failed, interrupted, stopped. */
+  status: string
+  stage: string | null
+  attempts: number
+  prompt: string
+  createdAt: number | null
+  updatedAt: number | null
+  /** Why the owner must act: no test command, or a task that stopped short. Null when nothing waits on the owner. */
+  owner: 'test_command' | 'stuck' | null
+  /** One plain line on where it stands (verdict, test exit, error). */
+  detail: string
+  /** A seat a running task waits for, and who holds it. */
+  waitingOn: { seat: string; holder: string } | null
+  stages: CrewStageView[]
+  totalSeconds: number
+}
+
+export interface CrewSeatView {
+  id: string
+  role: string
+  model: string
+  where: string
+  state: 'up' | 'down' | 'busy'
+  /** The seat lock's holder while busy. */
+  holder: string | null
+}
+
+export interface CrewKeyView {
+  alias: string
+  spendUsd: number | null
+  budgetUsd: number | null
+  /** Share of the budget spent; null without a budget. */
+  pct: number | null
+  expiresAt: number | null
+  tone: '' | 'warn' | 'bad'
+}
+
+export interface CrewGatewayView {
+  /** When the figures were last read; null when never. */
+  at: number | null
+  reachable: boolean
+  error: string | null
+  keys: CrewKeyView[]
+  /** Aliases the gateway did not list. */
+  missing: string[]
+}
+
+export interface CrewView {
+  host: string
+  /** When agnx last answered; null when never. */
+  at: number | null
+  reachable: boolean
+  /** A short reason when the last read failed: unreachable, timeout, bad output. */
+  error: string | null
+  tasks: CrewTaskView[]
+  /** Tasks the crew has that are not sent (older ones). */
+  more: number
+  seats: CrewSeatView[]
+  /** The reviewer on agni2 does not answer: the crew runs on agni1 alone. */
+  agni1Only: boolean
+  /** The seat lock is deployed on agnx. */
+  lockDeployed: boolean
+  gateway: CrewGatewayView
 }
 
 export const EMPTY_SNAPSHOT: Snapshot = {
@@ -131,5 +214,6 @@ export const EMPTY_SNAPSHOT: Snapshot = {
   agents: [],
   gate: [],
   log: [],
-  note: null
+  note: null,
+  crew: null
 }
