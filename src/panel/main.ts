@@ -3,7 +3,8 @@
 import '../shared/protocol'
 import { fmtDuration, fmtUntil } from '../shared/format'
 import { EMPTY_SNAPSHOT, type Scope, type Snapshot, type ToolFamily } from '../shared/types'
-import { INITIAL_UI, LITELLM_URL, REPO_URL, render, sectionOpen, type Rendered, type UiState } from './render'
+import { crewMode } from './crewConsole'
+import { INITIAL_UI, REPO_URL, render, sectionOpen, type Rendered, type UiState } from './render'
 import { CSS } from './styles'
 
 let snap: Snapshot = EMPTY_SNAPSHOT
@@ -44,6 +45,7 @@ function mountShell(): void {
   document.body.addEventListener('click', onClick)
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && ui.menu) setUi({ menu: false })
+    else if (e.key === 'Escape' && ui.playback) setUi({ playback: undefined })
     // Rows that act like buttons (role="button") answer Enter and Space as buttons do.
     const el = document.activeElement as HTMLElement | null
     if ((e.key === 'Enter' || e.key === ' ') && el?.getAttribute('role') === 'button' && el.dataset.action) {
@@ -59,11 +61,14 @@ function draw(): void {
     return
   }
   const out = render(snap, ui, Date.now())
+  // Crew mode takes over the whole sidebar, its background included.
+  document.body.classList.toggle('crew-mode', crewMode(snap))
   // A redraw replaces the markup; keep keyboard focus on the same control.
   const active = document.activeElement as HTMLElement | null
   // Only while the panel has focus: restoring it otherwise would pull typing away from the terminal.
   const sig = document.hasFocus() && active && active !== document.body ? focusSig(active) : null
   for (const k of Object.keys(out) as (keyof Rendered)[]) {
+    parts[k].hidden = !out[k]
     if (last[k] === out[k]) continue
     last[k] = out[k]
     parts[k].innerHTML = out[k]
@@ -186,11 +191,6 @@ function onClick(e: MouseEvent): void {
     void request(() => orca.plugin.request('pitwall.setCrew', { on: !snap.crew })).then((s) => s && accept(s))
     return
   }
-  if (action === 'litellm') {
-    // Only on this click, in the person's browser; Orca asks once before opening the host.
-    void request(async () => (orca.shell ? orca.shell.openExternal(LITELLM_URL) : null))
-    return
-  }
   if (action === 'github') {
     setUi({ menu: false })
     // Only on this click, in the person's browser; Orca asks once before opening github.com.
@@ -229,7 +229,7 @@ setInterval(tickClocks, 1000)
 
 setInterval(() => {
   const p = ui.playback
-  if (!p?.playing || document.hidden || !sectionOpen(ui, 'crew')) return
+  if (!p?.playing || document.hidden) return
   const task = snap.crew?.tasks.find(t => t.id === p.task)
   if (!task?.stages.length) return setUi({ playback: undefined })
   const index = Math.min(p.index + 1, task.stages.length - 1)

@@ -2,9 +2,9 @@
 // so it runs in Node tests. Every value from the snapshot goes through esc().
 import { fmtClock, fmtDuration, fmtTokens, fmtUntil, fmtUsd, modelLabel, pct } from '../shared/format'
 import { VERSION } from '../shared/version'
-import { crewReplay, type Playback } from './crewReplay'
-import { renderLive } from './mascots'
-import type { AgentView, BackgroundView, CrewKeyView, CrewSeatView, CrewTaskView, CrewView, GateEntry, LogEntry, Snapshot, SubagentView, ToolFamily, TurnView } from '../shared/types'
+import { crewMode, renderCrewConsole } from './crewConsole'
+import type { Playback } from './crewReplay'
+import type { AgentView, BackgroundView, CrewTaskView, GateEntry, LogEntry, Snapshot, SubagentView, ToolFamily, TurnView } from '../shared/types'
 
 export interface UiState {
   playback?: Playback
@@ -18,9 +18,6 @@ export interface UiState {
 
 /** Where Pitwall lives; opened in the browser only on a click. */
 export const REPO_URL = 'https://github.com/sonthh/orca-pitwall'
-
-/** The gateway's LiteLLM dashboard; opened in the browser only on a click. */
-export const LITELLM_URL = 'https://agni1.tailce14cd.ts.net:4643/ui'
 
 export const INITIAL_UI: UiState = { family: null, expanded: {}, menu: false, only: null }
 
@@ -102,7 +99,7 @@ export function renderHeader(s: Snapshot, ui: UiState): string {
     ui.menu
       ? `<div class="menu" role="menu">
     <button role="menuitem" data-action="demo">${s.demo ? 'Leave demo mode' : 'Demo mode'}</button>
-    ${s.demo ? '' : `<button role="menuitemcheckbox" aria-checked="${s.crew ? 'true' : 'false'}" data-action="crew" title="The Agni crew: tasks, seats and gateway keys, read over SSH">${s.crew ? '✓ ' : ''}Crew</button>`}
+    ${s.demo ? '' : `<button role="menuitemcheckbox" aria-checked="${s.crew ? 'true' : 'false'}" data-action="crew" title="Crew mode: the sidebar becomes the Agni crew console, read over SSH">${s.crew ? '✓ ' : ''}Crew</button>`}
     <button role="menuitem" data-action="reset">Clear tool calls and activity</button>
     <div class="menu-sep" role="separator"></div>
     <button role="menuitem" data-action="github" title="${REPO_URL}">★ Star Pitwall on GitHub</button>
@@ -127,8 +124,7 @@ export function renderAlerts(s: Snapshot, now: number): string {
   const blockedAgents = s.agents.filter((a) => a.state === 'blocked' && !asking.some((g) => g.agentKey === a.key))
   // A working agent close to its window is about to compact and lose detail: say so while there is time.
   const full = s.agents.filter((a) => a.state === 'working' && (ctxPct(a) ?? 0) >= CTX_ALERT)
-  const crew = crewAlerts(s.crew, now)
-  if (!asking.length && !blockedAgents.length && !full.length && !crew.length) return ''
+  if (!asking.length && !blockedAgents.length && !full.length) return ''
   const rows = [
     ...asking.map(
       (g) =>
@@ -141,8 +137,7 @@ export function renderAlerts(s: Snapshot, now: number): string {
     ...full.map(
       (a) =>
         `<div class="alert soft"><div class="row"><span class="pill ${ctxTone(ctxPct(a)!)}">Context ${Math.round(ctxPct(a)!)}%</span><span class="ell"><b>${esc(a.title || a.workspaceName)}</b> will compact soon</span></div><div class="alert-foot"><span class="hint">Run <code>/compact</code> at a good stopping point to keep what matters.</span>${goButton(s, a.key, 'Go ↗', 'go soft')}</div></div>`
-    ),
-    ...crew
+    )
   ]
   return `<section class="alerts" aria-live="polite">${rows.join('')}</section>`
 }
@@ -456,7 +451,6 @@ const CREW_STATUS: Record<string, string> = {
   interrupted: 'Interrupted',
   stopped: 'Stopped'
 }
-const OWNER_PHRASE: Record<string, string> = { waiting: 'stopped for you', failed: 'failed', interrupted: 'was interrupted' }
 const CREW_TONE: Record<string, string> = { running: 'run', merge_ready: 'pass', needs_owner: 'wait', waiting: 'wait', failed: 'fail', interrupted: 'fail' }
 
 /** Stage seconds: 0.4s, 31s, 2m19s. */
@@ -466,46 +460,15 @@ export function fmtSecs(sec: number): string {
   return fmtDuration(sec * 1000)
 }
 
-function crewPill(t: CrewTaskView): string {
+export function crewPill(t: CrewTaskView): string {
   return `<span class="cpill ${CREW_TONE[t.status] ?? ''}">${esc(CREW_STATUS[t.status] ?? t.status)}</span>`
 }
 
 /** The owner's next step for a task that waits on them. Pitwall only says it; it never acts on the crew. */
-function crewHint(t: CrewTaskView): string {
+export function crewHint(t: CrewTaskView): string {
   if (t.owner === 'test_command') return `Give it one on agnx: <code>crew resume ${esc(t.id)} --test-command CMD</code>`
   if (t.status === 'interrupted') return `Resume it on agnx: <code>crew resume ${esc(t.id)}</code>`
   return `Inspect <code>crew/${esc(t.id)}</code>. The Codex cavalry could take it from here.`
-}
-
-function crewAlerts(c: CrewView | null, now: number): string[] {
-  if (!c) return []
-  const tasks = c.tasks
-    .filter((t) => t.owner)
-    .map(
-      (t) =>
-        `<div class="alert"><div class="row"><span class="badge-warn">Crew</span><span class="ell"><b>${esc(t.id)}</b> ${esc(t.owner === 'test_command' ? 'needs a test command' : (OWNER_PHRASE[t.status] ?? `is ${t.status}`))}</span></div>${t.detail ? `<div class="what" title="${esc(t.detail)}">${esc(t.detail)}</div>` : ''}<div class="alert-foot"><span class="hint">${crewHint(t)}</span></div></div>`
-    )
-  const keys = c.gateway.keys
-    .filter((k) => k.tone === 'bad')
-    .map((k) => `<div class="alert"><div class="row"><span class="badge-bad">Gateway</span><span class="ell"><b>${esc(k.alias)}</b> ${esc(keyProblem(k, now))}</span></div><div class="alert-foot"><span class="hint">Raise its budget or renew it in LiteLLM.</span><button class="go" data-action="litellm" title="${LITELLM_URL}">LiteLLM ↗</button></div></div>`)
-  // Many stopped tasks would bury the agents: the first few, then a count that opens the section.
-  const shown = tasks.length > CREW_ALERTS ? [...tasks.slice(0, CREW_ALERTS - 1), `<div class="alert soft"><div class="row"><span class="badge-soft">Crew</span><span class="ell">${tasks.length - CREW_ALERTS + 1} more tasks wait on you, listed under Crew</span></div></div>`] : tasks
-  return [...keys, ...shown]
-}
-
-const CREW_ALERTS = 3
-
-const DAY_MS = 86_400_000
-
-function daysLeft(k: CrewKeyView, now: number): number | null {
-  return k.expiresAt === null ? null : Math.floor((k.expiresAt - now) / DAY_MS)
-}
-
-function keyProblem(k: CrewKeyView, now: number): string {
-  const d = daysLeft(k, now)
-  if (k.pct !== null && k.pct >= 100) return `has spent its budget (${fmtUsd(k.spendUsd)} of ${fmtUsd(k.budgetUsd)})`
-  if (d !== null && d < 0) return 'has expired'
-  return `expires in ${d === null ? '?' : d <= 0 ? 'under a day' : plural(d, 'day')}`
 }
 
 /** Seconds per stage as one strip, widths by time; a running task adds its open stage. */
@@ -539,7 +502,7 @@ function runSheet(t: CrewTaskView, ui: UiState, now: number): string {
   return lines.length ? `<div class="sheet">${lines.join('')}${more}</div>` : ''
 }
 
-function crewCard(t: CrewTaskView, ui: UiState, now: number, collapsible: boolean): string {
+export function crewCard(t: CrewTaskView, ui: UiState, now: number, collapsible: boolean): string {
   const meta = [t.stage ? `stage ${t.stage}` : '', `attempt ${t.attempts}`, t.totalSeconds ? fmtSecs(t.totalSeconds) + ' so far' : ''].filter(Boolean).join(' · ')
   const wait = t.waitingOn ? `<div class="sub-t small">Waiting for the ${esc(t.waitingOn.seat)} seat, held by ${esc(t.waitingOn.holder)}</div>` : ''
   const head = `<div class="card-head${collapsible ? ' clickable' : ''}"${collapsible ? ` data-action="expand" data-key-x="crew:${esc(t.id)}" title="Collapse" tabindex="0" role="button"` : ''}>
@@ -549,7 +512,7 @@ function crewCard(t: CrewTaskView, ui: UiState, now: number, collapsible: boolea
   return `<article class="card crew-card ${esc(CREW_TONE[t.status] ?? '')}">${head}${t.prompt ? `<div class="prompt small" title="${esc(t.prompt)}">${esc(t.prompt)}</div>` : ''}${wait}${t.detail && !t.owner && t.status !== 'running' ? `<div class="sub-t small">${esc(t.detail)}</div>` : ''}${stageStrip(t, now)}${runSheet(t, ui, now)}</article>`
 }
 
-function crewLine(t: CrewTaskView, now: number): string {
+export function crewLine(t: CrewTaskView, now: number): string {
   const when = t.updatedAt ? `${ago(t.updatedAt, now)} ago` : ''
   return `<article class="line crew-line" data-action="expand" data-key-x="crew:${esc(t.id)}" title="${esc(t.prompt)}" tabindex="0" role="button" aria-expanded="false">
   <span class="chev">▸</span><code class="tid">${esc(t.id)}</code>
@@ -558,76 +521,9 @@ function crewLine(t: CrewTaskView, now: number): string {
 </article>`
 }
 
-const SEAT_WORD: Record<CrewSeatView['state'], string> = { up: 'up', down: 'down', busy: 'busy' }
-
-function seatsBlock(c: CrewView): string {
-  if (!c.seats.length) return ''
-  const rows = c.seats
-    .map(
-      (x) =>
-        `<div class="seat" title="${esc(`${x.role} ${x.model} on ${x.where}: ${x.state}${x.holder ? ', held by ' + x.holder : ''}`)}"><span class="dot seat-${x.state}"></span><span class="ell"><b class="w5">${esc(x.role)}</b> <span class="sub-t">${esc(x.model)}</span> <span class="muted">${esc(x.where)}</span></span><span class="seat-state seat-${x.state}">${SEAT_WORD[x.state]}</span></div>${x.holder ? `<div class="muted small seat-holder ell">lock: ${esc(x.holder)}</div>` : ''}`
-    )
-    .join('')
-  const mode = c.agni1Only ? '<div class="small warn-t">agni2 off, agni1-only mode</div>' : ''
-  const lock = c.lockDeployed ? '' : '<div class="muted small">Seat lock not deployed: holders unknown.</div>'
-  return `<div class="block"><div class="block-title">Seats</div>${rows}${mode}${lock}</div>`
-}
-
-function gatewayBlock(c: CrewView, now: number): string {
-  const g = c.gateway
-  const link = `<button class="quiet-link" data-action="litellm" title="${LITELLM_URL}">LiteLLM dashboard ↗</button>`
-  if (!g.reachable && !g.keys.length)
-    return `<div class="block"><div class="block-title">Gateway</div><div class="muted small">${g.error ? `Gateway unreachable (${esc(g.error)})${g.at ? `, last read ${ago(g.at, now)} ago` : ''}` : 'Reading the crew keys…'}</div>${link}</div>`
-  const rows = g.keys
-    .map((k) => {
-      const p = k.pct
-      const d = daysLeft(k, now)
-      const tone = k.tone
-      const left = d === null ? '' : d < 0 ? 'expired' : `${d}d left`
-      return `<div class="key" title="${esc(`${k.alias}: ${fmtUsd(k.spendUsd)} of ${k.budgetUsd === null ? 'no budget' : fmtUsd(k.budgetUsd) + ' per 30 days'}${k.expiresAt ? ', expires ' + new Date(k.expiresAt).toISOString().slice(0, 10) : ''}`)}">
-  <div class="row small"><code class="ell">${esc(k.alias)}</code><span class="right ${tone === 'bad' ? 'bad-t' : tone === 'warn' ? 'warn-t' : 'sub-t'}">${esc(fmtUsd(k.spendUsd))}${k.budgetUsd !== null ? ' / ' + esc(fmtUsd(k.budgetUsd)) : ''}${left ? ' · ' + esc(left) : ''}</span></div>
-  ${p !== null ? `<div class="meter${tone ? ' ' + tone : ''}"><i style="width:${Math.min(100, Math.max(p, p > 0 ? 1 : 0)).toFixed(1)}%"></i></div>` : ''}
-</div>`
-    })
-    .join('')
-  const missing = g.missing.length ? `<div class="muted small">Not on the gateway: ${g.missing.map(esc).join(', ')}</div>` : ''
-  const stale = !g.reachable ? `<div class="muted small">Gateway unreachable${g.error ? ` (${esc(g.error)})` : ''}; figures from ${ago(g.at ?? now, now)} ago.</div>` : ''
-  return `<div class="block"><div class="block-title">Gateway</div>${rows}${missing}${stale}${link}</div>`
-}
-
-const CREW_LINES = 6
-
+/** Crew mode: the whole sidebar is the Crew console. Empty outside Crew mode. */
 export function renderCrew(s: Snapshot, ui: UiState, now: number): string {
-  const c = s.crew
-  if (!c) return ''
-  const owner = c.tasks.filter((t) => t.owner).length
-  const running = c.tasks.filter((t) => t.status === 'running').length
-  const extra = !c.reachable ? (c.error ? `${esc(c.host)} unreachable` : 'reading…') : [running ? `${running} running` : '', owner ? `${owner} for you` : '', c.at ? `${ago(c.at, now)} ago` : ''].filter(Boolean).join(' · ')
-  const head = sectionHead('crew', 'Crew', extra, ui)
-  if (!sectionOpen(ui, 'crew')) return `<section class="sec crew">${head}</section>`
-  let body: string
-  if (!c.reachable) {
-    // A quiet line, not an error wall: the rest of Pitwall carries on.
-    body = c.error
-      ? `<div class="crew-off"><b>Crew unreachable</b><div class="muted small">ssh ${esc(c.host)}: ${esc(c.error)}. ${c.at ? `Last answered ${ago(c.at, now)} ago.` : 'Pitwall tries again every 15 seconds.'}</div></div>`
-      : `<div class="crew-off muted small">Reading the crew on ${esc(c.host)}…</div>`
-  } else {
-    const active = c.tasks.filter((t) => t.status === 'running')
-    const rest = c.tasks.filter((t) => t.status !== 'running')
-    const all = !!ui.expanded['crewall']
-    const shown = all ? rest : rest.slice(0, CREW_LINES)
-    const line = (t: CrewTaskView) => (ui.expanded['crew:' + t.id] ? `<div class="inline-card">${crewCard(t, ui, now, true)}</div>` : crewLine(t, now))
-    // Tasks waiting on the owner stay first; then who is working, then the rest.
-    const ownerLines = shown.filter((t) => t.owner).map(line).join('')
-    const lines = shown.filter((t) => !t.owner).map(line).join('')
-    const more = rest.length > CREW_LINES ? `<button class="link" data-action="expand" data-key-x="crewall">${all ? 'Show fewer' : `Show all ${rest.length}`}</button>` : ''
-    const older = c.more ? `<div class="muted small">${c.more} older not listed</div>` : ''
-    const tasks = c.tasks.length
-      ? `${ownerLines ? `<div class="lines">${ownerLines}</div>` : ''}${renderLive(c, now)}${active.length ? `<div class="cards">${active.map((t) => crewCard(t, ui, now, false)).join('')}</div>` : ''}${lines ? `<div class="lines">${lines}</div>` : ''}${more}${older}`
-      : '<div class="muted small">No crew tasks yet.</div>'
-    body = `${crewReplay(c, s.agents, ui.playback)}<div class="block-title">Tasks</div>${tasks}${seatsBlock(c)}`
-  }
-  return `<section class="sec crew">${head}<div class="sec-body crew-body">${body}${gatewayBlock(c, now)}</div></section>`
+  return crewMode(s) ? renderCrewConsole(s, ui, now).crew : ''
 }
 
 export interface Rendered {
@@ -647,13 +543,20 @@ export function renderFooter(s: Snapshot): string {
 }
 
 export function render(s: Snapshot, ui: UiState, now: number): Rendered {
+  // Crew mode owns the whole sidebar: no agents, alerts, gate, log or footer.
+  if (crewMode(s)) {
+    const c = renderCrewConsole(s, ui, now)
+    return { header: c.header, alerts: '', agents: '', crew: c.crew, gate: '', log: '', footer: '' }
+  }
+  // Demo mode keeps the standard view even while the Crew setting is on.
+  const n = s.crew ? { ...s, crew: null } : s
   return {
-    header: renderHeader(s, ui),
-    alerts: renderAlerts(s, now),
-    agents: renderAgents(s, ui, now),
-    crew: renderCrew(s, ui, now),
-    gate: renderGate(s, ui, now),
-    log: renderLog(s, ui, now),
-    footer: renderFooter(s)
+    header: renderHeader(n, ui),
+    alerts: renderAlerts(n, now),
+    agents: renderAgents(n, ui, now),
+    crew: '',
+    gate: renderGate(n, ui, now),
+    log: renderLog(n, ui, now),
+    footer: renderFooter(n)
   }
 }

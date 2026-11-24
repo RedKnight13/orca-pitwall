@@ -110,11 +110,11 @@ test('nothing running: the crew naps and says what it did last', () => {
   assert.ok(!html.includes('bob'))
 })
 
-test('tasks waiting on the owner still come before the mascots', () => {
+test('in Crew mode, what needs the owner comes before the orchestrator map', () => {
   const html = render(snap(view(LIVE_AT)), INITIAL_UI, LIVE_AT).crew
-  const owner = html.indexOf('1124-2056-0510')
-  const live = html.indexOf('<div class="live"')
-  assert.ok(owner > 0 && live > owner, `${owner} ${live}`)
+  const owner = html.indexOf('cm-incident')
+  const map = html.indexOf('class="crew-deck')
+  assert.ok(owner > 0 && map > owner, `${owner} ${map}`)
 })
 
 test('everything in the mascot view is escaped', () => {

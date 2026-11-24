@@ -1,5 +1,8 @@
-// Playback reads only the selected task's observations. A replay never issues a worker command.
-import type { AgentView, CrewView, CrewTaskView } from '../shared/types'
+// The orchestrator: the crew's roster as a routing map (Crew runner and LiteLLM at the hub) with the
+// task's run sheet. It says plainly which of three things it shows: the live task, the last recorded
+// run (still, not a current incident), or an explicit replay. A replay reads only the selected task's
+// recorded stages and never issues a worker command.
+import type { CrewView, CrewTaskView } from '../shared/types'
 import { circuit } from './circuit'
 import { esc, fmtSecs } from './render'
 
@@ -14,44 +17,43 @@ export function deckTask(c: CrewView, playback?: Playback): CrewTaskView | undef
   return c.tasks.find(t => t.id === id) ?? [...c.tasks].sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))[0]
 }
 
-export function crewReplay(c: CrewView, agents: AgentView[], playback?: Playback): string {
+const RESERVES: Record<string, string> = { cavalry: 'codex', referee: 'jev', escalation: 'venice' }
+const STOPPED = ['stop', 'waiting', 'failed', 'needs_owner', 'interrupted', 'stopped']
+
+/** `liveId`: the task running now, if any. */
+export function crewReplay(c: CrewView, playback: Playback | undefined, liveId: string | null): string {
   const t = deckTask(c, playback)
   if (!t) return ''
   const replay = playback?.task === t.id && t.stages.length > 0
+  const live = !replay && t.id === liveId
   const index = replay ? Math.min(playback.index, t.stages.length - 1) : t.stages.length - 1
   const event = t.stages[index]
   const stage = (replay ? event?.stage : t.stage) || 'runner'
   const status = replay ? event.outcome || 'recorded' : t.status
-  const moving = replay ? !!playback.playing : status === 'running'
-  const active = !replay && c.live?.taskId === t.id ? c.live.mascots.filter(m => m.state === 'active') : []
-  const heading = !replay && status === 'waiting' ? (t.detail.includes('helper handoff') ? 'Handoff blocked' : 'Awaiting operator') : stage
-  const title = replay ? 'Recorded replay' : status === 'running' ? 'Live task' : 'Last task'
+  const moving = replay ? !!playback.playing : live
   const text = (s: string) => esc(s.replace(/_/g, ' '))
+  // Live: the seats the crew reports generating now. Replay: the documented owner of the stage shown.
+  // The last recorded run lights nothing: it is not happening.
+  const active = live && c.live?.taskId === t.id ? c.live.mascots.filter(m => m.state === 'active') : []
   const engaged = new Set(c.seats.filter(s => active.some(m => m.name.toLowerCase() === s.model.toLowerCase())).map(s => s.id))
-  // For stage-only recordings show the documented stage owner. A build event alone
-  // cannot establish whether the optional second author also ran.
   if (replay && ['plan', 'intake', 'build'].includes(stage)) engaged.add('leader')
   if (replay && stage === 'review') engaged.add(c.agni1Only ? 'helper' : 'reviewer')
-  const reserves: Record<string,string> = {cavalry:'codex',referee:'jev',escalation:'venice'}
-  for (const [role, id] of Object.entries(reserves)) {
-    if (active.some(m => m.id === id) || (replay && stage === role)) engaged.add(role)
-  }
-  const blocked = ['stop','waiting','failed','needs_owner','interrupted','stopped'].includes(status)
-  const rows = t.stages.slice(Math.max(0, index - 4), index + 1).map((x,i,a) =>
-    `<button data-action="deck-step" data-key="${esc(t.id)}" data-key-x="${index - a.length + 1 + i}" class="deck-event${i === a.length - 1 ? ' current' : ''}"><b>${text(x.stage)}</b><span>${text(x.outcome)}</span><time>${fmtSecs(x.seconds)}</time></button>`
-  ).join('')
+  for (const [role, id] of Object.entries(RESERVES)) if (active.some(m => m.id === id) || (replay && stage === role)) engaged.add(role)
+  const blocked = STOPPED.includes(status)
+  const rejected = (!replay || index === t.stages.length - 1) && t.detail.includes('helper handoff')
+  const mode = replay ? `Replay · ${index + 1}/${t.stages.length}` : live ? 'Live' : 'Last run · recorded'
+  const rows = t.stages.slice(Math.max(0, index - 4), index + 1).map((x, i, a) => {
+    const n = index - a.length + 1 + i
+    return `<button data-action="deck-step" data-key="${esc(t.id)}" data-key-x="${n}" class="deck-event t-${esc(x.tone)}${i === a.length - 1 ? ' current' : ''}" aria-label="${esc(`Replay from ${x.stage}, ${x.outcome || 'done'}`)}"><b>${text(x.stage)}</b><span>${text(x.outcome || 'done')}</span><time>${fmtSecs(x.seconds)}</time></button>`
+  }).join('')
+  const play = `<button data-action="deck-play" data-key="${esc(t.id)}">${replay && playback.playing ? 'Pause' : replay && index < t.stages.length - 1 ? 'Resume' : '↻ Replay'}</button>`
   const files = [...new Set(t.stages.slice(0, index + 1).flatMap(s => s.evidence ?? []))]
-  const sessions = agents.filter(a => a.state !== 'done').map(a => `<div class="deck-session"><b>${esc(a.agentKind)}</b><span>${esc(a.state)}</span></div>`).join('')
-  const control = t.stages.length ? `<button data-action="deck-play" data-key="${esc(t.id)}">${replay && playback.playing ? 'Pause' : replay && index < t.stages.length - 1 ? 'Resume' : '↻ Replay'}</button>` : ''
-  return `<article class="crew-deck${blocked ? ' held' : ''}${moving && !blocked ? ' moving' : ''}" aria-label="Crew task monitor">
-    <header><span><i></i> Agent orchestrator</span><small>${title}</small></header>
-    <div class="deck-screen"><div class="deck-label">${esc(c.host)} · ${esc(t.id)}</div>
-    <h2>${text(heading)}</h2>
-    <p title="${esc(t.prompt)}">${esc(t.prompt)}</p>${circuit(c.host, c.seats, c.reserveRoles ?? [], engaged, t, (!replay || index === t.stages.length - 1) && t.detail.includes('helper handoff'))}</div>
-    ${!replay && t.detail ? `<div class="deck-detail">${esc(t.detail)}</div>` : ''}
-    <div class="deck-tools"><b>RUN SHEET</b>${control}${replay ? '<button data-action="deck-live">Exit replay</button>' : ''}</div>
-    ${rows || '<small>Waiting for the first stage event.</small>'}
-    ${files.length ? `<div class="deck-files"><b>.crew/</b> ${files.map(esc).join(' · ')}</div>` : ''}
-    ${sessions ? `<aside class="deck-sessions"><b>ORCA SESSIONS · NOW</b>${sessions}</aside>` : ''}
-  </article>`
+  return `<section class="crew-deck d-${replay ? 'replay' : live ? 'live' : 'last'}${blocked ? ' held' : ''}${moving && !blocked ? ' moving' : ''}" aria-label="Orchestrator">
+  <header><h2>Orchestrator</h2><span class="deck-mode">${esc(mode)}</span></header>
+  <div class="deck-label"><code>${esc(t.id)}</code> · ${text(replay ? `${stage} ${status}` : status)}</div>
+  ${circuit(c.host, c.seats, c.reserveRoles ?? [], engaged, t, rejected)}
+  <div class="deck-tools"><b>Run sheet</b>${t.stages.length ? play : ''}${replay ? '<button data-action="deck-live">Exit replay</button>' : ''}</div>
+  ${rows || '<p class="cm-note">Waiting for the first stage event.</p>'}
+  ${files.length ? `<div class="deck-files"><b>.crew/</b> ${files.map(esc).join(' · ')}</div>` : ''}
+</section>`
 }

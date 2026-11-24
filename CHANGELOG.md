@@ -4,6 +4,7 @@
 
 - **Crew section** (optional, off by default; menu ⋯ → Crew): Agni crew tasks with stage timelines and run sheets, tasks waiting on you at the top, seat state and seat lock holder, and the gateway's crew keys against budget and expiry. Read-only, over your own SSH.
 - **Crew mascots** in the Crew section: who is working on the running task, as 🐉 🦊 🐙 🦉 🎭 🐎 🧪 with a stage strip, one row each (action, a file-names-only bubble, card temperature and VRAM as — until a source exists), a hand-off, 🎉 at merge-ready and 💥 on failure. Reads the per-seat lines of Agni-crew #42 (`agni.crew.seat_event/1`) when present, stage lines otherwise. Still under prefers-reduced-motion.
+- **Crew mode** replaces the Crew section: with Crew on, the whole sidebar is the Crew operations console. It leads with live state (running task, stage, elapsed, the last stage that finished, the seats generating, a queued seat and its holder) and when agnx last answered (live, stale past 45 s, unreachable, connecting). Tasks waiting on you show their recorded cause, the last stage that passed and the next step. The orchestrator map keeps LiteLLM as a routing node and labels what it shows: live, last run (still, not a current incident) or an explicit replay. Seats, gateway problems only when there is one, and folded run history follow. Standard sections, the footer, key budgets and the LiteLLM dashboard link are gone from Crew mode; **‹ Pitwall** in its bar returns to the standard view. Demo mode keeps the standard view.
 
 ## 0.2.0
 

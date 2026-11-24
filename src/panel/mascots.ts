@@ -49,7 +49,7 @@ function row(m: CrewMascotView, now: number): string {
 </div>`
 }
 
-function handoff(l: CrewLiveView, now: number): string {
+export function handoff(l: CrewLiveView, now: number): string {
   const h = l.handoff
   if (!h || now - h.at > BURST_MS || now < h.at - 60_000) return ''
   const by = (id: string) => l.mascots.find((m) => m.id === id)
@@ -61,7 +61,7 @@ function handoff(l: CrewLiveView, now: number): string {
 
 const CONFETTI = ['·', '·', '·', '·']
 
-function finale(l: CrewLiveView, now: number): string {
+export function finale(l: CrewLiveView, now: number): string {
   const f = l.finale
   if (!f) return ''
   const ok = f.kind === 'merge_ready'
