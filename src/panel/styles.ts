@@ -197,28 +197,19 @@ b { font-weight: 600; }
 .crew-deck { color:#e4edf2; background:#0b1018; border:1px solid #354855; border-radius:8px; overflow:hidden; min-width:0; padding:10px; margin:2px 0 8px; font-family:ui-monospace,monospace; }
 .crew-deck header,.deck-tools,.deck-event { display:flex; align-items:center; gap:7px }
 .crew-deck header { justify-content:space-between; border-bottom:1px solid #34424d; padding-bottom:8px; font:bold 13px/1.3 system-ui; letter-spacing:.1em }
-.crew-deck header span { color:#ff9757 }.crew-deck header small,.deck-label,.deck-seat small { color:#acbdc8;font:10px/1.4 ui-monospace,monospace;letter-spacing:0 }
-.deck-screen { position:relative;isolation:isolate;padding:12px 1px 5px;background:linear-gradient(90deg,#16232f55 1px,transparent 1px),linear-gradient(#16232f55 1px,transparent 1px);background-size:16px 16px }
-.crew-deck h2 { margin:4px 0 0;color:#faf7f1;font:800 clamp(22px,8vw,38px)/1 system-ui;text-transform:uppercase;letter-spacing:-.035em;overflow-wrap:anywhere }
+.crew-deck header span { color:#a1e4c9 }.crew-deck header small,.deck-label,.deck-seat small { color:#acbdc8;font:10px/1.4 ui-monospace,monospace;letter-spacing:0 }
+.deck-screen { position:relative;isolation:isolate;padding:12px 1px 5px;background:transparent }
+.crew-deck h2 { margin:4px 0 0;color:#faf7f1;font:650 clamp(22px,7.5vw,34px)/1.08 system-ui;letter-spacing:-.035em;overflow-wrap:anywhere }
 .deck-screen strong { display:block;margin-top:5px;color:#ffc68d;font-size:11px;text-transform:uppercase }
 .deck-screen p { font:12px/1.45 system-ui;color:#cdd5df;margin:6px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden }
-/* Machined dies, etched traces and packet traffic scale together at sidebar width. */
-.circuit-board {display:block;width:100%;max-height:290px;margin:8px 0 0;background:radial-gradient(ellipse at 50% 40%,#14334199,transparent 72%)}
-.circuit-board .shadow {fill:#000;opacity:.65}
-.circuit-board .edge {fill:#09121e;stroke:#4c6476;stroke-width:.8}
-.circuit-board .plate {fill:#243b49;stroke:#66919c;stroke-width:.8}
-.circuit-board .lid {fill:#2c4554;stroke:#8ba2aa;stroke-width:.8}
-.circuit-board .ribs {fill:none;stroke:#455f6a;stroke-width:.8}
-.circuit-board .die-core {fill:#14262f;stroke:#7baeb6}
-.circuit-board .pilot {fill:#76999b}
-.circuit-board .lit .die-core,.circuit-board .lit .pilot {fill:#acfff0;stroke:#4cf1d1;filter:drop-shadow(0 0 4px #40d8c2)}
-.circuit-board text {text-anchor:middle;font-family:ui-monospace,monospace}
-.chip-name {font-size:13px;font-weight:700;fill:#d6eaef}.chip-card {font-size:9px;fill:#9cb6c6}
-.socket {fill:#10212c;stroke:#70a1ad}.host-label {fill:#c6f3ee;font-size:10px;letter-spacing:1px}
-.trace,.signal {fill:none;stroke:#365b68;stroke-width:1.5}.signal {stroke:#81f9da;filter:drop-shadow(0 0 3px #43c5b6)}
-.crew-deck.moving .signal {stroke-dasharray:9 19;animation:deck-packet 1.25s linear infinite}
-@keyframes deck-packet {to {stroke-dashoffset:-56}}
-.gate-stop path {stroke:#ffa36d;stroke-width:3}.gate-stop text {fill:#ffa36d;font-size:8px;text-anchor:start}.held .signal {stroke:#d68b59;stroke-dasharray:2 5}
+
+.command-map {display:block;width:100%;margin:9px 0 0;background:radial-gradient(ellipse at center,#182b34 0%,#101922 65%,#0b1018)}
+.command-map text {text-anchor:middle;font-family:ui-monospace,monospace}.role-label {fill:#9caeba;font-size:7px;letter-spacing:1px}
+.command-map .role-name {fill:#ecf2f4;font:650 13px system-ui}.role-detail {fill:var(--ink);font-size:8px}
+.role-orbit {fill:#0b1620;stroke:var(--ink);stroke-opacity:.45;stroke-width:.7}.orbit-tick,.insignia {fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.role-core {fill:#1b2633;stroke:var(--ink);stroke-opacity:.25}.route-base {fill:none;stroke:#3e5862;stroke-width:1}.route-base.reserve {stroke:#625278;stroke-dasharray:2 3}
+.signal {fill:none;stroke-width:2;filter:drop-shadow(0 0 2px #8affdc)}.crew-deck.moving .signal {stroke-dasharray:7 10;animation:deck-packet 1.1s linear infinite}
+@keyframes deck-packet {to {stroke-dashoffset:-34}}.command-hub {fill:#1e3335;stroke:#648b82}.command-map .hub-name {fill:#d5f4e8;font:650 11px system-ui}.hub-route {fill:#a2c1b3;font-size:7px}
 .deck-sessions,.deck-files {border-top:1px solid #314350;padding-top:7px;margin-top:7px;color:#c5d6df;font-size:10px;overflow-wrap:anywhere}.deck-sessions > b {font-size:9px;color:#89a4af;letter-spacing:.1em}.deck-session {display:flex;gap:8px;align-items:center}.deck-session span {color:#bfcccf}.deck-session b {text-transform:capitalize}.deck-detail {color:#ffd6b2;border-left:2px solid #ff9254;padding-left:7px;margin-top:8px;font:12px/1.4 system-ui;overflow-wrap:anywhere}
 .deck-tools {margin:10px 0 4px}.deck-tools b {font-size:10px;letter-spacing:.1em;flex:1;color:#acbdc8}
 .deck-tools button {border:1px solid #57717a;padding:3px 7px;border-radius:3px;color:#e0f9fa;font-size:11px;background:#17222c}

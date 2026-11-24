@@ -140,6 +140,7 @@ export interface CrewStageView {
 }
 
 export interface CrewTaskView {
+  assignments?: Record<string, string[]>
   id: string
   /** As `crew status` shows it: running, waiting, needs_owner, merge_ready, failed, interrupted, stopped. */
   status: string
@@ -228,6 +229,7 @@ export interface CrewLiveView {
 }
 
 export interface CrewView {
+  reserveRoles?: string[]
   host: string
   /** When agnx last answered; null when never. */
   at: number | null

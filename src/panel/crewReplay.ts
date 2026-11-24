@@ -32,18 +32,22 @@ export function crewReplay(c: CrewView, agents: AgentView[], playback?: Playback
   // cannot establish whether the optional second author also ran.
   if (replay && ['plan', 'intake', 'build'].includes(stage)) engaged.add('leader')
   if (replay && stage === 'review') engaged.add(c.agni1Only ? 'helper' : 'reviewer')
+  const reserves: Record<string,string> = {cavalry:'codex',referee:'jev',escalation:'venice'}
+  for (const [role, id] of Object.entries(reserves)) {
+    if (active.some(m => m.id === id) || (replay && stage === role)) engaged.add(role)
+  }
   const blocked = ['stop','waiting','failed','needs_owner','interrupted','stopped'].includes(status)
-  const rows = t.stages.slice(Math.max(0, index - 2), index + 1).map((x,i,a) =>
+  const rows = t.stages.slice(Math.max(0, index - 4), index + 1).map((x,i,a) =>
     `<button data-action="deck-step" data-key="${esc(t.id)}" data-key-x="${index - a.length + 1 + i}" class="deck-event${i === a.length - 1 ? ' current' : ''}"><b>${text(x.stage)}</b><span>${text(x.outcome)}</span><time>${fmtSecs(x.seconds)}</time></button>`
   ).join('')
   const files = [...new Set(t.stages.slice(0, index + 1).flatMap(s => s.evidence ?? []))]
   const sessions = agents.filter(a => a.state !== 'done').map(a => `<div class="deck-session"><b>${esc(a.agentKind)}</b><span>${esc(a.state)}</span></div>`).join('')
   const control = t.stages.length ? `<button data-action="deck-play" data-key="${esc(t.id)}">${replay && playback.playing ? 'Pause' : replay && index < t.stages.length - 1 ? 'Resume' : '↻ Replay'}</button>` : ''
   return `<article class="crew-deck${blocked ? ' held' : ''}${moving && !blocked ? ' moving' : ''}" aria-label="Crew task monitor">
-    <header><span><i></i> AGNI / CREW</span><small>${title}</small></header>
+    <header><span><i></i> Agent orchestrator</span><small>${title}</small></header>
     <div class="deck-screen"><div class="deck-label">${esc(c.host)} · ${esc(t.id)}</div>
-    <h2>${text(heading)}</h2><strong>${text(status)}</strong>
-    <p>${esc(t.prompt)}</p>${circuit(c.host,c.seats,engaged,blocked)}</div>
+    <h2>${text(heading)}</h2>
+    <p title="${esc(t.prompt)}">${esc(t.prompt)}</p>${circuit(c.host, c.seats, c.reserveRoles ?? [], engaged, t, (!replay || index === t.stages.length - 1) && t.detail.includes('helper handoff'))}</div>
     ${!replay && t.detail ? `<div class="deck-detail">${esc(t.detail)}</div>` : ''}
     <div class="deck-tools"><b>RUN SHEET</b>${control}${replay ? '<button data-action="deck-live">Exit replay</button>' : ''}</div>
     ${rows || '<small>Waiting for the first stage event.</small>'}

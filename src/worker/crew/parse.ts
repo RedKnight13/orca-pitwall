@@ -45,6 +45,7 @@ export function outcomeTone(outcome: string): CrewTone {
 }
 
 interface RawTask {
+  assignments?: Record<string, unknown>
   id?: unknown
   status?: unknown
   stage?: unknown
@@ -68,6 +69,7 @@ interface RawEvent {
 }
 
 interface RawReport {
+  reserve_roles?: unknown
   schema?: unknown
   status?: { exit?: unknown; text?: unknown } | null
   tasks?: unknown
@@ -118,6 +120,7 @@ function detailOf(status: string, t: RawTask, attempts: number): string {
 const RANK: Record<string, number> = { running: 1, merge_ready: 2 }
 
 export interface CrewReport {
+  reserveRoles: string[]
   tasks: CrewTaskView[]
   more: number
   seats: CrewSeatView[]
@@ -166,6 +169,9 @@ export function parseCrewReport(raw: string): CrewReport {
       status,
       stage: row?.stage ?? str(t.stage),
       attempts,
+      assignments: Object.fromEntries(Object.entries(t.assignments ?? {}).filter(([role, files]) =>
+        ['leader', 'helper', 'reviewer'].includes(role) && Array.isArray(files)
+      ).map(([role, files]) => [role, (files as unknown[]).filter((f): f is string => typeof f === 'string').slice(0, 8)])),
       prompt: str(t.prompt) ?? '',
       createdAt: time(t.created),
       updatedAt: time(t.updated),
@@ -195,7 +201,8 @@ export function parseCrewReport(raw: string): CrewReport {
   }
   const reviewer = seats.find((s) => s.id === 'reviewer')
   const total = num(d.total) ?? tasks.length
-  return { tasks, more: Math.max(0, total - tasks.length), seats, agni1Only: !!reviewer && reviewer.state === 'down', lockDeployed: d.lock?.deployed === true, lines }
+  const reserveRoles = Array.isArray(d.reserve_roles) ? d.reserve_roles.filter((role): role is string => ['cavalry', 'referee', 'escalation'].includes(role)) : []
+  return { reserveRoles, tasks, more: Math.max(0, total - tasks.length), seats, agni1Only: !!reviewer && reviewer.state === 'down', lockDeployed: d.lock?.deployed === true, lines }
 }
 
 /** Amber at 80% of budget or 7 days to expiry, red at 100% or 1 day. */

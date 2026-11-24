@@ -119,6 +119,7 @@ export class CrewWatch {
       tasks: c.data?.tasks ?? [],
       more: c.data?.more ?? 0,
       seats: c.data?.seats ?? [],
+      reserveRoles: c.data?.reserveRoles ?? [],
       agni1Only: c.data?.agni1Only ?? false,
       lockDeployed: c.data?.lockDeployed ?? false,
       gateway,

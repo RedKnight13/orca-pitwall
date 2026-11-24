@@ -39,7 +39,16 @@ def run(cmd, timeout):
 def task_row(t):
     res = t.get("result") if isinstance(t.get("result"), dict) else {}
     wait = t.get("waiting_on_seat") if isinstance(t.get("waiting_on_seat"), dict) else None
+    assignments = {}
+    items = t.get("work_items")
+    for item in items[:24] if isinstance(items, list) else []:
+        if not isinstance(item, dict) or item.get("owner") not in ("leader", "helper", "reviewer"):
+            continue
+        files = item.get("files")
+        names = [file_name(f) for f in files[:8]] if isinstance(files, list) else []
+        assignments.setdefault(item["owner"], []).extend(n for n in names if n)
     return {
+        "assignments": assignments,
         "id": clip(t.get("id"), 64),
         "status": clip(t.get("status"), 32),
         "stage": clip(t.get("stage"), 32),
@@ -194,6 +203,23 @@ def seat_lock():
     ]}
 
 
+def reserve_roles():
+    try:
+        import tomllib
+        with open(os.path.join(HOME, "agni/crew/crew.toml"), "rb") as stream:
+            profile = tomllib.load(stream)
+    except (ImportError, OSError, ValueError):
+        return []
+    roles = []
+    if profile.get("seats", {}).get("cavalry", {}).get("model"):
+        roles.append("cavalry")
+    if profile.get("referee", {}).get("mode") == "jev":
+        roles.append("referee")
+    if profile.get("escalation", {}).get("mode") == "venice":
+        roles.append("escalation")
+    return roles
+
+
 def main():
     listed, total = tasks()
     status = run([CREW, "status"], 20)
@@ -201,6 +227,7 @@ def main():
         "schema": "pitwall.crew/1",
         "status": {"exit": status["exit"], "text": status["out"], "error": status.get("error")},
         "tasks": listed,
+        "reserve_roles": reserve_roles(),
         "total": total,
         "events": events({t["id"] for t in listed}),
         "seats": [{"seat": s, "port": p, "health": health(p)} for s, p in SEATS],
