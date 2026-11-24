@@ -2,10 +2,12 @@
 // so it runs in Node tests. Every value from the snapshot goes through esc().
 import { fmtClock, fmtDuration, fmtTokens, fmtUntil, fmtUsd, modelLabel, pct } from '../shared/format'
 import { VERSION } from '../shared/version'
+import { crewReplay, type Playback } from './crewReplay'
 import { renderLive } from './mascots'
 import type { AgentView, BackgroundView, CrewKeyView, CrewSeatView, CrewTaskView, CrewView, GateEntry, LogEntry, Snapshot, SubagentView, ToolFamily, TurnView } from '../shared/types'
 
 export interface UiState {
+  playback?: Playback
   family: ToolFamily | null
   /** Open/closed overrides: `car:<key>` for idle agents, `sub:<key>` for all subagents, `bg:<key>` for all background work, `sec:<name>` for sections. */
   expanded: Record<string, boolean>
@@ -623,7 +625,7 @@ export function renderCrew(s: Snapshot, ui: UiState, now: number): string {
     const tasks = c.tasks.length
       ? `${ownerLines ? `<div class="lines">${ownerLines}</div>` : ''}${renderLive(c, now)}${active.length ? `<div class="cards">${active.map((t) => crewCard(t, ui, now, false)).join('')}</div>` : ''}${lines ? `<div class="lines">${lines}</div>` : ''}${more}${older}`
       : '<div class="muted small">No crew tasks yet.</div>'
-    body = `<div class="block-title">Tasks</div>${tasks}${seatsBlock(c)}`
+    body = `${crewReplay(c, s.agents, ui.playback)}<div class="block-title">Tasks</div>${tasks}${seatsBlock(c)}`
   }
   return `<section class="sec crew">${head}<div class="sec-body crew-body">${body}${gatewayBlock(c, now)}</div></section>`
 }

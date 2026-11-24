@@ -19,7 +19,7 @@ test('the stage strip: mascots in pipeline order with their word, then the task 
   const html = renderLive(view(LIVE_AT), LIVE_AT)
   const strip = /<div class="live-strip"[\s\S]*?<\/div>/.exec(html)![0]
   const words = [...strip.matchAll(/<span class="st st-(\w+)"><span aria-hidden="true">(\S+)<\/span> (.*?)<\/span>/g)].map((m) => `${m[2]} ${m[3].replace(/<\/?b>/g, '')}`)
-  assert.deepEqual(words, ['🐉 writing…', '🦊 writing…', '🧪 —', '🐙 waiting', '🦉 waiting'])
+  assert.deepEqual(words, ['Q writing…', 'G writing…', 'T —', 'I waiting', 'J waiting'])
   assert.equal((strip.match(/▸/g) ?? []).length, 4)
   assert.ok(strip.includes('task <code>1125-1012-ab12</code> · <span data-since="' + Date.parse('2026-11-25T10:12:00Z') + '">3m12s</span>'))
   // The strip reads out in words for a screen reader.
@@ -37,7 +37,7 @@ test('one row per mascot: a bouncing face while generating, asleep while idle, a
     ['jev', 'waiting']
   ])
   const qwen = rows[0][3]
-  assert.ok(qwen.includes('class="face bob"') && qwen.includes('🐉'))
+  assert.ok(qwen.includes('class="face bob"') && qwen.includes('>Q</span>'))
   assert.ok(qwen.includes('<span class="act">writing</span>'))
   assert.ok(qwen.includes(`data-since="${Date.parse('2026-11-25T10:13:42Z')}">1m30s<`))
   assert.ok(qwen.includes('<span class="bubble ell" title="writing · leader-build-1.out · 18 kB">'))
@@ -46,7 +46,7 @@ test('one row per mascot: a bouncing face while generating, asleep while idle, a
   assert.ok(qwen.includes('no read-only source for these yet'))
   assert.ok(!qwen.includes('tok/s'), 'no rate when the crew sends none')
   const tests = rows[2][3]
-  assert.ok(tests.includes('class="face sleepy"') && tests.includes('💤'))
+  assert.ok(tests.includes('class="face sleepy"') && tests.includes('>·</i>'))
   assert.ok(!tests.includes('hw muted'), 'the test runner has no card of its own')
   assert.ok(rows[1][3].includes('RX 9070 XT'))
 })
@@ -74,10 +74,10 @@ test('🎉 confetti at merge-ready, 💥 on failure; the words stay after the bu
   assert.ok(ok.includes('class="confetti" data-once="fin:1124-2051-8e7f:ok"'))
   assert.ok(ok.includes('<b>1124-2051-8e7f</b> merge-ready'))
   const later = renderLive(view(end + 120_000, (id) => id === '1124-2051-8e7f'), end + 120_000)
-  assert.ok(!later.includes('confetti') && later.includes('🎉') && later.includes('merge-ready'))
+  assert.ok(!later.includes('confetti') && later.includes('✓') && later.includes('merge-ready'))
   const stop = Date.parse('2026-11-24T21:01:05Z')
   const bad = renderLive(view(stop + 3000, (id) => id === '1124-2056-0510'), stop + 3000)
-  assert.ok(bad.includes('class="boom"') && bad.includes('💥'))
+  assert.ok(bad.includes('class="boom"') && bad.includes('×'))
   assert.ok(bad.includes('<b>1124-2056-0510</b> stopped short'))
 })
 
@@ -89,7 +89,7 @@ test('reduced motion: every moving part is inside .live, which the reduce block 
   assert.ok(/@media \(prefers-reduced-motion: reduce\) \{\s*\.live, \.live \* \{ animation: none !important; transition: none !important; \}/.test(CSS))
   // Under reduced motion the meaning is still there in words: the action, the asleep state, the finale.
   assert.ok(html.includes('<span class="act">writing</span>'))
-  assert.ok(html.includes('class="m-state m-waiting">waiting<') && html.includes('<i class="zz">💤</i>'))
+  assert.ok(html.includes('class="m-state m-waiting">waiting<') && html.includes('<i class="zz">·</i>'))
   assert.ok(html.includes('merge-ready'))
   // Loops start at the wall clock's phase, so a redraw never makes a face jump.
   assert.ok(new RegExp(`--ph:-${LIVE_AT % 2400}ms`).test(html))
@@ -106,7 +106,7 @@ test('nothing running: the crew naps and says what it did last', () => {
   const c = view(Date.parse('2026-11-25T12:00:00Z'), (id) => id !== '1125-1012-ab12')
   assert.equal(c.live, null)
   const html = renderLive(c, Date.parse('2026-11-25T12:00:00Z'))
-  assert.ok(html.includes('Crew asleep · last <code>1124-2056-0510</code> waiting'))
+  assert.ok(html.includes('No active Crew task reported · last <code>1124-2056-0510</code> waiting'))
   assert.ok(!html.includes('bob'))
 })
 

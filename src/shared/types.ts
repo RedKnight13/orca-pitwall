@@ -130,6 +130,7 @@ export type CrewTone = 'pass' | 'fail' | 'wait' | 'run'
 
 /** One line of the crew's event log: a stage that finished, with its outcome and seconds. */
 export interface CrewStageView {
+  evidence?: string[]
   stage: string
   attempt: number
   outcome: string

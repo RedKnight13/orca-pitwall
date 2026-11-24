@@ -21,7 +21,7 @@ function stripWord(m: CrewMascotView): string {
 
 /** `🐉 planning… ▸ 🦊 waiting ▸ 🐙 idle ▸ 🧪 —   task <id> · 3m12s` */
 function strip(l: CrewLiveView, now: number): string {
-  const steps = l.mascots.map((m) => `<span class="st st-${m.state}"><span aria-hidden="true">${m.face}</span> ${stripWord(m)}</span>`).join('<span class="st-sep" aria-hidden="true">▸</span>')
+  const steps = l.mascots.map((m) => `<span class="st st-${m.state}"><span aria-hidden="true">${esc(m.name.slice(0, 1))}</span> ${stripWord(m)}</span>`).join('<span class="st-sep" aria-hidden="true">▸</span>')
   const said = l.mascots.map((m) => `${m.name} ${m.state === 'active' ? m.action : m.state}`).join(', ')
   const clock = l.startedAt ? ` · <span data-since="${l.startedAt}">${esc(fmtDuration(now - l.startedAt))}</span>` : ''
   return `<div class="live-strip" role="group" aria-label="${esc(said)}">${steps}<span class="live-task muted">task <code>${esc(l.taskId)}</code>${clock}</span></div>`
@@ -36,7 +36,7 @@ function hardware(m: CrewMascotView): string {
 }
 
 function row(m: CrewMascotView, now: number): string {
-  const face = m.state === 'active' ? `<span class="face bob" aria-hidden="true">${m.face}</span>` : m.state === 'idle' || m.state === 'waiting' ? `<span class="face sleepy" aria-hidden="true">${m.face}<i class="zz">💤</i></span>` : `<span class="face" aria-hidden="true">${m.face}</span>`
+  const face = m.state === 'active' ? `<span class="face bob" aria-hidden="true">${esc(m.name.slice(0, 1))}</span>` : m.state === 'idle' || m.state === 'waiting' ? `<span class="face sleepy" aria-hidden="true">${esc(m.name.slice(0, 1))}<i class="zz">·</i></span>` : `<span class="face" aria-hidden="true">${esc(m.name.slice(0, 1))}</span>`
   const act =
     m.state === 'active'
       ? `<span class="act">${esc(m.action ?? 'working')}</span>${m.tokensPerSec !== null ? `<span class="tps">${esc(Math.round(m.tokensPerSec))} tok/s</span>` : ''}${m.since ? `<span class="muted small" data-since="${m.since}">${esc(fmtDuration(now - m.since))}</span>` : ''}`
@@ -56,10 +56,10 @@ function handoff(l: CrewLiveView, now: number): string {
   const from = by(h.from)
   const to = by(h.to)
   if (!from || !to) return ''
-  return `<div class="handoff" data-once="${esc(`ho:${l.taskId}:${h.from}:${h.to}:${h.at}`)}" role="status"><span aria-hidden="true">${from.face}</span><span class="parcel" aria-hidden="true">📦</span><span aria-hidden="true">${to.face}</span><span class="small sub-t">${esc(from.name)} hands over to ${esc(to.name)}</span></div>`
+  return `<div class="handoff" data-once="${esc(`ho:${l.taskId}:${h.from}:${h.to}:${h.at}`)}" role="status"><span aria-hidden="true">${esc(from.name)}</span><span class="parcel" aria-hidden="true">→</span><span aria-hidden="true">${esc(to.name)}</span><span class="small sub-t">${esc(from.name)} hands over to ${esc(to.name)}</span></div>`
 }
 
-const CONFETTI = ['🎉', '✨', '🎊', '⭐', '✨', '🎉', '🎊', '✨']
+const CONFETTI = ['·', '·', '·', '·']
 
 function finale(l: CrewLiveView, now: number): string {
   const f = l.finale
@@ -70,10 +70,10 @@ function finale(l: CrewLiveView, now: number): string {
   const burst = fresh
     ? ok
       ? `<span class="confetti" data-once="${esc(`fin:${l.taskId}:ok`)}" aria-hidden="true">${CONFETTI.map((c, i) => `<i style="--i:${i}">${c}</i>`).join('')}</span>`
-      : `<span class="boom" data-once="${esc(`fin:${l.taskId}:bad`)}" aria-hidden="true">💥</span>`
+      : `<span class="boom" data-once="${esc(`fin:${l.taskId}:bad`)}" aria-hidden="true">×</span>`
     : ''
   const word = ok ? 'merge-ready' : l.status === 'waiting' ? 'stopped short' : l.status
-  return `<div class="finale ${ok ? 'fin-ok' : 'fin-bad'}" role="status">${burst}<span aria-hidden="true">${ok ? '🎉' : '💥'}</span> <b>${esc(l.taskId)}</b> ${esc(word)}</div>`
+  return `<div class="finale ${ok ? 'fin-ok' : 'fin-bad'}" role="status">${burst}<span aria-hidden="true">${ok ? '✓' : '×'}</span> <b>${esc(l.taskId)}</b> ${esc(word)}</div>`
 }
 
 /** The task in action as mascots. Empty when the crew has nothing live. */
@@ -90,5 +90,5 @@ function asleep(tasks: CrewTaskView[], now: number): string {
   if (!tasks.length) return ''
   const last = [...tasks].sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))[0]
   const when = last.updatedAt ? ` <span data-ago="${last.updatedAt}">${esc(fmtDuration(now - last.updatedAt))}</span> ago` : ''
-  return `<div class="live asleep"><span aria-hidden="true">🐉🦊🐙🧪</span> <span class="zz-static" aria-hidden="true">💤</span> <span class="small sub-t">Crew asleep · last <code>${esc(last.id)}</code> ${esc(last.status.replace(/_/g, '-'))}${when}</span></div>`
+  return `<div class="live asleep"><span class="small sub-t">No active Crew task reported · last <code>${esc(last.id)}</code> ${esc(last.status.replace(/_/g, '-'))}${when}</span></div>`
 }

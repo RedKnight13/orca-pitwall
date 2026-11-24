@@ -35,7 +35,7 @@ function mountShell(): void {
   const style = document.createElement('style')
   style.textContent = CSS
   document.head.appendChild(style)
-  for (const k of ['header', 'alerts', 'agents', 'crew', 'gate', 'log', 'footer'] as (keyof Rendered)[]) {
+  for (const k of ['header', 'crew', 'alerts', 'agents', 'gate', 'log', 'footer'] as (keyof Rendered)[]) {
     const el = document.createElement('div')
     el.dataset.part = k
     document.body.appendChild(el)
@@ -145,6 +145,21 @@ function onClick(e: MouseEvent): void {
     return
   }
   const action = target.dataset.action
+  if (action === 'deck-step') {
+    const task = snap.crew?.tasks.find(t => t.id === target.dataset.key)
+    const index = Number(target.dataset.keyX)
+    if (task && Number.isInteger(index) && index >= 0 && index < task.stages.length)
+      setUi({ playback: { task: task.id, index, playing: false } })
+    return
+  }
+  if (action === 'deck-live') return setUi({ playback: undefined })
+  if (action === 'deck-play') {
+    const task = snap.crew?.tasks.find(t => t.id === target.dataset.key)
+    if (!task?.stages.length) return
+    const prior = ui.playback?.task === task.id ? ui.playback : undefined
+    const index = prior && prior.index < task.stages.length - 1 ? prior.index : 0
+    return setUi({ playback: { task: task.id, index, playing: !prior?.playing && task.stages.length > 1 } })
+  }
   if (action === 'menu') return setUi({ menu: !ui.menu })
   if (action === 'scope') {
     const scope = target.dataset.scope as Scope
@@ -211,3 +226,12 @@ draw()
 orca.plugin.on('pitwall.snapshot', (s) => accept(s))
 void request(() => orca.plugin.request('pitwall.snapshot')).then((s) => s && accept(s))
 setInterval(tickClocks, 1000)
+
+setInterval(() => {
+  const p = ui.playback
+  if (!p?.playing || document.hidden || !sectionOpen(ui, 'crew')) return
+  const task = snap.crew?.tasks.find(t => t.id === p.task)
+  if (!task?.stages.length) return setUi({ playback: undefined })
+  const index = Math.min(p.index + 1, task.stages.length - 1)
+  setUi({ playback: { ...p, index, playing: index < task.stages.length - 1 } })
+}, 2500)

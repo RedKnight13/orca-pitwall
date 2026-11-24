@@ -104,6 +104,7 @@ function detailOf(status: string, t: RawTask, attempts: number): string {
   if (status === 'needs_owner') return 'No test command: the crew needs one to grade the work.'
   if (err && (status === 'failed' || status === 'interrupted')) return err
   if (status === 'interrupted') return 'The crew process stopped mid-task.'
+  if (status === 'waiting' && r.decision === 'helper_assignment_rejected') return 'Crew rejected the helper handoff before grading or review.'
   const bits: string[] = []
   const verdict = str(r.verdict)
   const exit = num(r.test_exit)
@@ -145,6 +146,7 @@ export function parseCrewReport(raw: string): CrewReport {
     if (!task || !stage || at === null) continue
     const outcome = e.outcome === null || e.outcome === undefined ? '' : String(e.outcome)
     const row: CrewStageView = { stage, attempt: num(e.attempt) ?? 0, outcome, seconds: Math.max(0, num(e.seconds) ?? 0), tone: outcomeTone(outcome), at }
+    if (live?.kind === 'stage' && live.evidence.length) row.evidence = live.evidence
     const rows = byTask.get(task) ?? []
     rows.push(row)
     byTask.set(task, rows)
