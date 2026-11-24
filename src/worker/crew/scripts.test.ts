@@ -8,7 +8,8 @@ import { assert, test } from 'orca/testing'
 import { seatEventsJsonl } from '../../../test/crew'
 import { crewLive } from './live'
 import { parseCrewReport, parseGatewayReport } from './parse'
-import { AGNX_PY, GATEWAY_PY } from './scripts'
+import { agnxScript, AGNX_PY, GATEWAY_PY, type AgnxCursor } from './scripts'
+import { appendFileSync, truncateSync } from 'node:fs'
 
 const MASTER = 'sk-test-master-not-real-0000'
 const VIRTUAL = 'sk-test-virtual-not-real-1111'
@@ -166,7 +167,9 @@ test('agnx script: #42 seat lines and the mascot fields go out whitelisted; no p
     const line = JSON.parse(out)
     const seats = line.events.filter((e: any) => e.seat_event)
     assert.equal(seats.length, 7, 'six #42 lines and the traversal one; the /2 line stays home')
-    const build = seats.find((e: any) => e.stage === 'build')
+    const { ref, ...build } = seats.find((e: any) => e.stage === 'build')
+    // Where the line sits in its log (relative to home), so the next poll can stat the output again.
+    assert.match(ref, /^\.local\/state\/agni-crew-three-seat\/events\.jsonl:\d+$/)
     assert.deepEqual(build, { schema: 'agni.crew.seat_event/1', seat_event: 'start', ts: '2026-11-25T10:13:42+00:00', task: '1125-1012-ab12', stage: 'build', attempt: 1, seat: 'leader', slot: '', output: 'leader-build-1.out', seconds: 0, exit: null, timed_out: null, output_bytes: 2100 })
     const decide = line.events.find((e: any) => e.stage === 'decide')
     assert.deepEqual(decide.evidence, ['test-1.txt', 'review-1.md'])
@@ -175,9 +178,103 @@ test('agnx script: #42 seat lines and the mascot fields go out whitelisted; no p
     assert.ok(!('decision' in decide) && !('reason' in decide))
     // And it reads back as mascots.
     const r = parseCrewReport(out)
-    const live = crewLive(r.tasks, r.lines, Date.parse('2026-11-25T10:15:12Z'))!
+    const live = crewLive(r.tasks, r.lines, Date.parse('2026-11-25T10:15:12Z'))[0]
     assert.equal(live.source, 'seats')
-    assert.ok(live.mascots.find((m) => m.id === 'qwen')!.bubble!.includes('leader-build-1.out · 2 kB'))
+    assert.equal(live.mascots.find((m) => m.id === 'qwen')!.bubble, 'leader-build-1.out · 2 kB')
+  } finally {
+    rmSync(home, { recursive: true })
+  }
+})
+
+/** A crew state folder with one running task and an events log, under a fake home. */
+function crewHome(prefix: string) {
+  const home = mkdtempSync(join(tmpdir(), prefix))
+  const state = join(home, '.local/state/agni-crew-three-seat')
+  mkdirSync(join(state, 'tasks'), { recursive: true })
+  writeFileSync(join(state, 'tasks/1125-1012-ab12.json'), JSON.stringify({ id: '1125-1012-ab12', status: 'running', stage: 'build', attempts: 1, prompt: 'Fix it', created: '2026-11-25T10:12:00+00:00', updated: '2026-11-25T10:15:10+00:00' }))
+  const log = join(state, 'events.jsonl')
+  writeFileSync(log, seatEventsJsonl())
+  return { home, state, log }
+}
+
+const stage = (ts: string, stage: string) => JSON.stringify({ ts, task: '1125-1012-ab12', stage, attempt: 1, outcome: 'ok', seconds: 3 }) + '\n'
+
+test('agnx script: tails the log from the cursor, and reads it afresh when the log is new or shrank', () => {
+  const py = python()
+  if (!py) return
+  const { home, log } = crewHome('pitwall-tail-')
+  const runIt = (cursor: AgnxCursor | null) => JSON.parse(execFileSync(py, ['-I', '-'], { input: agnxScript(cursor), encoding: 'utf8', env: { ...process.env, HOME: home }, timeout: 30_000 }))
+  try {
+    const first = runIt(null)
+    assert.equal(first.mode, 'full')
+    const n = first.events.length
+    assert.ok(n >= 6, String(n))
+    const files = first.cursor.files
+    assert.deepEqual(Object.keys(files), ['.local/state/agni-crew-three-seat/events.jsonl'])
+
+    // Nothing new: nothing sent.
+    const idle = runIt({ files, open: [] })
+    assert.equal(idle.mode, 'delta')
+    assert.deepEqual(idle.events, [])
+
+    // Two new lines and half of a third: only the two whole ones, and the cursor stops before the half.
+    appendFileSync(log, stage('2026-11-25T10:16:00+00:00', 'grade') + stage('2026-11-25T10:16:30+00:00', 'review') + '{"ts": "2026-11-25T10:17')
+    const more = runIt({ files: idle.cursor.files, open: [] })
+    assert.equal(more.mode, 'delta')
+    assert.deepEqual(more.events.map((e: any) => e.stage), ['grade', 'review'])
+    appendFileSync(log, ':00+00:00", "task": "1125-1012-ab12", "stage": "decide", "attempt": 1, "outcome": "retry"}\n')
+    const rest = runIt({ files: more.cursor.files, open: [] })
+    assert.deepEqual(rest.events.map((e: any) => e.stage), ['decide'])
+
+    // A rotated (shorter) log is read afresh.
+    truncateSync(log, 0)
+    writeFileSync(log, stage('2026-11-25T10:20:00+00:00', 'intake'))
+    const fresh = runIt({ files: rest.cursor.files, open: [] })
+    assert.equal(fresh.mode, 'full')
+    assert.deepEqual(fresh.events.map((e: any) => e.stage), ['intake'])
+  } finally {
+    rmSync(home, { recursive: true })
+  }
+})
+
+test('agnx script: an open seat run gets its output size again by ref, without rereading the log', () => {
+  const py = python()
+  if (!py) return
+  const { home, state, log } = crewHome('pitwall-ref-')
+  const wt = join(state, 'worktrees/crew-1125-1012-ab12')
+  mkdirSync(join(wt, '.crew/seats'), { recursive: true })
+  const out = join(wt, '.crew/seats/leader-build-1.out')
+  writeFileSync(out, 'x'.repeat(100))
+  writeFileSync(log, seatEventsJsonl().split('\n').filter(Boolean).map((l) => JSON.stringify({ ...JSON.parse(l), ...(JSON.parse(l).worktree ? { worktree: wt } : {}) })).join('\n') + '\n')
+  const runIt = (cursor: AgnxCursor | null) => JSON.parse(execFileSync(py, ['-I', '-'], { input: agnxScript(cursor), encoding: 'utf8', env: { ...process.env, HOME: home }, timeout: 30_000 }))
+  try {
+    const first = runIt(null)
+    const start = first.events.find((e: any) => e.seat_event === 'start' && e.stage === 'build')
+    assert.equal(start.output_bytes, 100)
+    writeFileSync(out, 'x'.repeat(4000))
+    const next = runIt({ files: first.cursor.files, open: [start.ref, 'nowhere.jsonl:0', '../../etc/passwd:0'] })
+    assert.deepEqual(next.events, [])
+    assert.deepEqual(next.sizes, { [start.ref]: 4000 })
+  } finally {
+    rmSync(home, { recursive: true })
+  }
+})
+
+test('agnx script: seat and model names from crew.toml and its fallback, and nothing else from them', () => {
+  const py = python()
+  if (!py) return
+  const { home } = crewHome('pitwall-cfg-')
+  try {
+    mkdirSync(join(home, 'agni/crew'), { recursive: true })
+    writeFileSync(
+      join(home, 'agni/crew/crew.toml'),
+      `[paths]\nstate_dir = "~/SECRET-STATE"\n[seats.leader]\nbin = "~/SECRET-BIN"\nbase_url = "http://127.0.0.1:4100/v1"\nmodel = "crew-local/agni-qwen27"\n[seats.reviewer]\nmodel = "crew-local/inkling"\nkey_file = "~/SECRET-KEY"\n[seats.helper]\nmodel = "crew-local/gemma-rx"\n[seats.bad]\nmodel = "x; rm -rf"\n[fallback]\nconfig = "~/agni/crew/crew-agni1-only.toml"\n`
+    )
+    writeFileSync(join(home, 'agni/crew/crew-agni1-only.toml'), `[seats.leader]\nmodel = "crew-local/agni-qwen27"\n[seats.reviewer]\nmodel = "crew-local/gemma-rx"\n`)
+    const out = execFileSync(py, ['-I', '-'], { input: AGNX_PY, encoding: 'utf8', env: { ...process.env, HOME: home }, timeout: 30_000 })
+    for (const leak of ['SECRET-STATE', 'SECRET-BIN', 'SECRET-KEY', '4100', 'rm -rf']) assert.ok(!out.includes(leak), leak)
+    assert.deepEqual(JSON.parse(out).models, { primary: { leader: 'agni-qwen27', reviewer: 'inkling', helper: 'gemma-rx' }, fallback: { leader: 'agni-qwen27', reviewer: 'gemma-rx' } })
+    assert.deepEqual(parseCrewReport(out).models, { primary: { leader: 'agni-qwen27', reviewer: 'inkling', helper: 'gemma-rx' }, fallback: { leader: 'agni-qwen27', reviewer: 'gemma-rx' } })
   } finally {
     rmSync(home, { recursive: true })
   }

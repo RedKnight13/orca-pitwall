@@ -628,6 +628,10 @@ export default function activate(orca: OrcaWorkerApi): void {
   orca.panels.handle('pitwall.setDemo', async ({ on }) => pw.setDemo(on === true))
   orca.panels.handle('pitwall.reset', async () => pw.reset())
   orca.panels.handle('pitwall.setCrew', async ({ on }) => pw.setCrew(on === true))
+  orca.panels.handle('pitwall.crewVisible', async ({ visible }) => {
+    pw.crew.setVisible(visible === true)
+    return { ok: true as const }
+  })
   orca.panels.handle('pitwall.focus', async ({ key }) => pw.focus(String(key ?? '')))
   orca.panels.handle('pitwall.seen', async ({ key }) => pw.markSeen(String(key ?? '')))
 

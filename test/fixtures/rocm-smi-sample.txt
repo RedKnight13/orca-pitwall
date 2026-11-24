@@ -1,0 +1,5 @@
+WARNING: AMD GPU device(s) is/are in a low-power state. Check power control/runtime_status
+
+Fail to open libdrm_amdgpu.so: libdrm_amdgpu.so: cannot open shared object file: No such file or directory
+{"card0": {"Temperature (Sensor edge) (C)": "29.0", "Temperature (Sensor junction) (C)": "30.0", "Temperature (Sensor memory) (C)": "52.0", "VRAM Total Memory (B)": "17095983104", "VRAM Total Used Memory (B)": "13333053440", "Card Series": "N/A", "Card Model": "0x7550", "Card Vendor": "Advanced Micro Devices, Inc. [AMD/ATI]", "GFX Version": "gfx1201"}, "card1": {"Temperature (Sensor edge) (C)": "39.0", "Temperature (Sensor junction) (C)": "44.0", "Temperature (Sensor memory) (C)": "42.0", "VRAM Total Memory (B)": "34208743424", "VRAM Total Used Memory (B)": "30779375616", "Card Series": "N/A", "Card Model": "0x7551", "Card Vendor": "Advanced Micro Devices, Inc. [AMD/ATI]", "GFX Version": "gfx1201"}, "card2": {"Temperature (Sensor edge) (C)": "36.0", "VRAM Total Memory (B)": "2147483648", "VRAM Total Used Memory (B)": "16637952", "Card Series": "N/A", "Card Model": "0x13c0", "Card Vendor": "Advanced Micro Devices, Inc. [AMD/ATI]", "GFX Version": "gfx1036"}}
+

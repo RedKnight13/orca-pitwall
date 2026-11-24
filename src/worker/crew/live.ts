@@ -47,15 +47,27 @@ export interface SeatLine {
 
 export type LiveLine = StageLine | SeatLine
 
-const MASCOTS: Record<CrewMascotId, { face: string; name: string; role: string; card: string | null }> = {
-  qwen: { face: '🐉', name: 'Qwen', role: 'leader', card: 'R9700' },
-  gemma: { face: '🦊', name: 'Gemma', role: 'second author', card: 'RX 9070 XT' },
-  inkling: { face: '🐙', name: 'Inkling', role: 'reviewer', card: 'agni2' },
-  jev: { face: '🦉', name: 'Jev', role: 'referee', card: null },
-  venice: { face: '🎭', name: 'Venice', role: 'advisor', card: null },
-  codex: { face: '🐎', name: 'Codex', role: 'cavalry', card: null },
-  tests: { face: '🧪', name: 'Tests', role: 'test runner', card: null }
+const MASCOTS: Record<CrewMascotId, { face: string; name: string; role: string }> = {
+  qwen: { face: '🐉', name: 'Qwen', role: 'leader' },
+  gemma: { face: '🦊', name: 'Gemma', role: 'second author' },
+  inkling: { face: '🐙', name: 'Inkling', role: 'reviewer' },
+  jev: { face: '🦉', name: 'Jev', role: 'referee' },
+  venice: { face: '🎭', name: 'Venice', role: 'advisor' },
+  codex: { face: '🐎', name: 'Codex', role: 'cavalry' },
+  tests: { face: '🧪', name: 'Tests', role: 'test runner' }
 }
+
+/** The crew.toml seat each local mascot sits in; its card follows from the seat's model. */
+export const MASCOT_SEAT: Partial<Record<CrewMascotId, string>> = { qwen: 'leader', gemma: 'helper', inkling: 'reviewer' }
+
+/** A seat's card and its latest reading; null when the seat has no card or the config is unknown. */
+export interface SeatHardware {
+  card: string
+  host: string
+  tempC: number | null
+  vramGb: { used: number; total: number } | null
+}
+export type HardwareOf = (seat: string) => SeatHardware | null
 
 /** Pipeline order, which is also the strip's order. */
 const ORDER: CrewMascotId[] = ['qwen', 'gemma', 'codex', 'tests', 'inkling', 'jev', 'venice']
@@ -217,7 +229,8 @@ function stageBubble(l: StageLine, id: CrewMascotId): string | null {
 }
 
 function seatBubble(l: SeatLine): string | null {
-  if (l.event === 'start') return safeBubble([ACTION[l.stage] ?? human(l.stage), l.output, l.outputBytes !== null ? kb(l.outputBytes) : null])
+  // A running seat: its output file and size only. The action word is on the strip, once.
+  if (l.event === 'start') return safeBubble([l.output, l.output && l.outputBytes !== null ? kb(l.outputBytes) : null])
   const how = l.timedOut || l.exit === 124 ? 'timed out' : l.exit !== null && l.exit !== 0 ? `exit ${l.exit}` : `done in ${secs(l.seconds)}`
   return safeBubble([`${human(l.stage)} ${how}`, l.output])
 }
@@ -226,26 +239,31 @@ const seatMascot = (l: SeatLine): CrewMascotId | null => (l.slot === 'helper_' ?
 
 const FAIL = new Set(['tests_fail', 'FAIL', 'malformed', 'no_verdict', 'failed', 'stop', 'timeout'])
 
-/** The task to draw: a running one, else one that ended in the last few minutes. */
-function pickTask(tasks: CrewTaskView[], lines: Map<string, LiveLine[]>, now: number): { task: CrewTaskView; finale: CrewLiveView['finale'] } | null {
-  const running = tasks.filter((t) => t.status === 'running').sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
-  if (running.length) return { task: running[0], finale: null }
-  let best: { task: CrewTaskView; finale: CrewLiveView['finale'] } | null = null
+/** The tasks to draw: every running one, newest first, then those that ended in the last few minutes. */
+function pickTasks(tasks: CrewTaskView[], lines: Map<string, LiveLine[]>, now: number): { task: CrewTaskView; finale: CrewLiveView['finale'] }[] {
+  const running = tasks
+    .filter((t) => t.status === 'running')
+    .sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
+    .map((task) => ({ task, finale: null }))
+  const ended: { task: CrewTaskView; finale: NonNullable<CrewLiveView['finale']> }[] = []
   for (const t of tasks) {
     const kind = t.status === 'merge_ready' ? 'merge_ready' : t.status === 'failed' || t.status === 'interrupted' || t.status === 'waiting' ? 'failed' : null
     if (!kind) continue
     const evs = lines.get(t.id) ?? []
     const at = Math.max(t.updatedAt ?? 0, evs.length ? evs[evs.length - 1].at : 0)
     if (!at || now - at > FINALE_MS || now - at < -60_000) continue
-    if (!best || at > best.finale!.at) best = { task: t, finale: { kind, at } }
+    ended.push({ task: t, finale: { kind, at } })
   }
-  return best
+  ended.sort((a, b) => b.finale.at - a.finale.at)
+  return [...running, ...ended]
 }
 
-export function crewLive(tasks: CrewTaskView[], lines: Map<string, LiveLine[]>, now: number): CrewLiveView | null {
-  const picked = pickTask(tasks, lines, now)
-  if (!picked) return null
-  const { task, finale } = picked
+/** Every task in action (and any that just ended) as mascots, one view each. */
+export function crewLive(tasks: CrewTaskView[], lines: Map<string, LiveLine[]>, now: number, hardware: HardwareOf = () => null): CrewLiveView[] {
+  return pickTasks(tasks, lines, now).map(({ task, finale }) => taskLive(task, finale, lines, now, hardware))
+}
+
+function taskLive(task: CrewTaskView, finale: CrewLiveView['finale'], lines: Map<string, LiveLine[]>, now: number, hardware: HardwareOf): CrewLiveView {
   const all = [...(lines.get(task.id) ?? [])].sort((a, b) => a.at - b.at)
   const stages = all.filter((l): l is StageLine => l.kind === 'stage')
   const seats = all.filter((l): l is SeatLine => l.kind === 'seat')
@@ -318,18 +336,22 @@ export function crewLive(tasks: CrewTaskView[], lines: Map<string, LiveLine[]>, 
       if (f && bubble && !bubble.includes(f)) bubble = safeBubble([bubble, f])
     }
     if (id === 'gemma' && !split && !now_) bubble = bubble ?? 'sitting this one out'
+    const seat = MASCOT_SEAT[id]
+    const hw = seat ? hardware(seat) : null
     mascots.push({
       id,
       ...MASCOTS[id],
+      card: hw?.card ?? null,
+      host: hw?.host ?? null,
       state,
       action: now_?.action ?? null,
       since: now_?.since ?? null,
       // Neither the stage lines nor agni.crew.seat_event/1 carry token rates.
       tokensPerSec: null,
       bubble,
-      // No read-only source for card temperature or VRAM yet: not in `crew status`, and agnx has no AMD card.
-      tempC: null,
-      vramGb: null
+      // Read over SSH from the card's host while the section is on screen; null when it does not answer.
+      tempC: hw?.tempC ?? null,
+      vramGb: hw?.vramGb ?? null
     })
   }
 

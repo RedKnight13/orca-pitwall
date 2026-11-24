@@ -1,6 +1,7 @@
 // Pure parsers for what the Crew scripts print (see scripts.ts). No I/O, so the tests feed them
 // recorded output. Anything malformed is dropped rather than guessed at.
 import type { CrewKeyView, CrewSeatView, CrewStageView, CrewTaskView, CrewTone } from '../../shared/types'
+import type { SeatModels } from './gpu'
 import { parseLiveLine, type LiveLine } from './live'
 
 /** One row of `crew status` (the list form): the crew's own view of a task's status. */
@@ -67,8 +68,12 @@ interface RawEvent {
   seconds?: unknown
 }
 
-interface RawReport {
+export interface RawReport {
   schema?: unknown
+  mode?: unknown
+  cursor?: unknown
+  sizes?: unknown
+  models?: { primary?: unknown; fallback?: unknown } | null
   status?: { exit?: unknown; text?: unknown } | null
   tasks?: unknown
   total?: unknown
@@ -124,11 +129,32 @@ export interface CrewReport {
   lockDeployed: boolean
   /** Per task, the lines the mascots are drawn from (stage lines, and #42 seat lines when present). */
   lines: Map<string, LiveLine[]>
+  /** Seat → model from the crew config on agnx; null when the script could not read it. */
+  models: SeatModels | null
+}
+
+const WORD = /^[A-Za-z][A-Za-z0-9_-]{0,31}$/
+
+function modelSet(v: unknown): Record<string, string> {
+  const out: Record<string, string> = {}
+  if (!v || typeof v !== 'object') return out
+  for (const [k, m] of Object.entries(v as Record<string, unknown>)) if (WORD.test(k) && typeof m === 'string' && WORD.test(m)) out[k] = m
+  return out
+}
+
+function seatModels(v: RawReport['models']): SeatModels | null {
+  if (!v || typeof v !== 'object') return null
+  const primary = modelSet(v.primary)
+  return Object.keys(primary).length ? { primary, fallback: modelSet(v.fallback) } : null
 }
 
 /** Parses the agnx script's JSON line. Throws on output that is not the script's. */
 export function parseCrewReport(raw: string): CrewReport {
-  const d = JSON.parse(raw) as RawReport
+  return crewReportFrom(JSON.parse(raw) as RawReport)
+}
+
+/** The report from the script's parsed line; the watch passes one whose events it has merged across polls. */
+export function crewReportFrom(d: RawReport): CrewReport {
   if (!d || d.schema !== 'pitwall.crew/1') throw new Error('bad output')
   const list = parseStatusList(str(d.status?.text) ?? '')
   const events = (Array.isArray(d.events) ? (d.events as RawEvent[]) : []).filter((e) => e && typeof e === 'object')
@@ -193,7 +219,7 @@ export function parseCrewReport(raw: string): CrewReport {
   }
   const reviewer = seats.find((s) => s.id === 'reviewer')
   const total = num(d.total) ?? tasks.length
-  return { tasks, more: Math.max(0, total - tasks.length), seats, agni1Only: !!reviewer && reviewer.state === 'down', lockDeployed: d.lock?.deployed === true, lines }
+  return { tasks, more: Math.max(0, total - tasks.length), seats, agni1Only: !!reviewer && reviewer.state === 'down', lockDeployed: d.lock?.deployed === true, lines, models: seatModels(d.models) }
 }
 
 /** Amber at 80% of budget or 7 days to expiry, red at 100% or 1 day. */

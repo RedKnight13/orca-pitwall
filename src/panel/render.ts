@@ -2,8 +2,8 @@
 // so it runs in Node tests. Every value from the snapshot goes through esc().
 import { fmtClock, fmtDuration, fmtTokens, fmtUntil, fmtUsd, modelLabel, pct } from '../shared/format'
 import { VERSION } from '../shared/version'
-import { renderLive } from './mascots'
-import type { AgentView, BackgroundView, CrewKeyView, CrewSeatView, CrewTaskView, CrewView, GateEntry, LogEntry, Snapshot, SubagentView, ToolFamily, TurnView } from '../shared/types'
+import { asleep, liveBlock } from './mascots'
+import type { AgentView, BackgroundView, CrewKeyView, CrewLiveView, CrewSeatView, CrewTaskView, CrewView, GateEntry, LogEntry, Snapshot, SubagentView, ToolFamily, TurnView } from '../shared/types'
 
 export interface UiState {
   family: ToolFamily | null
@@ -514,7 +514,8 @@ function stageStrip(t: CrewTaskView, now: number): string {
   )
   if (t.status === 'running') {
     const from = t.stages.length ? t.stages[t.stages.length - 1].at : (t.createdAt ?? now)
-    segs.push(`<i class="seg-run" style="flex-grow:${Math.max((now - from) / 1000, 1).toFixed(1)}" title="${esc(`${t.stage ?? 'working'} · running`)}"></i>`)
+    // main.ts grows it each second from data-grow, so the markup need not change while it runs.
+    segs.push(`<i class="seg-run" data-grow="${from}" style="flex-grow:${Math.max((now - from) / 1000, 1).toFixed(1)}" title="${esc(`${t.stage ?? 'working'} · running`)}"></i>`)
   }
   return `<div class="strip" aria-hidden="true">${segs.join('')}</div>`
 }
@@ -537,19 +538,36 @@ function runSheet(t: CrewTaskView, ui: UiState, now: number): string {
   return lines.length ? `<div class="sheet">${lines.join('')}${more}</div>` : ''
 }
 
-function crewCard(t: CrewTaskView, ui: UiState, now: number, collapsible: boolean): string {
-  const meta = [t.stage ? `stage ${t.stage}` : '', `attempt ${t.attempts}`, t.totalSeconds ? fmtSecs(t.totalSeconds) + ' so far' : ''].filter(Boolean).join(' · ')
+/** The stage list opens by default once a task stops running; while it runs it stays folded. */
+export function stagesOpen(ui: UiState, t: CrewTaskView): boolean {
+  return ui.expanded['crewstages:' + t.id] ?? t.status !== 'running'
+}
+
+/** A task's stages, behind a toggle: a count and the stage at work, then the run sheet when open. */
+function stagesBlock(t: CrewTaskView, ui: UiState, now: number): string {
+  const n = t.stages.length + (t.status === 'running' ? 1 : 0)
+  if (!n) return ''
+  const open = stagesOpen(ui, t)
+  const at = t.status === 'running' && t.stage ? ` · <span class="sub-t">${esc(t.stage)}</span>` : ''
+  const toggle = `<button class="stages-toggle muted small" data-action="expand" data-key-x="crewstages:${esc(t.id)}" data-open="${open ? 1 : 0}" aria-expanded="${open}"><span class="chev">${open ? '▾' : '▸'}</span> ${n} stage${n === 1 ? '' : 's'}${at}</button>`
+  return `<div class="stages">${toggle}${open ? runSheet(t, ui, now) : ''}</div>`
+}
+
+/** One task, one card: id, status and clock; the prompt; the stage bar; the mascots while it runs or just ended; the stages. */
+function crewCard(t: CrewTaskView, ui: UiState, now: number, collapsible: boolean, live: CrewLiveView | null = null): string {
+  const clock = t.status === 'running' && t.createdAt ? `<span data-since="${t.createdAt}">${esc(fmtDuration(now - t.createdAt))}</span>` : t.totalSeconds ? esc(fmtSecs(t.totalSeconds)) : ''
+  const meta = [t.attempts > 1 ? `attempt ${t.attempts}` : '', clock].filter(Boolean).join(' · ')
   const wait = t.waitingOn ? `<div class="sub-t small">Waiting for the ${esc(t.waitingOn.seat)} seat, held by ${esc(t.waitingOn.holder)}</div>` : ''
-  const head = `<div class="card-head${collapsible ? ' clickable' : ''}"${collapsible ? ` data-action="expand" data-key-x="crew:${esc(t.id)}" title="Collapse" tabindex="0" role="button"` : ''}>
-    <div class="row">${collapsible ? '<span class="chev">▾</span>' : ''}<code class="tid">${esc(t.id)}</code>${crewPill(t)}</div>
-    <div class="sub-t small">${esc(meta)}</div>
+  const head = `<div class="card-head${collapsible ? ' clickable' : ''}"${collapsible ? ` data-action="expand" data-key-x="crew:${esc(t.id)}" data-open="1" title="Collapse" tabindex="0" role="button" aria-expanded="true"` : ''}>
+    <div class="row">${collapsible ? '<span class="chev">▾</span>' : ''}<code class="tid">${esc(t.id)}</code>${meta ? `<span class="muted small t-meta">${meta}</span>` : ''}${crewPill(t)}</div>
   </div>`
-  return `<article class="card crew-card ${esc(CREW_TONE[t.status] ?? '')}">${head}${t.prompt ? `<div class="prompt small" title="${esc(t.prompt)}">${esc(t.prompt)}</div>` : ''}${wait}${t.detail && !t.owner && t.status !== 'running' ? `<div class="sub-t small">${esc(t.detail)}</div>` : ''}${stageStrip(t, now)}${runSheet(t, ui, now)}</article>`
+  const detail = t.detail && !t.owner && t.status !== 'running' ? `<div class="sub-t small">${esc(t.detail)}</div>` : ''
+  return `<article class="card crew-card ${esc(CREW_TONE[t.status] ?? '')}" data-k="task:${esc(t.id)}">${head}${t.prompt ? `<div class="prompt small" title="${esc(t.prompt)}">${esc(t.prompt)}</div>` : ''}${wait}${detail}${stageStrip(t, now)}${live ? liveBlock(live, now) : ''}${stagesBlock(t, ui, now)}</article>`
 }
 
 function crewLine(t: CrewTaskView, now: number): string {
   const when = t.updatedAt ? `${ago(t.updatedAt, now)} ago` : ''
-  return `<article class="line crew-line" data-action="expand" data-key-x="crew:${esc(t.id)}" title="${esc(t.prompt)}" tabindex="0" role="button" aria-expanded="false">
+  return `<article class="line crew-line" data-k="task:${esc(t.id)}" data-action="expand" data-key-x="crew:${esc(t.id)}" data-open="0" title="${esc(t.prompt)}" tabindex="0" role="button" aria-expanded="false">
   <span class="chev">▸</span><code class="tid">${esc(t.id)}</code>
   <span class="ell sub-t small">${esc(t.stage ?? '')}${t.totalSeconds ? ' · ' + esc(fmtSecs(t.totalSeconds)) : ''}</span>
   ${crewPill(t)}<span class="muted time">${when}</span>
@@ -610,18 +628,21 @@ export function renderCrew(s: Snapshot, ui: UiState, now: number): string {
       ? `<div class="crew-off"><b>Crew unreachable</b><div class="muted small">ssh ${esc(c.host)}: ${esc(c.error)}. ${c.at ? `Last answered ${ago(c.at, now)} ago.` : 'Pitwall tries again every 15 seconds.'}</div></div>`
       : `<div class="crew-off muted small">Reading the crew on ${esc(c.host)}…</div>`
   } else {
+    const live = new Map(c.live.map((l) => [l.taskId, l]))
     const active = c.tasks.filter((t) => t.status === 'running')
     const rest = c.tasks.filter((t) => t.status !== 'running')
     const all = !!ui.expanded['crewall']
     const shown = all ? rest : rest.slice(0, CREW_LINES)
-    const line = (t: CrewTaskView) => (ui.expanded['crew:' + t.id] ? `<div class="inline-card">${crewCard(t, ui, now, true)}</div>` : crewLine(t, now))
-    // Tasks waiting on the owner stay first; then who is working, then the rest.
+    // A task that just ended keeps its card (and its 🎉 or 💥) until it is folded or the moment passes.
+    const line = (t: CrewTaskView) => ((ui.expanded['crew:' + t.id] ?? live.has(t.id)) ? `<div class="inline-card">${crewCard(t, ui, now, true, live.get(t.id) ?? null)}</div>` : crewLine(t, now))
+    // Tasks waiting on the owner stay first; then each running task, its mascots inside its card; then the rest.
     const ownerLines = shown.filter((t) => t.owner).map(line).join('')
     const lines = shown.filter((t) => !t.owner).map(line).join('')
     const more = rest.length > CREW_LINES ? `<button class="link" data-action="expand" data-key-x="crewall">${all ? 'Show fewer' : `Show all ${rest.length}`}</button>` : ''
     const older = c.more ? `<div class="muted small">${c.more} older not listed</div>` : ''
+    const nap = !active.length && !c.live.length ? asleep(c.tasks, now) : ''
     const tasks = c.tasks.length
-      ? `${ownerLines ? `<div class="lines">${ownerLines}</div>` : ''}${renderLive(c, now)}${active.length ? `<div class="cards">${active.map((t) => crewCard(t, ui, now, false)).join('')}</div>` : ''}${lines ? `<div class="lines">${lines}</div>` : ''}${more}${older}`
+      ? `${ownerLines ? `<div class="lines">${ownerLines}</div>` : ''}${nap}${active.length ? `<div class="cards">${active.map((t) => crewCard(t, ui, now, false, live.get(t.id) ?? null)).join('')}</div>` : ''}${lines ? `<div class="lines">${lines}</div>` : ''}${more}${older}`
       : '<div class="muted small">No crew tasks yet.</div>'
     body = `<div class="block-title">Tasks</div>${tasks}${seatsBlock(c)}`
   }

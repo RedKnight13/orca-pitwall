@@ -3,6 +3,7 @@
 import '../shared/protocol'
 import { fmtDuration, fmtUntil } from '../shared/format'
 import { EMPTY_SNAPSHOT, type Scope, type Snapshot, type ToolFamily } from '../shared/types'
+import { stable } from './diff'
 import { INITIAL_UI, LITELLM_URL, REPO_URL, render, sectionOpen, type Rendered, type UiState } from './render'
 import { CSS } from './styles'
 
@@ -64,12 +65,89 @@ function draw(): void {
   // Only while the panel has focus: restoring it otherwise would pull typing away from the terminal.
   const sig = document.hasFocus() && active && active !== document.body ? focusSig(active) : null
   for (const k of Object.keys(out) as (keyof Rendered)[]) {
-    if (last[k] === out[k]) continue
-    last[k] = out[k]
-    parts[k].innerHTML = out[k]
-    if (k === 'crew') playOnce(parts[k])
+    // Clocks tick on their own (tickClocks): a render that differs only in them changes nothing.
+    const same = stable(out[k])
+    if (last[k] === same) continue
+    last[k] = same
+    if (k === 'crew') {
+      patch(parts[k], out[k])
+      playOnce(parts[k])
+      phase(parts[k])
+    } else parts[k].innerHTML = out[k]
   }
   if (sig && (document.activeElement === document.body || !document.activeElement?.isConnected)) restoreFocus(sig)
+  crewVisibility()
+}
+
+// ---- Crew: redraw only what changed, by task and seat ------------------------------------------
+
+const keyOf = (n: Node): string => (n instanceof HTMLElement ? `${n.tagName}|${n.dataset.k ?? ''}` : `#${n.nodeType}`)
+const markup = (n: Node): string => stable(n instanceof Element ? n.outerHTML : (n.textContent ?? ''))
+const attrsOf = (el: Element): string => stable(el.cloneNode(false) instanceof Element ? (el.cloneNode(false) as Element).outerHTML : '')
+
+/**
+ * Puts `html` into `root`, keeping every node whose markup (clocks aside) did not change. A task
+ * card or seat row (data-k) that changed is updated inside; one that did not is left alone, so its
+ * face keeps moving and its focus stays.
+ */
+function patch(root: HTMLElement, html: string): void {
+  const tpl = document.createElement('template')
+  tpl.innerHTML = html
+  morph(root, tpl.content)
+}
+
+function morph(dst: Node, src: Node): void {
+  const a = Array.from(dst.childNodes)
+  const b = Array.from(src.childNodes)
+  if (a.length === b.length && a.every((n, i) => keyOf(n) === keyOf(b[i]))) {
+    a.forEach((n, i) => {
+      const m = b[i]
+      if (markup(n) === markup(m)) return
+      if (n instanceof Element && m instanceof Element && attrsOf(n) === attrsOf(m)) return morph(n, m)
+      n.parentNode?.replaceChild(m.cloneNode(true), n)
+    })
+    return
+  }
+  // Blocks came or went: reuse each unchanged keyed node, take the rest from the new markup.
+  const old = new Map<string, Node>()
+  for (const n of a) if (n instanceof HTMLElement && n.dataset.k) old.set(n.dataset.k, n)
+  const next = b.map((m) => {
+    const k = m instanceof HTMLElement ? m.dataset.k : undefined
+    const prev = k ? old.get(k) : undefined
+    if (prev && markup(prev) === markup(m)) return prev
+    if (prev instanceof Element && m instanceof Element && attrsOf(prev) === attrsOf(m)) {
+      morph(prev, m)
+      return prev
+    }
+    return m.cloneNode(true)
+  })
+  ;(dst as Element | DocumentFragment).replaceChildren(...next)
+}
+
+/** All looping motion shares this period; a face that appears starts at the wall clock's phase, so faces move in step. */
+const LOOP_MS = 2400
+function phase(root: HTMLElement): void {
+  root.querySelectorAll<HTMLElement>('.bob, .zz').forEach((el) => {
+    if (el.dataset.ph) return
+    el.dataset.ph = '1'
+    el.style.animationDelay = `-${Date.now() % LOOP_MS}ms`
+  })
+}
+
+// ---- Crew: tell the worker when the section is on screen ---------------------------------------
+// It reads card temperatures only then (and only while a task runs). A lease: the panel repeats it,
+// so a closed panel stops the reads within a minute and a half.
+let shownSent: boolean | null = null
+let shownAt = 0
+let onScreen = true
+
+function crewVisibility(): void {
+  const shown = !!snap.crew && sectionOpen(ui, 'crew') && !document.hidden && onScreen
+  document.documentElement.classList.toggle('paused', !shown)
+  if (shown === shownSent && (!shown || Date.now() - shownAt < 45_000)) return
+  shownSent = shown
+  shownAt = Date.now()
+  void request(() => orca.plugin.request('pitwall.crewVisible', { visible: shown }))
 }
 
 // The crew's one-shot effects (a hand-off, confetti) play once each, however often the section
@@ -106,7 +184,11 @@ function restoreFocus(sig: string): void {
 }
 
 function tickClocks(): void {
+  if (document.hidden) return
   const now = Date.now()
+  document.querySelectorAll<HTMLElement>('[data-grow]').forEach((el) => {
+    el.style.flexGrow = Math.max((now - Number(el.dataset.grow)) / 1000, 1).toFixed(1)
+  })
   document.querySelectorAll<HTMLElement>('[data-since]').forEach((el) => {
     el.textContent = fmtDuration(now - Number(el.dataset.since))
   })
@@ -199,7 +281,8 @@ function onClick(e: MouseEvent): void {
   if (action === 'expand') {
     const key = target.dataset.keyX ?? target.dataset.key ?? ''
     // A section starts open or closed by default; toggle what the person sees, not the stored flag.
-    const open = key.startsWith('sec:') ? sectionOpen(ui, key.slice(4)) : !!ui.expanded[key]
+    // A control that starts open or closed by default says which (data-open); toggle what the person sees.
+    const open = target.dataset.open !== undefined ? target.dataset.open === '1' : key.startsWith('sec:') ? sectionOpen(ui, key.slice(4)) : !!ui.expanded[key]
     // Opening an agent counts as looking at its finished turn.
     if (!open && key.startsWith('car:')) void request(() => orca.plugin.request('pitwall.seen', { key: key.slice(4) }))
     return setUi({ expanded: { ...ui.expanded, [key]: !open } })
@@ -211,3 +294,14 @@ draw()
 orca.plugin.on('pitwall.snapshot', (s) => accept(s))
 void request(() => orca.plugin.request('pitwall.snapshot')).then((s) => s && accept(s))
 setInterval(tickClocks, 1000)
+setInterval(crewVisibility, 15_000)
+document.addEventListener('visibilitychange', () => {
+  crewVisibility()
+  tickClocks()
+})
+// Scrolled out of view counts as hidden: the faces stop and the card reads stop.
+if (typeof IntersectionObserver === 'function')
+  new IntersectionObserver((entries) => {
+    onScreen = entries.some((e) => e.isIntersecting)
+    crewVisibility()
+  }).observe(parts.crew)

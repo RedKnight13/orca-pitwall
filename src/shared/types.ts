@@ -195,8 +195,10 @@ export interface CrewMascotView {
   face: string
   name: string
   role: string
-  /** The card it runs on, when it has one of its own. */
+  /** The card its seat runs on, from the crew config (seat → model) and where that model is served; null without one. */
   card: string | null
+  /** The host that card sits in (agni1, agni2); null without a card. */
+  host: string | null
   /** active: generating now; done or failed: had its turn this attempt; waiting: its turn is still to come; idle: sitting this one out. */
   state: 'active' | 'done' | 'failed' | 'waiting' | 'idle'
   /** reading, planning, writing, testing, reviewing, thinking, wrapping up; null unless active. */
@@ -207,7 +209,7 @@ export interface CrewMascotView {
   tokensPerSec: number | null
   /** Its latest action in a few words. Built from fixed phrases and file names only, never code. */
   bubble: string | null
-  /** Card temperature and VRAM; null with no read-only source for them. */
+  /** Card temperature (°C, edge sensor) and VRAM, read over SSH while a task runs; null when the host or its tool does not answer. */
   tempC: number | null
   vramGb: { used: number; total: number } | null
 }
@@ -242,8 +244,8 @@ export interface CrewView {
   /** The seat lock is deployed on agnx. */
   lockDeployed: boolean
   gateway: CrewGatewayView
-  /** The task in action (or one that just ended) as mascots; null when the crew is idle. */
-  live: CrewLiveView | null
+  /** Each running task (and any that ended in the last few minutes) as mascots, keyed by task id; empty when the crew is idle. */
+  live: CrewLiveView[]
 }
 
 export const EMPTY_SNAPSHOT: Snapshot = {

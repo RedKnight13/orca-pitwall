@@ -6,7 +6,12 @@
  * Runs on agnx. Reads `crew status` (the crew's own view of each task's status), the task records,
  * the stage lines of every events.jsonl (with a few short words and file names for the mascots), the
  * per-seat start and stop lines of Agni-crew #42 (schema agni.crew.seat_event/1 only), the seat lock's
- * status, and each seat's /health on loopback.
+ * status, each seat's /health on loopback, and which model each seat uses (crew.toml and its
+ * agni1-only fallback: the seat and model names only).
+ *
+ * The event logs are tailed, not reread: the worker sends back the cursor the last run printed
+ * (see agnxScript), and the script reads only the bytes after it. A new, rotated or shrunk log, or a
+ * first run, reads the last 2 MB of every log afresh ("mode": "full").
  */
 export const AGNX_PY = String.raw`
 import glob, json, os, re, subprocess, urllib.error, urllib.request
@@ -73,48 +78,148 @@ def tasks():
     return [task_row(t) for t in rows[:MAX_TASKS]], len(rows)
 
 
-def events(ids):
-    out = []
-    for path in sorted(glob.glob(os.path.join(HOME, ".local/state/agni-crew*/events.jsonl"))):
+def load_cursor():
+    try:
+        c = json.loads(globals().get("CURSOR_JSON") or "{}")
+    except Exception:
+        return {}
+    return c if isinstance(c, dict) else {}
+
+
+def logs():
+    paths = sorted(glob.glob(os.path.join(HOME, ".local/state/agni-crew*/events.jsonl")))
+    return {os.path.relpath(p, HOME): p for p in paths}
+
+
+def plan_reads(files, cursor):
+    """Where to start each log. Delta only when every log is the one the cursor saw, and no shorter."""
+    prev = cursor.get("files") if isinstance(cursor.get("files"), dict) else {}
+    stats = {}
+    for rel, path in files.items():
         try:
-            with open(path, "rb") as f:
-                f.seek(0, 2)
-                size = f.tell()
-                f.seek(max(0, size - TAIL_BYTES))
-                lines = f.read().decode("utf-8", "replace").splitlines()
+            stats[rel] = os.stat(path)
+        except Exception:
+            pass
+    delta = bool(prev) and set(prev) == set(stats)
+    if delta:
+        for rel, st in stats.items():
+            c = prev.get(rel)
+            if not (isinstance(c, list) and len(c) == 2 and c[0] == st.st_ino and isinstance(c[1], int) and 0 <= c[1] <= st.st_size):
+                delta = False
+                break
+    return delta, {rel: (prev[rel][1] if delta else max(0, st.st_size - TAIL_BYTES), st) for rel, st in stats.items()}
+
+
+def events(ids, cursor):
+    files = logs()
+    delta, starts = plan_reads(files, cursor)
+    out, seen = [], {}
+    for rel, (start, st) in starts.items():
+        try:
+            with open(files[rel], "rb") as f:
+                f.seek(start)
+                data = f.read(min(st.st_size - start, TAIL_BYTES))
         except Exception:
             continue
-        for line in lines:
-            try:
-                e = json.loads(line)
-            except Exception:
-                continue
-            if not isinstance(e, dict) or e.get("task") not in ids:
-                continue
-            if "seat_event" in e:
-                if e.get("schema") == SEAT_SCHEMA:
-                    out.append(seat_row(e))
-                continue
-            row = {
-                "ts": clip(e.get("ts"), 40),
-                "task": e.get("task"),
-                "stage": clip(e.get("stage"), 32),
-                "attempt": num(e.get("attempt")),
-                "outcome": clip(str(e.get("outcome")), 32) if e.get("outcome") is not None else None,
-                "seconds": num(e.get("seconds")),
-            }
-            # Short words and numbers for the mascots; free text (reasons, prompts) stays on agnx.
-            for k in ("mode", "gate", "decision", "verdict"):
-                if word(e.get(k)):
-                    row[k] = e[k]
-            for k in ("test_exit", "input_tokens"):
-                if num(e.get(k)) is not None:
-                    row[k] = e[k]
-            if isinstance(e.get("referee_calls"), list):
-                row["referee_calls"] = len(e["referee_calls"])
-            if isinstance(e.get("evidence"), list):
-                row["evidence"] = [n for n in (file_name(x) for x in e["evidence"][:8]) if n]
-            out.append(row)
+        # Complete lines only; a partial last line waits for the next read.
+        cut = data.rfind(b"\n")
+        data = data[: cut + 1] if cut >= 0 else b""
+        pos = start
+        if not delta and start > 0:
+            # A tail starts mid-line: skip to the first whole one.
+            skip = data.find(b"\n") + 1
+            data, pos = data[skip:], start + skip
+        seen[rel] = [st.st_ino, pos + len(data)]
+        for raw in data.split(b"\n")[:-1]:
+            at, pos = pos, pos + len(raw) + 1
+            row = event_row(raw, ids, rel, at)
+            if row:
+                out.append(row)
+    return {"mode": "delta" if delta else "full", "events": out, "cursor": {"files": seen}}
+
+
+def event_row(raw, ids, rel, at):
+    try:
+        e = json.loads(raw.decode("utf-8", "replace"))
+    except Exception:
+        return None
+    if not isinstance(e, dict) or e.get("task") not in ids:
+        return None
+    if "seat_event" in e:
+        if e.get("schema") != SEAT_SCHEMA:
+            return None
+        row = seat_row(e)
+        if row["seat_event"] == "start":
+            # Where the line is, so the next run can stat its output again without rereading the log.
+            row["ref"] = "%s:%d" % (rel, at)
+        return row
+    row = {
+        "ts": clip(e.get("ts"), 40),
+        "task": e.get("task"),
+        "stage": clip(e.get("stage"), 32),
+        "attempt": num(e.get("attempt")),
+        "outcome": clip(str(e.get("outcome")), 32) if e.get("outcome") is not None else None,
+        "seconds": num(e.get("seconds")),
+    }
+    # Short words and numbers for the mascots; free text (reasons, prompts) stays on agnx.
+    for k in ("mode", "gate", "decision", "verdict"):
+        if word(e.get(k)):
+            row[k] = e[k]
+    for k in ("test_exit", "input_tokens"):
+        if num(e.get(k)) is not None:
+            row[k] = e[k]
+    if isinstance(e.get("referee_calls"), list):
+        row["referee_calls"] = len(e["referee_calls"])
+    if isinstance(e.get("evidence"), list):
+        row["evidence"] = [n for n in (file_name(x) for x in e["evidence"][:8]) if n]
+    return row
+
+
+def open_sizes(cursor):
+    """The output size of each seat run still open, by its line's ref: one seek and one line each."""
+    files = logs()
+    sizes = {}
+    refs = cursor.get("open") if isinstance(cursor.get("open"), list) else []
+    for ref in refs[:16]:
+        rel, _, off = ref.rpartition(":") if isinstance(ref, str) else ("", "", "")
+        if rel not in files or not off.isdigit():
+            continue
+        try:
+            with open(files[rel], "rb") as f:
+                f.seek(int(off))
+                e = json.loads(f.readline(65536).decode("utf-8", "replace"))
+        except Exception:
+            continue
+        if isinstance(e, dict) and e.get("schema") == SEAT_SCHEMA and e.get("seat_event") == "start":
+            sizes[ref] = output_bytes(e)
+    return sizes
+
+
+def seat_models():
+    """Seat and model names from the crew config and its agni1-only fallback; nothing else in them."""
+    out = {"primary": {}, "fallback": {}}
+    try:
+        import tomllib
+    except Exception:
+        return out
+    path = os.path.expanduser(os.environ.get("CREW_CONFIG") or "~/agni/crew/crew.toml")
+    for kind in ("primary", "fallback"):
+        try:
+            with open(path, "rb") as f:
+                raw = tomllib.load(f)
+        except Exception:
+            break
+        seats = raw.get("seats") if isinstance(raw.get("seats"), dict) else {}
+        for name, seat in seats.items():
+            model = seat.get("model") if isinstance(seat, dict) else None
+            short = model.rsplit("/", 1)[-1] if isinstance(model, str) else None
+            if word(name) and word(short):
+                out[kind][name] = short
+        fb = raw.get("fallback") if isinstance(raw.get("fallback"), dict) else {}
+        nxt = fb.get("config")
+        if not isinstance(nxt, str):
+            break
+        path = os.path.expanduser(nxt)
     return out
 
 
@@ -195,22 +300,39 @@ def seat_lock():
 
 
 def main():
+    cursor = load_cursor()
     listed, total = tasks()
     status = run([CREW, "status"], 20)
+    ev = events({t["id"] for t in listed}, cursor)
     print(json.dumps({
         "schema": "pitwall.crew/1",
         "status": {"exit": status["exit"], "text": status["out"], "error": status.get("error")},
         "tasks": listed,
         "total": total,
-        "events": events({t["id"] for t in listed}),
+        "mode": ev["mode"],
+        "events": ev["events"],
+        "cursor": ev["cursor"],
+        "sizes": open_sizes(cursor),
         "seats": [{"seat": s, "port": p, "health": health(p)} for s, p in SEATS],
         "lock": seat_lock(),
+        "models": seat_models(),
     }))
 
 
 if __name__ == "__main__":
     main()
 `
+
+/** What the worker sends back each poll: where each log was read up to, and the seat runs still open. */
+export interface AgnxCursor {
+  files: Record<string, [number, number]>
+  open: string[]
+}
+
+/** The agnx script with the last run's cursor in front. JSON inside a JSON string is a valid Python string literal. */
+export function agnxScript(cursor: AgnxCursor | null): string {
+  return cursor ? `CURSOR_JSON = ${JSON.stringify(JSON.stringify(cursor))}\n${AGNX_PY}` : AGNX_PY
+}
 
 /**
  * Runs on agni1. Reads the LiteLLM master key from the gateway's environment file there, asks the

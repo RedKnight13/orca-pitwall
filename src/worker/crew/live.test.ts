@@ -14,7 +14,7 @@ function replay(stage: string, upTo: string[]) {
   d.status.text = `${id}  running      stage=${stage}   attempts=1  /w/x  Fix it\n`
   d.events = d.events.filter((e: any) => e.task === id && upTo.includes(e.stage))
   const r = parseCrewReport(JSON.stringify(d))
-  return crewLive(r.tasks, r.lines, LIVE_AT)!
+  return crewLive(r.tasks, r.lines, LIVE_AT)[0]
 }
 
 test('stage lines: each running stage lights its mascot with its action word', () => {
@@ -57,16 +57,17 @@ test('stage lines: a solo plan leaves Gemma asleep; done, waiting and the hand-o
 
 test('seat lines (agni.crew.seat_event/1): open runs are active, with file names and the hand-off', () => {
   const r = parseCrewReport(liveLine())
-  const l = crewLive(r.tasks, r.lines, LIVE_AT)!
+  const l = crewLive(r.tasks, r.lines, LIVE_AT)[0]
   assert.equal(l.taskId, '1125-1012-ab12')
   assert.equal(l.source, 'seats')
   const m = byId(l.mascots)
   assert.equal(m.qwen.state, 'active')
   assert.equal(m.qwen.action, 'writing')
   assert.equal(m.qwen.since, Date.parse('2026-11-25T10:13:42Z'))
-  assert.equal(m.qwen.bubble, 'writing · leader-build-1.out · 18 kB')
+  // The bubble is the output file and its size; the action word is said once, on the strip.
+  assert.equal(m.qwen.bubble, 'leader-build-1.out · 18 kB')
   assert.equal(m.gemma.state, 'active')
-  assert.equal(m.gemma.bubble, 'writing · helper-author-1.out · 6 kB')
+  assert.equal(m.gemma.bubble, 'helper-author-1.out · 6 kB')
   assert.equal(m.tests.state, 'waiting')
   assert.equal(m.inkling.state, 'waiting')
   assert.deepEqual(l.handoff, { from: 'qwen', to: 'gemma', at: Date.parse('2026-11-25T10:13:43Z') })
@@ -80,7 +81,7 @@ test('seat lines: a stop closes the run; a failing exit or timeout marks the mas
   const at = '2026-11-25T10:15:00+00:00'
   d.events.push({ schema: SEAT_SCHEMA, seat_event: 'stop', ts: at, task: '1125-1012-ab12', stage: 'author', attempt: 1, seat: 'helper', slot: 'helper_', output: 'helper-author-1.out', seconds: 77, exit: 124, timed_out: true })
   const r = parseCrewReport(JSON.stringify(d))
-  const m = byId(crewLive(r.tasks, r.lines, LIVE_AT)!.mascots)
+  const m = byId(crewLive(r.tasks, r.lines, LIVE_AT)[0].mascots)
   assert.equal(m.qwen.state, 'active')
   assert.equal(m.gemma.state, 'failed')
   assert.equal(m.gemma.bubble, 'author timed out · helper-author-1.out')
@@ -91,7 +92,7 @@ test('version check: seat lines of any other schema are ignored, and the stage l
   d.events = d.events.map((e: any) => ('seat_event' in e ? { ...e, schema: 'agni.crew.seat_event/2' } : e))
   d.events.push({ seat_event: 'start', ts: '2026-11-25T10:14:00+00:00', task: '1125-1012-ab12', stage: 'review', attempt: 1, seat: 'reviewer' })
   const r = parseCrewReport(JSON.stringify(d))
-  const l = crewLive(r.tasks, r.lines, LIVE_AT)!
+  const l = crewLive(r.tasks, r.lines, LIVE_AT)[0]
   assert.equal(l.source, 'stages')
   // From the stage lines: build is running, and the split plan puts Gemma beside Qwen.
   assert.deepEqual(l.mascots.filter((m) => m.state === 'active').map((m) => m.id), ['qwen', 'gemma'])
@@ -108,7 +109,7 @@ test('no code in bubbles: only fixed phrases, outcome words and file names get t
     { ts: '2026-11-25T10:14:32+00:00', task: id, stage: code[0], attempt: 1, outcome: 'ok' }
   )
   const r = parseCrewReport(JSON.stringify(d))
-  const l = crewLive(r.tasks, r.lines, LIVE_AT)!
+  const l = crewLive(r.tasks, r.lines, LIVE_AT)[0]
   const text = JSON.stringify(l.mascots.map((m) => m.bubble))
   for (const c of code) for (const bit of ['def ', 'rm -rf', '<script', 'alert', '${', 'os.system', 'return']) assert.ok(!text.includes(bit), `${bit} in ${text}`)
   assert.ok(!text.includes('passwd') && !text.includes('src/app') && !text.includes('C:'), text)
@@ -126,21 +127,47 @@ test('finale: 🎉 for a merge-ready task, 💥 for one that stopped, for ten mi
   const tasks = r.tasks.filter((t) => t.status !== 'running')
   const ok = tasks.find((t) => t.id === '1124-2051-8e7f')!
   const end = Date.parse('2026-11-24T20:55:54Z')
-  const l = crewLive([ok], r.lines, end + 30_000)!
+  const l = crewLive([ok], r.lines, end + 30_000)[0]
   assert.deepEqual(l.finale, { kind: 'merge_ready', at: end })
   assert.equal(l.handoff, null)
   assert.ok(l.mascots.every((m) => m.state !== 'active'))
   assert.equal(byId(l.mascots).jev.bubble, 'merge-ready · test-1.txt, review-1.md')
   assert.equal(byId(l.mascots).tests.bubble, 'tests pass · test-1.txt')
   assert.equal(byId(l.mascots).inkling.bubble, 'PASS · read 3.7k tokens · review-1.md')
-  assert.equal(crewLive([ok], r.lines, end + FINALE_MS + 1000), null)
+  assert.deepEqual(crewLive([ok], r.lines, end + FINALE_MS + 1000), [])
   const stopped = tasks.find((t) => t.id === '1124-2056-0510')!
-  const s = crewLive([stopped], r.lines, Date.parse('2026-11-24T21:02:00Z'))!
+  const s = crewLive([stopped], r.lines, Date.parse('2026-11-24T21:02:00Z'))[0]
   assert.equal(s.finale?.kind, 'failed')
   const m = byId(s.mascots)
   assert.equal(m.qwen.state, 'failed')
   assert.equal(m.qwen.bubble, 'finished: waiting')
   assert.equal(m.gemma.state, 'failed', 'the split build stopped')
-  // A running task wins over a finale.
-  assert.equal(crewLive(r.tasks, r.lines, end + 30_000)!.taskId, '1125-1012-ab12')
+  // Running tasks come first, then the ones that just ended: each gets its own view.
+  assert.deepEqual(crewLive(r.tasks, r.lines, end + 30_000).map((x) => x.taskId), ['1125-1012-ab12', '1124-2051-8e7f'])
+})
+
+test('several running tasks: one view each, newest first, none mixed with another', () => {
+  const d = liveReport()
+  const twin = '1125-1100-cd34'
+  d.tasks.push({ ...d.tasks.find((t: any) => t.id === '1125-1012-ab12'), id: twin, updated: '2026-11-25T10:15:11+00:00' })
+  d.status.text += `${twin}  running      stage=build   attempts=1  /w/y  Another\n`
+  // The twin's leader has finished; only its helper still writes.
+  for (const e of d.events.filter((e: any) => e.task === '1125-1012-ab12')) d.events.push({ ...e, task: twin })
+  d.events.push({ schema: SEAT_SCHEMA, seat_event: 'stop', ts: '2026-11-25T10:15:05+00:00', task: twin, stage: 'build', attempt: 1, seat: 'leader', slot: '', output: 'leader-build-1.out', seconds: 83, exit: 0, timed_out: false })
+  const r = parseCrewReport(JSON.stringify(d))
+  const views = crewLive(r.tasks, r.lines, LIVE_AT)
+  assert.deepEqual(views.map((v) => v.taskId), [twin, '1125-1012-ab12'])
+  assert.deepEqual(views.map((v) => v.mascots.filter((m) => m.state === 'active').map((m) => m.id)), [['gemma'], ['qwen', 'gemma']])
+})
+
+test('cards come from the seat placement: what the hook says, or nothing', () => {
+  const r = parseCrewReport(liveLine())
+  const hw = (seat: string) => (seat === 'leader' ? { card: 'R9700', host: 'agni1', tempC: 61, vramGb: { used: 28.7, total: 31.9 } } : seat === 'reviewer' ? { card: 'RTX 5060', host: 'agni2', tempC: null, vramGb: null } : null)
+  const m = byId(crewLive(r.tasks, r.lines, LIVE_AT, hw)[0].mascots)
+  assert.deepEqual([m.qwen.card, m.qwen.host, m.qwen.tempC], ['R9700', 'agni1', 61])
+  assert.deepEqual([m.inkling.card, m.inkling.tempC, m.inkling.vramGb], ['RTX 5060', null, null])
+  assert.equal(m.gemma.card, null, 'no placement, no card')
+  assert.equal(m.tests.card, null, 'the test runner has no seat')
+  // Without the hook (no crew config), no mascot claims a card.
+  assert.ok(crewLive(r.tasks, r.lines, LIVE_AT)[0].mascots.every((x) => x.card === null))
 })

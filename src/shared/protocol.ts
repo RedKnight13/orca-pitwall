@@ -17,6 +17,8 @@ declare module 'orca' {
     'pitwall.seen': { input: { key: string }; output: Snapshot }
     /** Turn the optional Agni crew section on or off. */
     'pitwall.setCrew': { input: { on: boolean }; output: Snapshot }
+    /** Whether the Crew section is on screen: the worker reads card temperatures only while it is and a task runs. */
+    'pitwall.crewVisible': { input: { visible: boolean }; output: { ok: true } }
     /** Clear tool calls and the log. */
     'pitwall.reset': { output: Snapshot }
   }

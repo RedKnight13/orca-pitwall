@@ -88,25 +88,27 @@ Settings → Plugins → Pitwall → *Show the Agni crew section*). The same ite
 
 **What it shows**
 
-- **Who is working**, as mascots, the same as `crew watch`: 🐉 Qwen (leader, R9700), 🦊 Gemma (second author,
-  RX 9070 XT), 🐙 Inkling (reviewer, agni2), 🦉 Jev (referee), 🎭 Venice (advisor), 🐎 Codex (cavalry) and
-  🧪 the test runner, each in its own colour. For the running task:
-  - a stage strip, `🐉 writing… ▸ 🦊 writing… ▸ 🧪 — ▸ 🐙 waiting   task <id> · 3m12s`;
-  - one row per mascot: a bobbing face while it generates, 💤 while it waits or sits out, an action word (reading,
-    planning, writing, testing, reviewing, thinking), and a speech bubble with its latest action. Bubbles hold fixed
-    phrases, the crew's outcome words and **file names only, never code**;
-  - the card's temperature and VRAM. These show **—** for now: neither `crew status` nor Pitwall has a read-only
-    source for them, and agnx has no AMD card of its own. Tokens per second shows only when the crew sends it; it
-    does not yet;
+- **Who is working**, as mascots, the same as `crew watch`: 🐉 Qwen (leader), 🦊 Gemma (second author),
+  🐙 Inkling (reviewer), 🦉 Jev (referee), 🎭 Venice (advisor), 🐎 Codex (cavalry) and 🧪 the test runner, each in
+  its own colour, **inside each running task's card** (several running tasks: one set each). For each:
+  - one line of faces in pipeline order: the ones at work move and say what they do (reading, planning, writing,
+    testing, reviewing, thinking); the rest are dimmed faces, without text;
+  - a full row only for each seat at work: name, role, how long, its output file and size
+    (`leader-build-1.out · 18 kB`, file names only, never code), and its card: name, temperature and VRAM
+    (`R9700 57°C 28.7/32 GB`), the temperature amber from 85 °C and red from 95 °C;
+  - everyone else folded into one small dimmed row: ✓ or ✕ for a turn had, 💤 for those still to come. A seat gets
+    its row when it starts;
   - a 📦 hand-off when work moves from one mascot to the next, 🎉 confetti at merge-ready and 💥 when a task stops
-    short (each plays once; the words stay for ten minutes). Under *prefers-reduced-motion* nothing moves.
-  With nothing running, one line: *Crew asleep*, and the last task. Tasks waiting on you still come first.
-  The rows follow the crew's per-seat start and stop lines (schema `agni.crew.seat_event/1`, Agni-crew #42) where
-  a crew release writes them, and its stage lines otherwise. Any other seat-line schema is ignored.
+    short (each plays once; a just-ended task keeps its card for ten minutes). Under *prefers-reduced-motion*
+    nothing moves, and nothing moves while the panel is hidden or the section is shut or scrolled away.
+  A field with no data is left out, never shown as a dash. With nothing running, one line: *Crew asleep*, and the
+  last task. Tasks waiting on you still come first. The rows follow the crew's per-seat start and stop lines
+  (schema `agni.crew.seat_event/1`, Agni-crew #42) where a crew release writes them, and its stage lines otherwise.
+  Any other seat-line schema is ignored.
 - **Tasks** from `crew status` on the crew host: id, status (running, waiting, needs_owner, merge_ready, failed,
-  interrupted), stage and attempt. A running task is a card with its stage timeline (one segment per stage, width by
-  seconds) and the run sheet of its event lines: stage, outcome and seconds, coloured as in the Agni Crew Replay.
-  Other tasks are one line each; click one to open its card.
+  interrupted), stage and attempt. A running task is one card: its prompt, its stage timeline (one segment per stage,
+  width by seconds), its mascots, and its stages (the run sheet: stage, outcome and seconds, coloured as in the Agni
+  Crew Replay), folded while it runs. Other tasks are one line each; click one to open its card.
 - **Tasks waiting on you go to the top**, like needs-you alerts: no test command (with the exact
   `crew resume <id> --test-command CMD`), or a task that stopped short (waiting, failed, interrupted) that the
   Codex cavalry could take. Past three, the rest are a count. The status bar adds `crew N for you`.
@@ -123,8 +125,17 @@ Settings → Plugins → Pitwall → *Show the Agni crew section*). The same ite
 - On the crew host the script reads `crew status`, the task records under `~/.local/state/agni-crew-three-seat/`,
   the stage lines of `~/.local/state/agni-crew*/events.jsonl` (with a few short words: mode, gate, verdict, test
   exit, and evidence *file names*) and their `agni.crew.seat_event/1` lines, `agni-seat-lock status` and each seat's
-  `/health` on loopback. For a seat still running it reads the size of its output file, never its contents. It sends
-  back only the fields above: no prompts, reasons, worktree paths, model names or code.
+  `/health` on loopback. For a seat still running it reads the size of its output file, never its contents. From
+  `crew.toml` (and the agni1-only fallback it names) it sends only each seat's name and model name. It sends back
+  only the fields above: no prompts, reasons, worktree paths or code.
+- The event logs are **tailed**: each run reads only what was appended since the last (Pitwall sends back where it
+  stopped), and a new or rotated log is read afresh from its last 2 MB.
+- **Card temperature and VRAM**, only while the Crew section is on screen and a task runs, at most every 20 s: the
+  same `ssh … python3 -` on the hosts the crew config puts the seats on (agni1 for Qwen and Gemma, agni2 for Inkling;
+  agni1 for Inkling too in agni1-only mode). The script runs only the tools already there, `rocm-smi` (agni1) and
+  `nvidia-smi` (agni2), and Pitwall parses their output. A host that is off, or a tool that is missing, leaves the
+  fields out. Which card serves which model is the one fact Pitwall keeps itself (`MODEL_CARD` in
+  `src/worker/crew/gpu.ts`); a model it does not know gets no card.
 - On the gateway host the script reads the LiteLLM master key from the gateway's environment file *there*, asks the
   admin API on `127.0.0.1:4000`, and prints only alias, spend, budget and expiry of the two crew keys. The master key
   never leaves that host and is never printed; no key value or hash comes back.

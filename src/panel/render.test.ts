@@ -123,7 +123,7 @@ test('motion only in the crew mascots, and none under prefers-reduced-motion', (
   const rest = CSS.replace(reduce![0], '').replace(/@keyframes[^{]+\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, '')
   const animated = [...rest.matchAll(/([^{}]+)\{[^}]*animation:[^}]*\}/g)].map((m) => m[1].trim())
   assert.ok(animated.length >= 5, String(animated))
-  for (const sel of animated) assert.ok(/^\.(bob|sleepy \.zz|handoff \.parcel|confetti i|boom)$/.test(sel), sel)
+  for (const sel of animated) assert.ok(/^\.(bob|fold-zz \.zz|handoff \.parcel|confetti i|boom)$/.test(sel), sel)
   assert.ok(reduce![1].includes('.live, .live * { animation: none !important; transition: none !important; }'))
   assert.ok(reduce![1].includes('.confetti, .boom, .handoff .parcel { display: none !important; }'))
   assert.ok(!/transition:/.test(rest.replace(/transition: none/g, '')), 'no transitions elsewhere')

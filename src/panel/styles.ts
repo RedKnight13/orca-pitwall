@@ -193,45 +193,64 @@ b { font-weight: 600; }
 .key { display: grid; gap: 2px; }
 .key + .key { margin-top: 4px; }
 .crew-off { padding: 6px 8px; border-radius: var(--radius); background: var(--surface); }
-/* Crew mascots: one colour per role, as \`crew watch\` draws them. */
-.live { --ph: 0ms; display: grid; gap: 4px; margin: 2px 0 6px; padding: 7px 8px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); position: relative; overflow: hidden; }
-.live.asleep { display: block; padding: 5px 8px; }
+/* Crew mascots, inside each running task's card: one colour per role, as \`crew watch\` draws them. */
+.live { display: grid; gap: 5px; margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--line); position: relative; min-width: 0; }
+.live.asleep { display: flex; align-items: center; gap: 4px; margin: 0; padding: 5px 8px; border: 0; border-radius: var(--radius); background: var(--surface); }
 .m-qwen { --mc: #ef4444; } .m-gemma { --mc: #f97316; } .m-inkling { --mc: #a855f7; } .m-jev { --mc: #ca8a04; }
 .m-venice { --mc: #ec4899; } .m-codex { --mc: #14b8a6; } .m-tests { --mc: #22c55e; }
 html.light .m-qwen { --mc: #b91c1c; } html.light .m-gemma { --mc: #c2410c; } html.light .m-inkling { --mc: #7e22ce; } html.light .m-jev { --mc: #854d0e; }
 html.light .m-venice { --mc: #be185d; } html.light .m-codex { --mc: #0f766e; } html.light .m-tests { --mc: #15803d; }
-.live-strip { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 5px; font-size: 11.5px; color: var(--text-2); }
-.st { white-space: nowrap; } .st-active b { color: var(--run); font-weight: 600; } .st-failed { color: var(--bad); } .st-idle { color: var(--muted); }
-.st-sep { color: var(--muted); font-size: 10px; }
-.live-task { margin-left: auto; white-space: nowrap; font-size: 11px; }
-.mascots { display: grid; gap: 3px; }
-.mascot { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 6px; align-items: center; padding: 2px 4px 2px 3px; border-left: 2px solid color-mix(in srgb, var(--mc) 55%, transparent); border-radius: 3px; }
-.mascot.is-active { background: color-mix(in srgb, var(--mc) 10%, transparent); border-left-color: var(--mc); }
-.mascot.is-idle, .mascot.is-waiting { opacity: .72; }
-.m-name { color: color-mix(in srgb, var(--mc) 70%, var(--fg)); flex: none; }
-.m-main { min-width: 0; display: grid; gap: 0; }
-.m-main .ell { flex: 1 1 auto; }
-.face { position: relative; font-size: 16px; line-height: 1; text-align: center; display: inline-block; }
-.face .zz { position: absolute; right: -7px; top: -6px; font-size: 10px; font-style: normal; }
-.act { flex: none; font-size: 11px; font-weight: 600; color: var(--run); }
-.tps { flex: none; font-size: 11px; color: var(--text-2); font-variant-numeric: tabular-nums; }
-.m-state { flex: none; font-size: 11px; color: var(--muted); } .m-state.m-done { color: var(--ok); } .m-state.m-failed { color: var(--bad); }
-.m-say { flex-wrap: wrap; row-gap: 0; }
-.bubble { color: var(--text-2); font-size: 11px; flex: 1 1 150px; }
-.bubble::before { content: '💬 '; font-size: 10px; }
-.hw { flex: none; font-size: 10.5px; margin-left: auto; white-space: nowrap; }
-.handoff { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+/* The strip: one line whatever the width. Working faces carry their word; the rest are dimmed faces only. */
+.live-strip { display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; min-width: 0; font-size: 11.5px; line-height: 20px; }
+.st { flex: none; display: inline-flex; align-items: center; }
+.st.on { gap: 3px; padding: 0 7px 0 3px; border-radius: 10px; background: color-mix(in srgb, var(--mc) 14%, transparent); flex-shrink: 1; min-width: 0; overflow: hidden; }
+.st.on b { color: color-mix(in srgb, var(--mc) 70%, var(--fg)); font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.st.dim { font-size: 13px; opacity: .38; filter: grayscale(.6); }
+.st.dim.st-failed { opacity: .8; filter: none; }
+.face { position: relative; font-size: 15px; line-height: 1; text-align: center; display: inline-block; }
+/* A full row for each seat at work only. */
+.mascots { display: grid; gap: 4px; }
+.mascot { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 6px; align-items: start; padding: 3px 6px 3px 4px; border-left: 2px solid var(--mc); border-radius: 3px; background: color-mix(in srgb, var(--mc) 7%, transparent); }
+.mascot .face { font-size: 14px; margin-top: 1px; }
+.m-main { min-width: 0; display: grid; gap: 1px; }
+.m-head { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.m-name { color: color-mix(in srgb, var(--mc) 70%, var(--fg)); flex: none; font-size: 12px; }
+.m-role { color: var(--muted); font-size: 11px; flex: 1 1 auto; }
+.m-clock { flex: none; margin-left: auto; color: var(--text-2); font-size: 11px; font-variant-numeric: tabular-nums; }
+.m-say { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; min-width: 0; font-size: 11px; }
+.bubble { color: var(--text-2); flex: 1 1 120px; font-family: var(--orca-font-mono, ui-monospace, monospace); font-size: 10.5px; }
+.hw { display: inline-flex; gap: 6px; flex: none; margin-left: auto; color: var(--muted); font-size: 10.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hw-t.t-warn { color: var(--warn); font-weight: 600; } .hw-t.t-bad { color: var(--bad); font-weight: 600; }
+/* Everyone else, folded: small dimmed faces, ✓ or ✕ for a turn had, 💤 for those still to come. */
+.fold { display: flex; align-items: center; gap: 2px 8px; flex-wrap: wrap; font-size: 11px; color: var(--muted); }
+.fold-zz { display: inline-flex; align-items: center; gap: 2px; }
+.fold-m { display: inline-flex; align-items: center; font-size: 12px; opacity: .55; filter: grayscale(.5); }
+.mk { font-style: normal; font-size: 9.5px; margin-left: 1px; } .mk.ok { color: var(--ok); } .mk.bad { color: var(--bad); }
+.fold-m:has(.mk.bad) { opacity: .9; filter: none; }
+.zz { display: inline-block; font-size: 10px; font-style: normal; opacity: .8; }
+.stages { margin-top: 6px; }
+.stages-toggle { display: inline-flex; align-items: center; gap: 4px; }
+.stages-toggle:hover { color: var(--fg); }
+.t-meta { flex: none; font-variant-numeric: tabular-nums; }
+.handoff { display: flex; align-items: center; gap: 4px; font-size: 12px; min-width: 0; }
+.handoff .sub-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .handoff .parcel { display: inline-block; animation: pass 1.6s ease-in-out 2 both; animation-delay: var(--el, 0ms); }
-.finale { font-size: 12px; position: relative; }
+.finale { display: inline-flex; align-items: center; gap: 4px; position: relative; font-size: 12px; margin-right: 2px; }
+.fin-face { font-size: 13px; }
 .finale.fin-ok b { color: var(--ok); } .finale.fin-bad b { color: var(--bad); }
+/* While the 💥 plays, the still one waits; with less motion the burst never shows, so the still one does. */
+.boom:not(.played) + .fin-face { display: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .confetti { position: absolute; left: 0; right: 0; top: -4px; height: 0; pointer-events: none; }
 .confetti i { position: absolute; left: calc(var(--i) * 12% + 4%); font-style: normal; font-size: 12px; opacity: 0; animation: fall 1.8s ease-out both; animation-delay: calc(var(--el, 0ms) + var(--i) * 70ms); }
 .boom { display: inline-block; animation: boom .9s ease-out both; animation-delay: var(--el, 0ms); }
-.bob { animation: bob 1.2s ease-in-out infinite; animation-delay: var(--ph); }
-.sleepy .zz { animation: snooze 2.4s ease-in-out infinite; animation-delay: var(--ph); }
+.bob { animation: bob 1.2s ease-in-out infinite; }
+.fold-zz .zz { animation: snooze 2.4s ease-in-out infinite; }
 .played { display: none !important; }
+/* Nobody looking (panel hidden, section shut or scrolled away): every loop holds still. */
+.paused .live, .paused .live * { animation-play-state: paused !important; }
 @keyframes bob { 0%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-2px) rotate(-6deg); } 50% { transform: translateY(0) rotate(0); } 75% { transform: translateY(-2px) rotate(6deg); } }
-@keyframes snooze { 0%, 100% { opacity: .55; transform: translate(0, 0); } 50% { opacity: 1; transform: translate(2px, -3px); } }
+@keyframes snooze { 0%, 100% { opacity: .5; transform: translate(0, 0); } 50% { opacity: 1; transform: translate(2px, -3px); } }
 @keyframes pass { 0% { transform: translateX(-10px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateX(10px); opacity: 0; } }
 @keyframes fall { 0% { transform: translateY(-6px) rotate(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(40px) rotate(200deg); opacity: 0; } }
 @keyframes boom { 0% { transform: scale(.4); } 45% { transform: scale(1.5); } 70% { transform: scale(.9) rotate(-8deg); } 100% { transform: scale(1); } }
@@ -239,6 +258,7 @@ html.light .m-venice { --mc: #be185d; } html.light .m-codex { --mc: #0f766e; } h
 @media (prefers-reduced-motion: reduce) {
   .live, .live * { animation: none !important; transition: none !important; }
   .confetti, .boom, .handoff .parcel { display: none !important; }
+  .boom + .fin-face { display: inline !important; }
 }
 .badge-bad { flex: none; font-size: 11px; font-weight: 600; padding: 0 6px; border-radius: 4px; color: var(--bg); background: var(--bad); }
 
