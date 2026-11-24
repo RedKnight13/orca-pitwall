@@ -1,6 +1,8 @@
 // Panel CSS. Every surface and text colour derives from Orca's theme variables, so the panel follows
 // light and dark. Active agents sit on a raised card; idle ones are one line each. Colour marks state
-// only: blue working, amber needs you, red failed. No motion.
+// only: blue working, amber needs you, red failed. The one exception is the crew's mascots: each role
+// has its colour, and they move a little (a bob, a snooze, a hand-off, confetti), never under
+// prefers-reduced-motion.
 export const CSS = `
 :root {
   --bg: var(--orca-background, #111);
@@ -191,6 +193,53 @@ b { font-weight: 600; }
 .key { display: grid; gap: 2px; }
 .key + .key { margin-top: 4px; }
 .crew-off { padding: 6px 8px; border-radius: var(--radius); background: var(--surface); }
+/* Crew mascots: one colour per role, as \`crew watch\` draws them. */
+.live { --ph: 0ms; display: grid; gap: 4px; margin: 2px 0 6px; padding: 7px 8px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); position: relative; overflow: hidden; }
+.live.asleep { display: block; padding: 5px 8px; }
+.m-qwen { --mc: #ef4444; } .m-gemma { --mc: #f97316; } .m-inkling { --mc: #a855f7; } .m-jev { --mc: #ca8a04; }
+.m-venice { --mc: #ec4899; } .m-codex { --mc: #14b8a6; } .m-tests { --mc: #22c55e; }
+html.light .m-qwen { --mc: #b91c1c; } html.light .m-gemma { --mc: #c2410c; } html.light .m-inkling { --mc: #7e22ce; } html.light .m-jev { --mc: #854d0e; }
+html.light .m-venice { --mc: #be185d; } html.light .m-codex { --mc: #0f766e; } html.light .m-tests { --mc: #15803d; }
+.live-strip { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 5px; font-size: 11.5px; color: var(--text-2); }
+.st { white-space: nowrap; } .st-active b { color: var(--run); font-weight: 600; } .st-failed { color: var(--bad); } .st-idle { color: var(--muted); }
+.st-sep { color: var(--muted); font-size: 10px; }
+.live-task { margin-left: auto; white-space: nowrap; font-size: 11px; }
+.mascots { display: grid; gap: 3px; }
+.mascot { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 6px; align-items: center; padding: 2px 4px 2px 3px; border-left: 2px solid color-mix(in srgb, var(--mc) 55%, transparent); border-radius: 3px; }
+.mascot.is-active { background: color-mix(in srgb, var(--mc) 10%, transparent); border-left-color: var(--mc); }
+.mascot.is-idle, .mascot.is-waiting { opacity: .72; }
+.m-name { color: color-mix(in srgb, var(--mc) 70%, var(--fg)); flex: none; }
+.m-main { min-width: 0; display: grid; gap: 0; }
+.m-main .ell { flex: 1 1 auto; }
+.face { position: relative; font-size: 16px; line-height: 1; text-align: center; display: inline-block; }
+.face .zz { position: absolute; right: -7px; top: -6px; font-size: 10px; font-style: normal; }
+.act { flex: none; font-size: 11px; font-weight: 600; color: var(--run); }
+.tps { flex: none; font-size: 11px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.m-state { flex: none; font-size: 11px; color: var(--muted); } .m-state.m-done { color: var(--ok); } .m-state.m-failed { color: var(--bad); }
+.m-say { flex-wrap: wrap; row-gap: 0; }
+.bubble { color: var(--text-2); font-size: 11px; flex: 1 1 150px; }
+.bubble::before { content: '💬 '; font-size: 10px; }
+.hw { flex: none; font-size: 10.5px; margin-left: auto; white-space: nowrap; }
+.handoff { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+.handoff .parcel { display: inline-block; animation: pass 1.6s ease-in-out 2 both; animation-delay: var(--el, 0ms); }
+.finale { font-size: 12px; position: relative; }
+.finale.fin-ok b { color: var(--ok); } .finale.fin-bad b { color: var(--bad); }
+.confetti { position: absolute; left: 0; right: 0; top: -4px; height: 0; pointer-events: none; }
+.confetti i { position: absolute; left: calc(var(--i) * 12% + 4%); font-style: normal; font-size: 12px; opacity: 0; animation: fall 1.8s ease-out both; animation-delay: calc(var(--el, 0ms) + var(--i) * 70ms); }
+.boom { display: inline-block; animation: boom .9s ease-out both; animation-delay: var(--el, 0ms); }
+.bob { animation: bob 1.2s ease-in-out infinite; animation-delay: var(--ph); }
+.sleepy .zz { animation: snooze 2.4s ease-in-out infinite; animation-delay: var(--ph); }
+.played { display: none !important; }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-2px) rotate(-6deg); } 50% { transform: translateY(0) rotate(0); } 75% { transform: translateY(-2px) rotate(6deg); } }
+@keyframes snooze { 0%, 100% { opacity: .55; transform: translate(0, 0); } 50% { opacity: 1; transform: translate(2px, -3px); } }
+@keyframes pass { 0% { transform: translateX(-10px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateX(10px); opacity: 0; } }
+@keyframes fall { 0% { transform: translateY(-6px) rotate(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(40px) rotate(200deg); opacity: 0; } }
+@keyframes boom { 0% { transform: scale(.4); } 45% { transform: scale(1.5); } 70% { transform: scale(.9) rotate(-8deg); } 100% { transform: scale(1); } }
+/* Still mascots for anyone who asks for less motion: the words carry everything. */
+@media (prefers-reduced-motion: reduce) {
+  .live, .live * { animation: none !important; transition: none !important; }
+  .confetti, .boom, .handoff .parcel { display: none !important; }
+}
 .badge-bad { flex: none; font-size: 11px; font-weight: 600; padding: 0 6px; border-radius: 4px; color: var(--bg); background: var(--bad); }
 
 .primary { margin-top: 6px; padding: 5px 14px; border-radius: var(--radius); background: var(--orca-primary, var(--fg)); color: var(--orca-primary-foreground, var(--bg)); font-weight: 500; }

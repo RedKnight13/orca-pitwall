@@ -88,6 +88,21 @@ Settings → Plugins → Pitwall → *Show the Agni crew section*). The same ite
 
 **What it shows**
 
+- **Who is working**, as mascots, the same as `crew watch`: 🐉 Qwen (leader, R9700), 🦊 Gemma (second author,
+  RX 9070 XT), 🐙 Inkling (reviewer, agni2), 🦉 Jev (referee), 🎭 Venice (advisor), 🐎 Codex (cavalry) and
+  🧪 the test runner, each in its own colour. For the running task:
+  - a stage strip, `🐉 writing… ▸ 🦊 writing… ▸ 🧪 — ▸ 🐙 waiting   task <id> · 3m12s`;
+  - one row per mascot: a bobbing face while it generates, 💤 while it waits or sits out, an action word (reading,
+    planning, writing, testing, reviewing, thinking), and a speech bubble with its latest action. Bubbles hold fixed
+    phrases, the crew's outcome words and **file names only, never code**;
+  - the card's temperature and VRAM. These show **—** for now: neither `crew status` nor Pitwall has a read-only
+    source for them, and agnx has no AMD card of its own. Tokens per second shows only when the crew sends it; it
+    does not yet;
+  - a 📦 hand-off when work moves from one mascot to the next, 🎉 confetti at merge-ready and 💥 when a task stops
+    short (each plays once; the words stay for ten minutes). Under *prefers-reduced-motion* nothing moves.
+  With nothing running, one line: *Crew asleep*, and the last task. Tasks waiting on you still come first.
+  The rows follow the crew's per-seat start and stop lines (schema `agni.crew.seat_event/1`, Agni-crew #42) where
+  a crew release writes them, and its stage lines otherwise. Any other seat-line schema is ignored.
 - **Tasks** from `crew status` on the crew host: id, status (running, waiting, needs_owner, merge_ready, failed,
   interrupted), stage and attempt. A running task is a card with its stage timeline (one segment per stage, width by
   seconds) and the run sheet of its event lines: stage, outcome and seconds, coloured as in the Agni Crew Replay.
@@ -106,8 +121,10 @@ Settings → Plugins → Pitwall → *Show the Agni crew section*). The same ite
 - Every 15 s (gateway every 60 s) it runs `ssh -o BatchMode=yes <host> python3 -` with your own SSH config and
   agent, and sends a short read-only script on stdin. Nothing is installed on the hosts and no port is opened.
 - On the crew host the script reads `crew status`, the task records under `~/.local/state/agni-crew-three-seat/`,
-  the stage lines of `~/.local/state/agni-crew*/events.jsonl`, `agni-seat-lock status` and each seat's `/health` on
-  loopback. It sends back only the fields above.
+  the stage lines of `~/.local/state/agni-crew*/events.jsonl` (with a few short words: mode, gate, verdict, test
+  exit, and evidence *file names*) and their `agni.crew.seat_event/1` lines, `agni-seat-lock status` and each seat's
+  `/health` on loopback. For a seat still running it reads the size of its output file, never its contents. It sends
+  back only the fields above: no prompts, reasons, worktree paths, model names or code.
 - On the gateway host the script reads the LiteLLM master key from the gateway's environment file *there*, asks the
   admin API on `127.0.0.1:4000`, and prints only alias, spend, budget and expiry of the two crew keys. The master key
   never leaves that host and is never printed; no key value or hash comes back.

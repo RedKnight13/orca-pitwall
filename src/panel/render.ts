@@ -2,6 +2,7 @@
 // so it runs in Node tests. Every value from the snapshot goes through esc().
 import { fmtClock, fmtDuration, fmtTokens, fmtUntil, fmtUsd, modelLabel, pct } from '../shared/format'
 import { VERSION } from '../shared/version'
+import { renderLive } from './mascots'
 import type { AgentView, BackgroundView, CrewKeyView, CrewSeatView, CrewTaskView, CrewView, GateEntry, LogEntry, Snapshot, SubagentView, ToolFamily, TurnView } from '../shared/types'
 
 export interface UiState {
@@ -613,11 +614,14 @@ export function renderCrew(s: Snapshot, ui: UiState, now: number): string {
     const rest = c.tasks.filter((t) => t.status !== 'running')
     const all = !!ui.expanded['crewall']
     const shown = all ? rest : rest.slice(0, CREW_LINES)
-    const lines = shown.map((t) => (ui.expanded['crew:' + t.id] ? `<div class="inline-card">${crewCard(t, ui, now, true)}</div>` : crewLine(t, now))).join('')
+    const line = (t: CrewTaskView) => (ui.expanded['crew:' + t.id] ? `<div class="inline-card">${crewCard(t, ui, now, true)}</div>` : crewLine(t, now))
+    // Tasks waiting on the owner stay first; then who is working, then the rest.
+    const ownerLines = shown.filter((t) => t.owner).map(line).join('')
+    const lines = shown.filter((t) => !t.owner).map(line).join('')
     const more = rest.length > CREW_LINES ? `<button class="link" data-action="expand" data-key-x="crewall">${all ? 'Show fewer' : `Show all ${rest.length}`}</button>` : ''
     const older = c.more ? `<div class="muted small">${c.more} older not listed</div>` : ''
     const tasks = c.tasks.length
-      ? `${active.length ? `<div class="cards">${active.map((t) => crewCard(t, ui, now, false)).join('')}</div>` : ''}${lines ? `<div class="lines">${lines}</div>` : ''}${more}${older}`
+      ? `${ownerLines ? `<div class="lines">${ownerLines}</div>` : ''}${renderLive(c, now)}${active.length ? `<div class="cards">${active.map((t) => crewCard(t, ui, now, false)).join('')}</div>` : ''}${lines ? `<div class="lines">${lines}</div>` : ''}${more}${older}`
       : '<div class="muted small">No crew tasks yet.</div>'
     body = `<div class="block-title">Tasks</div>${tasks}${seatsBlock(c)}`
   }

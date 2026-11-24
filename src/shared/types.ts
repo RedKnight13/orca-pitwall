@@ -187,6 +187,45 @@ export interface CrewGatewayView {
   missing: string[]
 }
 
+/** The crew's mascots, one per role, as `crew watch` draws them. */
+export type CrewMascotId = 'qwen' | 'gemma' | 'inkling' | 'jev' | 'venice' | 'codex' | 'tests'
+
+export interface CrewMascotView {
+  id: CrewMascotId
+  face: string
+  name: string
+  role: string
+  /** The card it runs on, when it has one of its own. */
+  card: string | null
+  /** active: generating now; done or failed: had its turn this attempt; waiting: its turn is still to come; idle: sitting this one out. */
+  state: 'active' | 'done' | 'failed' | 'waiting' | 'idle'
+  /** reading, planning, writing, testing, reviewing, thinking, wrapping up; null unless active. */
+  action: string | null
+  /** When its current run began; null unless active. */
+  since: number | null
+  /** Live tokens per second; null when the crew does not say. */
+  tokensPerSec: number | null
+  /** Its latest action in a few words. Built from fixed phrases and file names only, never code. */
+  bubble: string | null
+  /** Card temperature and VRAM; null with no read-only source for them. */
+  tempC: number | null
+  vramGb: { used: number; total: number } | null
+}
+
+export interface CrewLiveView {
+  taskId: string
+  status: string
+  stage: string | null
+  startedAt: number | null
+  mascots: CrewMascotView[]
+  /** Work moved from one mascot to the next at `at`. */
+  handoff: { from: CrewMascotId; to: CrewMascotId; at: number } | null
+  /** A task that just ended: merge-ready, or failed or stopped short. */
+  finale: { kind: 'merge_ready' | 'failed'; at: number } | null
+  /** seats: per-seat start and stop lines (agni.crew.seat_event/1); stages: stage lines only. */
+  source: 'seats' | 'stages'
+}
+
 export interface CrewView {
   host: string
   /** When agnx last answered; null when never. */
@@ -203,6 +242,8 @@ export interface CrewView {
   /** The seat lock is deployed on agnx. */
   lockDeployed: boolean
   gateway: CrewGatewayView
+  /** The task in action (or one that just ended) as mascots; null when the crew is idle. */
+  live: CrewLiveView | null
 }
 
 export const EMPTY_SNAPSHOT: Snapshot = {

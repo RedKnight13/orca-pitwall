@@ -2,6 +2,7 @@
 // section is on, never while it is off. Read-only toward both hosts. A failed read keeps nothing
 // stale on screen: the section says the crew is unreachable and when it last answered.
 import type { CrewGatewayView, CrewView } from '../../shared/types'
+import { crewLive } from './live'
 import { keyTone, parseCrewReport, parseGatewayReport, type CrewReport, type GatewayReport } from './parse'
 import type { Runner } from './remote'
 import { AGNX_PY, GATEWAY_PY } from './scripts'
@@ -120,7 +121,8 @@ export class CrewWatch {
       seats: c.data?.seats ?? [],
       agni1Only: c.data?.agni1Only ?? false,
       lockDeployed: c.data?.lockDeployed ?? false,
-      gateway
+      gateway,
+      live: c.ok && c.data ? crewLive(c.data.tasks, c.data.lines, now) : null
     }
   }
 }

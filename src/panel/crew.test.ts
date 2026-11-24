@@ -1,6 +1,7 @@
 import { assert, test } from 'orca/testing'
 import { agnxLine, gatewayLine, RECORDED_AT } from '../../test/crew'
 import { EMPTY_SNAPSHOT, type CrewView, type Snapshot } from '../shared/types'
+import { crewLive } from '../worker/crew/live'
 import { parseCrewReport, parseGatewayReport } from '../worker/crew/parse'
 import { fmtSecs, INITIAL_UI, LITELLM_URL, render, renderCrew } from './render'
 
@@ -9,7 +10,7 @@ const now = RECORDED_AT
 function crewView(patch: Partial<CrewView> = {}): CrewView {
   const r = parseCrewReport(agnxLine())
   const g = parseGatewayReport(gatewayLine(), now)
-  return { host: 'agnx', at: now - 5000, reachable: true, error: null, ...r, gateway: { at: now - 5000, reachable: true, error: null, ...g }, ...patch }
+  return { host: 'agnx', at: now - 5000, reachable: true, error: null, ...r, gateway: { at: now - 5000, reachable: true, error: null, ...g }, live: crewLive(r.tasks, r.lines, now), ...patch }
 }
 
 const snap = (crew: CrewView | null): Snapshot => ({ ...EMPTY_SNAPSHOT, at: now, crew })

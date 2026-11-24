@@ -67,8 +67,26 @@ function draw(): void {
     if (last[k] === out[k]) continue
     last[k] = out[k]
     parts[k].innerHTML = out[k]
+    if (k === 'crew') playOnce(parts[k])
   }
   if (sig && (document.activeElement === document.body || !document.activeElement?.isConnected)) restoreFocus(sig)
+}
+
+// The crew's one-shot effects (a hand-off, confetti) play once each, however often the section
+// redraws: a redraw resumes one where it was (a negative delay), and hides it once it has played.
+const ONE_SHOT_MS = 4000
+const played = new Map<string, number>()
+function playOnce(root: HTMLElement): void {
+  const now = Date.now()
+  root.querySelectorAll<HTMLElement>('[data-once]').forEach((el) => {
+    const key = el.dataset.once ?? ''
+    const first = played.get(key) ?? now
+    played.set(key, first)
+    const elapsed = now - first
+    if (elapsed > ONE_SHOT_MS) el.classList.add('played')
+    else el.style.setProperty('--el', `-${elapsed}ms`)
+  })
+  if (played.size > 200) for (const k of [...played.keys()].slice(0, 100)) played.delete(k)
 }
 
 function focusSig(el: HTMLElement): string | null {

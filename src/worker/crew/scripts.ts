@@ -4,7 +4,9 @@
 
 /**
  * Runs on agnx. Reads `crew status` (the crew's own view of each task's status), the task records,
- * the stage lines of every events.jsonl, the seat lock's status, and each seat's /health on loopback.
+ * the stage lines of every events.jsonl (with a few short words and file names for the mascots), the
+ * per-seat start and stop lines of Agni-crew #42 (schema agni.crew.seat_event/1 only), the seat lock's
+ * status, and each seat's /health on loopback.
  */
 export const AGNX_PY = String.raw`
 import glob, json, os, re, subprocess, urllib.error, urllib.request
@@ -14,6 +16,7 @@ STATE = os.path.join(HOME, ".local/state/agni-crew-three-seat")
 CREW = os.path.join(HOME, "agni/bin/crew")
 MAX_TASKS = 20
 TAIL_BYTES = 2 * 1024 * 1024
+SEAT_SCHEMA = "agni.crew.seat_event/1"
 SEATS = (("leader", 28084), ("helper", 28085), ("reviewer", 8093))
 
 
@@ -88,15 +91,75 @@ def events(ids):
                 continue
             if not isinstance(e, dict) or e.get("task") not in ids:
                 continue
-            out.append({
+            if "seat_event" in e:
+                if e.get("schema") == SEAT_SCHEMA:
+                    out.append(seat_row(e))
+                continue
+            row = {
                 "ts": clip(e.get("ts"), 40),
                 "task": e.get("task"),
                 "stage": clip(e.get("stage"), 32),
                 "attempt": num(e.get("attempt")),
                 "outcome": clip(str(e.get("outcome")), 32) if e.get("outcome") is not None else None,
                 "seconds": num(e.get("seconds")),
-            })
+            }
+            # Short words and numbers for the mascots; free text (reasons, prompts) stays on agnx.
+            for k in ("mode", "gate", "decision", "verdict"):
+                if word(e.get(k)):
+                    row[k] = e[k]
+            for k in ("test_exit", "input_tokens"):
+                if num(e.get(k)) is not None:
+                    row[k] = e[k]
+            if isinstance(e.get("referee_calls"), list):
+                row["referee_calls"] = len(e["referee_calls"])
+            if isinstance(e.get("evidence"), list):
+                row["evidence"] = [n for n in (file_name(x) for x in e["evidence"][:8]) if n]
+            out.append(row)
     return out
+
+
+def word(v):
+    return isinstance(v, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,31}", v) is not None
+
+
+def file_name(v):
+    """A path's last part when it looks like a file name; never a path, never contents."""
+    if not isinstance(v, str):
+        return None
+    n = v.replace("\\", "/").rsplit("/", 1)[-1]
+    return n if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,54}\.[A-Za-z0-9]{1,8}", n) else None
+
+
+def output_bytes(e):
+    """Size of a running seat's growing output file, for a typing bar. Stat only: never read."""
+    wt, rel = e.get("worktree"), e.get("output")
+    if not (isinstance(wt, str) and isinstance(rel, str) and os.path.isabs(wt)) or os.path.isabs(rel) or ".." in rel.split("/"):
+        return None
+    try:
+        return os.stat(os.path.join(wt, rel)).st_size
+    except Exception:
+        return None
+
+
+def seat_row(e):
+    """One agni.crew.seat_event/1 line (Agni-crew #42), whitelisted. No worktree, no model or lease names."""
+    row = {
+        "schema": SEAT_SCHEMA,
+        "seat_event": e.get("seat_event") if e.get("seat_event") in ("start", "stop") else None,
+        "ts": clip(e.get("ts"), 40),
+        "task": e.get("task"),
+        "stage": e.get("stage") if word(e.get("stage")) else None,
+        "attempt": num(e.get("attempt")),
+        "seat": e.get("seat") if word(e.get("seat")) else None,
+        "slot": "helper_" if e.get("slot") == "helper_" else "",
+        "output": file_name(e.get("output")),
+        "seconds": num(e.get("seconds")),
+        "exit": num(e.get("exit")),
+        "timed_out": e.get("timed_out") if isinstance(e.get("timed_out"), bool) else None,
+    }
+    if row["seat_event"] == "start":
+        row["output_bytes"] = output_bytes(e)
+    return row
 
 
 def health(port):

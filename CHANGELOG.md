@@ -3,6 +3,7 @@
 ## Unreleased (fork: feature/agni-crew)
 
 - **Crew section** (optional, off by default; menu ⋯ → Crew): Agni crew tasks with stage timelines and run sheets, tasks waiting on you at the top, seat state and seat lock holder, and the gateway's crew keys against budget and expiry. Read-only, over your own SSH.
+- **Crew mascots** in the Crew section: who is working on the running task, as 🐉 🦊 🐙 🦉 🎭 🐎 🧪 with a stage strip, one row each (action, a file-names-only bubble, card temperature and VRAM as — until a source exists), a hand-off, 🎉 at merge-ready and 💥 on failure. Reads the per-seat lines of Agni-crew #42 (`agni.crew.seat_event/1`) when present, stage lines otherwise. Still under prefers-reduced-motion.
 
 ## 0.2.0
 

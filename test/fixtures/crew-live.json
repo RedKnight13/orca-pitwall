@@ -1,0 +1,331 @@
+{
+ "schema": "pitwall.crew/1",
+ "status": {
+  "exit": 0,
+  "text": "1125-1012-ab12  running      stage=build   attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1125-1012-ab12  Finish the textkit package. slug.slugify(text) must lowercase.\n1124-2051-8e7f  merge_ready  stage=finish  attempts=1  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-2051-8e7f  Make the durations package correct. durations.parse(text) tu\n1124-2056-0510  waiting      stage=finish  attempts=1  (the cavalry could help: crew cavalry 1124-2056-0510)  /home/ag/.local/state/agni-crew-three-seat/worktrees/crew-1124-2056-0510  Make the durations package correct. durations.parse(text) tu\n",
+  "error": null
+ },
+ "tasks": [
+  {
+   "id": "1125-1012-ab12",
+   "status": "running",
+   "stage": "build",
+   "attempts": 1,
+   "prompt": "Finish the textkit package. slug.slugify(text) must lowercase.",
+   "created": "2026-11-25T10:12:00+00:00",
+   "updated": "2026-11-25T10:15:10+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": null,
+    "next_actor": null
+   }
+  },
+  {
+   "id": "1124-2056-0510",
+   "status": "waiting",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Make the durations package correct. durations.parse(text) turns compact durations like 1h30m or 1d2h3m4s into total seconds. Units are d, h, m and s, case-insensitive, and surrounding whitespace is ignored. Units must appear in that order, ",
+   "created": "2026-11-24T20:56:53+00:00",
+   "updated": "2026-11-24T21:01:05+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": null,
+    "test_exit": null,
+    "decision": "helper_assignment_rejected",
+    "next_actor": "owner"
+   }
+  },
+  {
+   "id": "1124-2051-8e7f",
+   "status": "merge_ready",
+   "stage": "finish",
+   "attempts": 1,
+   "prompt": "Make the durations package correct. durations.parse(text) turns compact durations like 1h30m or 1d2h3m4s into total seconds. Units are d, h, m and s, case-insensitive, and surrounding whitespace is ignored. Units must appear in that order, ",
+   "created": "2026-11-24T20:51:21+00:00",
+   "updated": "2026-11-24T20:55:54+00:00",
+   "has_test_command": true,
+   "error": null,
+   "waiting_on_seat": null,
+   "result": {
+    "verdict": "PASS",
+    "test_exit": 0,
+    "decision": "local_pass",
+    "next_actor": "owner"
+   }
+  }
+ ],
+ "total": 3,
+ "events": [
+  {
+   "ts": "2026-11-24T20:51:21+00:00",
+   "task": "1124-2051-8e7f",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "primary",
+   "seconds": 0.22
+  },
+  {
+   "ts": "2026-11-24T20:51:43+00:00",
+   "task": "1124-2051-8e7f",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 22.51
+  },
+  {
+   "ts": "2026-11-24T20:52:28+00:00",
+   "task": "1124-2051-8e7f",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 44.8,
+   "mode": "captain_only",
+   "gate": "jev",
+   "decision": "local_solo_helper_unavailable",
+   "referee_calls": 0
+  },
+  {
+   "ts": "2026-11-24T20:54:53+00:00",
+   "task": "1124-2051-8e7f",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "committed",
+   "seconds": 144.6,
+   "mode": "captain_only"
+  },
+  {
+   "ts": "2026-11-24T20:54:53+00:00",
+   "task": "1124-2051-8e7f",
+   "stage": "grade",
+   "attempt": 1,
+   "outcome": "tests_pass",
+   "seconds": 0.13,
+   "test_exit": 0
+  },
+  {
+   "ts": "2026-11-24T20:55:54+00:00",
+   "task": "1124-2051-8e7f",
+   "stage": "review",
+   "attempt": 1,
+   "outcome": "PASS",
+   "seconds": 60.96,
+   "input_tokens": 3744
+  },
+  {
+   "ts": "2026-11-24T20:55:54+00:00",
+   "task": "1124-2051-8e7f",
+   "stage": "decide",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.01,
+   "gate": "jev",
+   "decision": "local_pass",
+   "verdict": "PASS",
+   "test_exit": 0,
+   "referee_calls": 0,
+   "evidence": [
+    "test-1.txt",
+    "review-1.md"
+   ]
+  },
+  {
+   "ts": "2026-11-24T20:55:54+00:00",
+   "task": "1124-2051-8e7f",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "merge_ready",
+   "seconds": 0.02
+  },
+  {
+   "ts": "2026-11-24T20:56:53+00:00",
+   "task": "1124-2056-0510",
+   "stage": "admit",
+   "attempt": 0,
+   "outcome": "primary",
+   "seconds": 0.22
+  },
+  {
+   "ts": "2026-11-24T20:57:11+00:00",
+   "task": "1124-2056-0510",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 17.67
+  },
+  {
+   "ts": "2026-11-24T20:58:34+00:00",
+   "task": "1124-2056-0510",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 83.35,
+   "mode": "helper",
+   "gate": "jev",
+   "decision": "safe_helper",
+   "referee_calls": 2
+  },
+  {
+   "ts": "2026-11-24T21:01:05+00:00",
+   "task": "1124-2056-0510",
+   "stage": "build",
+   "attempt": 1,
+   "outcome": "stop",
+   "seconds": 150.69
+  },
+  {
+   "ts": "2026-11-24T21:01:05+00:00",
+   "task": "1124-2056-0510",
+   "stage": "finish",
+   "attempt": 1,
+   "outcome": "waiting",
+   "seconds": 0.0
+  },
+  {
+   "schema": "agni.crew.seat_event/1",
+   "seat_event": "start",
+   "ts": "2026-11-25T10:12:01+00:00",
+   "task": "1125-1012-ab12",
+   "stage": "intake",
+   "attempt": 0,
+   "seat": "leader",
+   "slot": "",
+   "output": "leader-intake-0.out",
+   "seconds": 0,
+   "exit": null,
+   "timed_out": null,
+   "output_bytes": 0
+  },
+  {
+   "schema": "agni.crew.seat_event/1",
+   "seat_event": "stop",
+   "ts": "2026-11-25T10:12:20+00:00",
+   "task": "1125-1012-ab12",
+   "stage": "intake",
+   "attempt": 0,
+   "seat": "leader",
+   "slot": "",
+   "output": "leader-intake-0.out",
+   "seconds": 19.1,
+   "exit": 0,
+   "timed_out": false
+  },
+  {
+   "ts": "2026-11-25T10:12:20+00:00",
+   "task": "1125-1012-ab12",
+   "stage": "intake",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 19.4
+  },
+  {
+   "schema": "agni.crew.seat_event/1",
+   "seat_event": "start",
+   "ts": "2026-11-25T10:12:21+00:00",
+   "task": "1125-1012-ab12",
+   "stage": "plan",
+   "attempt": 0,
+   "seat": "leader",
+   "slot": "",
+   "output": "leader-plan-0.out",
+   "seconds": 0,
+   "exit": null,
+   "timed_out": null,
+   "output_bytes": 0
+  },
+  {
+   "schema": "agni.crew.seat_event/1",
+   "seat_event": "stop",
+   "ts": "2026-11-25T10:13:40+00:00",
+   "task": "1125-1012-ab12",
+   "stage": "plan",
+   "attempt": 0,
+   "seat": "leader",
+   "slot": "",
+   "output": "leader-plan-0.out",
+   "seconds": 79.0,
+   "exit": 0,
+   "timed_out": false
+  },
+  {
+   "ts": "2026-11-25T10:13:41+00:00",
+   "task": "1125-1012-ab12",
+   "stage": "plan",
+   "attempt": 0,
+   "outcome": "ok",
+   "seconds": 80.2,
+   "mode": "helper",
+   "gate": "jev",
+   "decision": "safe_helper",
+   "referee_calls": 1
+  },
+  {
+   "schema": "agni.crew.seat_event/1",
+   "seat_event": "start",
+   "ts": "2026-11-25T10:13:42+00:00",
+   "task": "1125-1012-ab12",
+   "stage": "build",
+   "attempt": 1,
+   "seat": "leader",
+   "slot": "",
+   "output": "leader-build-1.out",
+   "seconds": 0,
+   "exit": null,
+   "timed_out": null,
+   "output_bytes": 18432
+  },
+  {
+   "schema": "agni.crew.seat_event/1",
+   "seat_event": "start",
+   "ts": "2026-11-25T10:13:43+00:00",
+   "task": "1125-1012-ab12",
+   "stage": "author",
+   "attempt": 1,
+   "seat": "helper",
+   "slot": "helper_",
+   "output": "helper-author-1.out",
+   "seconds": 0,
+   "exit": null,
+   "timed_out": null,
+   "output_bytes": 6144
+  }
+ ],
+ "seats": [
+  {
+   "seat": "leader",
+   "port": 28084,
+   "health": 200
+  },
+  {
+   "seat": "helper",
+   "port": 28085,
+   "health": 200
+  },
+  {
+   "seat": "reviewer",
+   "port": 8093,
+   "health": 200
+  }
+ ],
+ "lock": {
+  "deployed": true,
+  "seats": [
+   {
+    "seat": "leader",
+    "holder": "crew/1125-1012-ab12",
+    "priority": "crew"
+   },
+   {
+    "seat": "helper",
+    "holder": "crew/1125-1012-ab12",
+    "priority": "crew"
+   }
+  ]
+ }
+}

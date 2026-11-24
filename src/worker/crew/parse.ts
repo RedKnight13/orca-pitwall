@@ -1,6 +1,7 @@
 // Pure parsers for what the Crew scripts print (see scripts.ts). No I/O, so the tests feed them
 // recorded output. Anything malformed is dropped rather than guessed at.
 import type { CrewKeyView, CrewSeatView, CrewStageView, CrewTaskView, CrewTone } from '../../shared/types'
+import { parseLiveLine, type LiveLine } from './live'
 
 /** One row of `crew status` (the list form): the crew's own view of a task's status. */
 export interface StatusRow {
@@ -121,6 +122,8 @@ export interface CrewReport {
   seats: CrewSeatView[]
   agni1Only: boolean
   lockDeployed: boolean
+  /** Per task, the lines the mascots are drawn from (stage lines, and #42 seat lines when present). */
+  lines: Map<string, LiveLine[]>
 }
 
 /** Parses the agnx script's JSON line. Throws on output that is not the script's. */
@@ -130,7 +133,12 @@ export function parseCrewReport(raw: string): CrewReport {
   const list = parseStatusList(str(d.status?.text) ?? '')
   const events = (Array.isArray(d.events) ? (d.events as RawEvent[]) : []).filter((e) => e && typeof e === 'object')
   const byTask = new Map<string, CrewStageView[]>()
+  const lines = new Map<string, LiveLine[]>()
   for (const e of events) {
+    const live = parseLiveLine(e)
+    if (live) lines.set(live.task, [...(lines.get(live.task) ?? []), live])
+    // Seat lines are not stages: they stay out of the run sheet.
+    if ('seat_event' in e) continue
     const task = str(e.task)
     const stage = str(e.stage)
     const at = time(e.ts)
@@ -185,7 +193,7 @@ export function parseCrewReport(raw: string): CrewReport {
   }
   const reviewer = seats.find((s) => s.id === 'reviewer')
   const total = num(d.total) ?? tasks.length
-  return { tasks, more: Math.max(0, total - tasks.length), seats, agni1Only: !!reviewer && reviewer.state === 'down', lockDeployed: d.lock?.deployed === true }
+  return { tasks, more: Math.max(0, total - tasks.length), seats, agni1Only: !!reviewer && reviewer.state === 'down', lockDeployed: d.lock?.deployed === true, lines }
 }
 
 /** Amber at 80% of budget or 7 days to expiry, red at 100% or 1 day. */

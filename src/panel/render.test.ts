@@ -116,8 +116,17 @@ test('a working agent near a full context gets a heads-up', () => {
   assert.ok(render(s, INITIAL_UI, now).alerts.includes('will compact soon'))
 })
 
-test('no animation is left in the panel CSS', () => {
-  assert.ok(!/animation|@keyframes/.test(CSS))
+test('motion only in the crew mascots, and none under prefers-reduced-motion', () => {
+  // Every rule that animates belongs to the mascots (all drawn inside .live); the rest of the panel stays still.
+  const reduce = /@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/.exec(CSS)
+  assert.ok(reduce, 'a reduced-motion block')
+  const rest = CSS.replace(reduce![0], '').replace(/@keyframes[^{]+\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, '')
+  const animated = [...rest.matchAll(/([^{}]+)\{[^}]*animation:[^}]*\}/g)].map((m) => m[1].trim())
+  assert.ok(animated.length >= 5, String(animated))
+  for (const sel of animated) assert.ok(/^\.(bob|sleepy \.zz|handoff \.parcel|confetti i|boom)$/.test(sel), sel)
+  assert.ok(reduce![1].includes('.live, .live * { animation: none !important; transition: none !important; }'))
+  assert.ok(reduce![1].includes('.confetti, .boom, .handoff .parcel { display: none !important; }'))
+  assert.ok(!/transition:/.test(rest.replace(/transition: none/g, '')), 'no transitions elsewhere')
 })
 
 test('the demo loops without breaking at any second', () => {

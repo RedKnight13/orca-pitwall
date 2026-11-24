@@ -5,6 +5,8 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:f
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { assert, test } from 'orca/testing'
+import { seatEventsJsonl } from '../../../test/crew'
+import { crewLive } from './live'
 import { parseCrewReport, parseGatewayReport } from './parse'
 import { AGNX_PY, GATEWAY_PY } from './scripts'
 
@@ -131,6 +133,51 @@ test('agnx script: reads a crew state folder and sends back whitelisted fields o
     // The seats' health depends on what listens on this machine's loopback; a down seat never shows a holder.
     assert.deepEqual(r.seats.map((s) => s.id), ['leader', 'helper', 'reviewer'])
     for (const s of r.seats) if (s.state === 'down') assert.equal(s.holder, null)
+  } finally {
+    rmSync(home, { recursive: true })
+  }
+})
+
+test('agnx script: #42 seat lines and the mascot fields go out whitelisted; no paths, models, reasons or code', () => {
+  const py = python()
+  if (!py) return
+  const home = mkdtempSync(join(tmpdir(), 'pitwall-seat-'))
+  try {
+    const state = join(home, '.local/state/agni-crew-three-seat')
+    const wt = join(state, 'worktrees/crew-1125-1012-ab12')
+    mkdirSync(join(state, 'tasks'), { recursive: true })
+    mkdirSync(join(wt, '.crew/seats'), { recursive: true })
+    writeFileSync(join(wt, '.crew/seats/leader-build-1.out'), 'SEAT-OUTPUT-CONTENTS '.repeat(100))
+    writeFileSync(join(state, 'tasks/1125-1012-ab12.json'), JSON.stringify({ id: '1125-1012-ab12', status: 'running', stage: 'build', attempts: 1, prompt: 'Fix it', created: '2026-11-25T10:12:00+00:00', updated: '2026-11-25T10:15:10+00:00' }))
+    const raw = seatEventsJsonl()
+      .trim()
+      .split('\n')
+      .map((l) => JSON.parse(l))
+      .map((e) => (e.worktree ? { ...e, worktree: wt } : e))
+    raw.push(
+      { ts: '2026-11-25T10:14:00+00:00', task: '1125-1012-ab12', stage: 'decide', attempt: 1, outcome: 'retry', gate: 'jev', decision: 'def f(): pass', reason: 'REASON-TEXT', evidence: ['.crew/test-1.txt', '/abs/SECRET-PATH/review-1.md', 'x = `rm -rf`'], referee_calls: [{ raw_answers: 'RAW-ANSWER' }] },
+      { schema: 'agni.crew.seat_event/2', seat_event: 'start', ts: '2026-11-25T10:14:01+00:00', task: '1125-1012-ab12', stage: 'review', seat: 'reviewer', output: 'NEWER-SCHEMA.out' },
+      { schema: 'agni.crew.seat_event/1', seat_event: 'start', ts: '2026-11-25T10:14:02+00:00', task: '1125-1012-ab12', stage: 'review', attempt: 1, seat: 'reviewer', slot: '', worktree: wt, output: '../../../etc/passwd', seconds: 0 }
+    )
+    writeFileSync(join(state, 'events.jsonl'), raw.map((e) => JSON.stringify(e)).join('\n') + '\n')
+    const out = execFileSync(py, ['-I', '-'], { input: AGNX_PY, encoding: 'utf8', env: { ...process.env, HOME: home }, timeout: 30_000 })
+    for (const leak of ['SEAT-OUTPUT-CONTENTS', 'crew-local/agni-qwen27', 'opencode', wt, '.crew/seats', 'REASON-TEXT', 'RAW-ANSWER', 'def f', 'SECRET-PATH', 'rm -rf', 'NEWER-SCHEMA', 'passwd'])
+      assert.ok(!out.includes(leak), leak)
+    const line = JSON.parse(out)
+    const seats = line.events.filter((e: any) => e.seat_event)
+    assert.equal(seats.length, 7, 'six #42 lines and the traversal one; the /2 line stays home')
+    const build = seats.find((e: any) => e.stage === 'build')
+    assert.deepEqual(build, { schema: 'agni.crew.seat_event/1', seat_event: 'start', ts: '2026-11-25T10:13:42+00:00', task: '1125-1012-ab12', stage: 'build', attempt: 1, seat: 'leader', slot: '', output: 'leader-build-1.out', seconds: 0, exit: null, timed_out: null, output_bytes: 2100 })
+    const decide = line.events.find((e: any) => e.stage === 'decide')
+    assert.deepEqual(decide.evidence, ['test-1.txt', 'review-1.md'])
+    assert.equal(decide.referee_calls, 1)
+    assert.equal(decide.gate, 'jev')
+    assert.ok(!('decision' in decide) && !('reason' in decide))
+    // And it reads back as mascots.
+    const r = parseCrewReport(out)
+    const live = crewLive(r.tasks, r.lines, Date.parse('2026-11-25T10:15:12Z'))!
+    assert.equal(live.source, 'seats')
+    assert.ok(live.mascots.find((m) => m.id === 'qwen')!.bubble!.includes('leader-build-1.out · 2 kB'))
   } finally {
     rmSync(home, { recursive: true })
   }
