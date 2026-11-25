@@ -7,6 +7,7 @@ import type { CrewDevView, CrewMascotView, CrewStageView, CrewTaskView, CrewView
 import { crewReplay, deckTask, rootName } from './crewReplay'
 import { headline } from './crewStory'
 import { finale, handoff } from './mascots'
+import { crewStage } from './crewStage'
 import { crewCard, crewHint, crewLine, crewPill, esc, fmtSecs, type UiState } from './render'
 
 /** The crew host is read every 15 s; past this a reading counts as stale even if the last one succeeded. */
@@ -211,6 +212,6 @@ export function renderCrewConsole(s: Snapshot, ui: UiState, now: number): { head
   const deck = c.reachable && deckTask(c, ui.playback) ? crewReplay(c, ui.playback, running?.id ?? null, ui) : ''
   // A run the owner picked comes straight after the live state; otherwise what needs them comes first.
   const picked = !!c.focus && !ui.playback && !running && deck
-  const body = `${head}${picked ? deck : ''}${c.reachable ? incidents(c, ui, now) : ''}${picked ? '' : deck}${health(c, now)}${development(c.dev, now)}${c.reachable ? sources(c, ui, now) : ''}${history(c, ui, now)}`
+  const body = `${c.reachable ? crewStage(c, running?.id, now) : ''}${head}${picked ? deck : ''}${c.reachable ? incidents(c, ui, now) : ''}${picked ? '' : deck}${health(c, now)}${development(c.dev, now)}${c.reachable ? sources(c, ui, now) : ''}${history(c, ui, now)}`
   return { header: bar(c, now), crew: `<main class="crew-console" aria-label="Crew operations">${body}</main>` }
 }

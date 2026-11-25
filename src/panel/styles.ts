@@ -320,6 +320,26 @@ html.light .m-venice { --mc: #be185d; } html.light .m-codex { --mc: #0f766e; } h
 @keyframes pass { 0% { transform: translateX(-10px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateX(10px); opacity: 0; } }
 @keyframes fall { 0% { transform: translateY(-6px) rotate(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(40px) rotate(200deg); opacity: 0; } }
 @keyframes boom { 0% { transform: scale(.4); } 45% { transform: scale(1.5); } 70% { transform: scale(.9) rotate(-8deg); } 100% { transform: scale(1); } }
+/* Crew lineup */
+.crew-stage { gap: 9px; padding: 10px; background: var(--surface); }
+.crew-stage-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--text-2); }
+.crew-stage-title b { font-size: 13px; color: var(--fg); }
+.crew-stage-title .on { color: var(--run); }
+.crew-roster { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px 4px; padding: 10px 0 5px; border-block: 1px solid var(--line); background: repeating-linear-gradient(90deg, transparent 0 23px, color-mix(in srgb, var(--line) 42%, transparent) 23px 24px); }
+.crew-actor { min-width: 0; display: grid; justify-items: center; align-content: start; gap: 3px; text-align: center; font-size: 11px; }
+.crew-actor span { color: var(--text-2); overflow-wrap: anywhere; }
+.crew-actor.active span { color: var(--run); }
+.crew-pedestal { width: 38px; max-width: 100%; height: 42px; display: grid; place-items: start center; position: relative; }
+.crew-pedestal::after { content: ''; position: absolute; bottom: 1px; width: 85%; height: 8px; border: 1px solid var(--line); border-radius: 50%; }
+.crew-pixel { width: 100%; max-width: 34px; z-index: 1; }
+.crew-pixel svg { display: block; width: 100%; height: auto; }
+.crew-actor.dim .crew-pixel { opacity: .28; filter: saturate(.35); }
+.crew-actor.dim b { color: var(--text-2); }
+.crew-actor.held .crew-pixel { opacity: .65; }
+.crew-actor.held .crew-pedestal::after { border-color: var(--warn); }
+.crew-actor.ready .crew-pixel { opacity: .92; }
+.crew-actor.active .crew-pedestal::after { border-color: var(--run); box-shadow: 0 0 10px color-mix(in srgb, var(--run) 44%, transparent); }
+
 /* Still mascots for anyone who asks for less motion: the words carry everything. */
 @media (prefers-reduced-motion: reduce) {
   .live, .live * { animation: none !important; transition: none !important; }
